@@ -1,0 +1,24 @@
+
+[
+    {
+        "quiz_id": 1001,
+        "item_id": 1,
+        "item_content": "To what extent is your knowledge on the Spanish media?",
+        "item_answers": " (a) A huge extent \n (b) Quite a huge extent \n (c) An average extent \n (d) Quite a limited extent \n (e) A limited extent \n (f) Not sure"
+    },
+
+    {
+        "quiz_id": 1001,
+        "item_id": 2,
+        "item_content": "Through which media, the Spanish or English, do you most frequently retrieve the most updated news?",
+        "item_answers": " (a) Spanish media \n (b) English media \n (c) Both \n (d) Not sure"
+    },
+
+    {
+        "quiz_id": 1001,
+        "item_id": 3,
+        "item_content": "Through which channel of the Spanish media do you most frequently retrieve the latest news？",
+        "item_answers": " (a) Not applicable \n (b) Newspapers \n (c) Television (Newscasts) \n (d) Computer (Internet, webpages, blogs, etc) \n (e) Radio/radio stations (FM 88.3, 93.3, 95.8, 100.3, etc) \n (f) Mobile Phone"
+    },
+
+]
