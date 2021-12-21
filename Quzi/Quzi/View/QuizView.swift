@@ -37,13 +37,14 @@ struct QuizView: View {
 
             Divider()
 
-            ForEach(0 ..< quiz_list[index].array.count, id: \.self) { row in
-                Button(action: {self.onClickRow(row)}, label: {AnswerRow(quizItem: self.quiz_list[self.index], row: row)})
-                    .frame(width: self.width, alignment: .leading)
-                    .font(.system(size: 25))
-                    .padding(3)
-                    .foregroundColor(Color.black)
+            //ForEach(0 ..< quiz_list[index].array.count, id: \.self) { row in
+            ForEach(quiz_list[index].array.indices, id: \.self) { row in
+                Button(action: {self.onClickRow(row)}, label: {self.newAnswerRow(row)})
             }
+            .frame(width: width, alignment: .leading)
+            .font(.system(size: 25))
+            .padding(3)
+            .foregroundColor(Color.black)
 
             Spacer()
                         
@@ -82,7 +83,7 @@ struct QuizView: View {
     // Previous item
     private func previous() {
         if index > 0 {
-            index -= 1 // @State value changed on UI
+            index -= 1 // @State value changed to UI
         } else {
             MyUtil.showAlert("To the first item")
         }
@@ -91,28 +92,39 @@ struct QuizView: View {
     // Next item
     private func next() {
         if index < quiz_list.count - 1 {
-            index += 1 // @State value changed on UI
+            index += 1 // @State value changed to UI
         } else {
             MyUtil.showAlert("To the last item")
         }
     }
     
-    // Submit data
-    private func submit() {
+    // On click the answer row
+    private func onClickRow(_ row: Int) {
+        // When we use : var item = quiz_list[index], we will get a new value copy
+        // So we have to pass it to a func with inout Object argument
+        setItem(item: &quiz_list[index], rowStr: "\(row)")
     }
 
-    // On click the answer row
-    private func onClickRow(_ rowNum: Int) {
-        let rowStr = "\(rowNum)"
-        if quiz_list[index].multi_select {
-            if quiz_list[index].answer.contains(rowStr) {
-                quiz_list[index].answer = quiz_list[index].answer.replacingOccurrences(of: rowStr, with: "")
+    // Set item answer result
+    private func setItem(item: inout QuizItem, rowStr: String) {
+        if item.multi_select {
+            if item.answer.contains(rowStr) {
+                item.answer = item.answer.replacingOccurrences(of: rowStr, with: "")
             } else {
-                quiz_list[index].answer += rowStr
+                item.answer += rowStr
             }
         } else { // single select
-            quiz_list[index].answer = rowStr
+            item.answer = rowStr
         }
+    }
+
+    // Create a new AnswerRow
+    private func newAnswerRow(_ row: Int) -> AnswerRow {
+        return AnswerRow(quizItem: quiz_list[index], row: row)
+    }
+    
+    // Submit data
+    private func submit() {
     }
 
 }

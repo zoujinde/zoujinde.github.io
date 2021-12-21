@@ -10,9 +10,10 @@ import SwiftUI
 
 struct AnswerRow: View {
     
-    let size = CGFloat(32)
-    var quizItem: QuizItem
-    var row: Int
+    let quizItem: QuizItem
+    let row: Int
+
+    private let size = CGFloat(32)
 
     var body: some View {
         HStack {
