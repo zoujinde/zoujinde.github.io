@@ -13,50 +13,40 @@ struct QuizView: View {
     private let width = CGFloat(390)
     private let user_name = "Admas"
     private let quiz_name = "Survey of Spanish Media"
-    private let quiz_list = QuizList().quiz_list
 
     //For value type(struct, enum etc), use @State or @Binding for binding
     //For object type, use @StateObject, @ObservedObject, @EnvironmentObject
-    @State private var item_index = 0;
-    @State private var item_content: String
-    @State private var item_answers_array: [String]
-
-    // Init the quiz content and answers
-    init() {
-        _item_content = State(initialValue: "1. " + quiz_list[0].item_content)
-        _item_answers_array = State(initialValue: quiz_list[0].item_answers_array)
-    }
+    @State private var index = 0;
+    @State private var quiz_list = QuizList().quiz_list
 
     var body: some View {
 
         //ScrollView {
         VStack {
-            Divider()
-
             Text(quiz_name)
                 .frame(width: width)
-                .padding(3)
+                .padding(1)
 
             Divider()
 
-            Text(item_content)
+            Text("\(index + 1). \(quiz_list[index].item_content)")
                 .frame(width: width, alignment: .leading)
                 .font(.system(size: 30))
                 .padding(1)
                 .foregroundColor(Color.blue)
 
             Divider()
-            
-            ForEach(item_answers_array, id: \.self) {str in
-                Text(str)
+
+            ForEach(0 ..< quiz_list[index].array.count, id: \.self) { row in
+                Button(action: {self.onClickRow(row)}, label: {AnswerRow(quizItem: self.quiz_list[self.index], row: row)})
                     .frame(width: self.width, alignment: .leading)
-                    .font(.system(size: 30))
-                    .border(Color.blue)
-                    .padding(5)
+                    .font(.system(size: 25))
+                    .padding(3)
+                    .foregroundColor(Color.black)
             }
-            
+
             Spacer()
-            
+                        
             HStack {
                 Button(action: {self.previous()}, label: {Text("<- Previous")})
                     .frame(width: 120)
@@ -74,11 +64,13 @@ struct QuizView: View {
                     .border(Color.red)
 
             }
-            
+
             Divider()
-            Text("User : \(user_name) \t\t Questions : \(quiz_list.count)")
+
+            Text("User : \(user_name) \t (Questions : \(quiz_list.count))")
                 .frame(width: width, height: 30)
                 .padding(.bottom, 30)
+            
             
         }.font(.system(size: 20))
 
@@ -89,28 +81,38 @@ struct QuizView: View {
     
     // Previous item
     private func previous() {
-        if item_index > 0 {
-            item_index-=1
-            setData(item_index);
+        if index > 0 {
+            index -= 1 // @State value changed on UI
+        } else {
+            MyUtil.showAlert("To the first item")
         }
     }
     
     // Next item
     private func next() {
-        if item_index < quiz_list.count - 1 {
-            item_index+=1
-            setData(item_index);
+        if index < quiz_list.count - 1 {
+            index += 1 // @State value changed on UI
+        } else {
+            MyUtil.showAlert("To the last item")
         }
-    }
-
-    // Set data
-    private func setData(_ i: Int) {
-        item_content = "\(i + 1). \(quiz_list[i].item_content)"
-        item_answers_array = quiz_list[i].item_answers_array
     }
     
     // Submit data
     private func submit() {
+    }
+
+    // On click the answer row
+    private func onClickRow(_ rowNum: Int) {
+        let rowStr = "\(rowNum)"
+        if quiz_list[index].multi_select {
+            if quiz_list[index].answer.contains(rowStr) {
+                quiz_list[index].answer = quiz_list[index].answer.replacingOccurrences(of: rowStr, with: "")
+            } else {
+                quiz_list[index].answer += rowStr
+            }
+        } else { // single select
+            quiz_list[index].answer = rowStr
+        }
     }
 
 }

@@ -27,6 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let window = UIWindow(windowScene: windowScene)
             window.rootViewController = UIHostingController(rootView: contentView)
             self.window = window
+            MyUtil.rootWindow = window // Jinde : set root window
             window.makeKeyAndVisible()
         }
     }

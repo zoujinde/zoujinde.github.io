@@ -15,13 +15,15 @@ final class QuizList {
 
 // Quiz Item
 struct QuizItem: Codable {
-    var quiz_id: Int
-    var item_id: Int
-    var item_content: String
-    var item_answers: String
-    var item_answers_array: [String] {
+    let quiz_id: Int
+    let item_id: Int
+    let item_content: String
+    let item_answers: String
+    var array: [String] {
         return item_answers.split(separator: "\n").map{String($0)}
     }
+    let multi_select: Bool
+    var answer: String
 }
 
 // Load data from json file

@@ -16,6 +16,8 @@
 		EC1B1D7C276E693B00A537CD /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B1D7B276E693B00A537CD /* QuizView.swift */; };
 		EC1B1DC2276FF34E00A537CD /* quiz_data.json in Resources */ = {isa = PBXBuildFile; fileRef = EC1B1DC1276FF34E00A537CD /* quiz_data.json */; };
 		EC1B1DC4276FF66D00A537CD /* QuizList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B1DC3276FF66D00A537CD /* QuizList.swift */; };
+		EC1B1DC72770D7D400A537CD /* MyUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B1DC62770D7D300A537CD /* MyUtil.swift */; };
+		EC1B1DC92770ECB000A537CD /* AnswerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B1DC82770ECB000A537CD /* AnswerRow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +32,8 @@
 		EC1B1D7B276E693B00A537CD /* QuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizView.swift; sourceTree = "<group>"; };
 		EC1B1DC1276FF34E00A537CD /* quiz_data.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = quiz_data.json; sourceTree = "<group>"; };
 		EC1B1DC3276FF66D00A537CD /* QuizList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizList.swift; sourceTree = "<group>"; };
+		EC1B1DC62770D7D300A537CD /* MyUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyUtil.swift; sourceTree = "<group>"; };
+		EC1B1DC82770ECB000A537CD /* AnswerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerRow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +66,7 @@
 		EC1B1D63276D73D300A537CD /* Quzi */ = {
 			isa = PBXGroup;
 			children = (
+				EC1B1DC52770D7B000A537CD /* Util */,
 				EC1B1D7A276D786000A537CD /* Controller */,
 				EC1B1D79276D785400A537CD /* View */,
 				EC1B1D78276D784500A537CD /* Model */,
@@ -97,6 +102,7 @@
 			children = (
 				EC1B1D68276D73D300A537CD /* ContentView.swift */,
 				EC1B1D7B276E693B00A537CD /* QuizView.swift */,
+				EC1B1DC82770ECB000A537CD /* AnswerRow.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -106,6 +112,14 @@
 			children = (
 			);
 			path = Controller;
+			sourceTree = "<group>";
+		};
+		EC1B1DC52770D7B000A537CD /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				EC1B1DC62770D7D300A537CD /* MyUtil.swift */,
+			);
+			path = Util;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -185,6 +199,8 @@
 				EC1B1D7C276E693B00A537CD /* QuizView.swift in Sources */,
 				EC1B1DC4276FF66D00A537CD /* QuizList.swift in Sources */,
 				EC1B1D69276D73D300A537CD /* ContentView.swift in Sources */,
+				EC1B1DC72770D7D400A537CD /* MyUtil.swift in Sources */,
+				EC1B1DC92770ECB000A537CD /* AnswerRow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
