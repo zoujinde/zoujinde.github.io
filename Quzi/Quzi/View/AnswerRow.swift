@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct AnswerRow: View {
-    
+
     let quizItem: QuizItem
     let row: Int
 
@@ -18,9 +18,9 @@ struct AnswerRow: View {
     var body: some View {
         HStack {
             Text(MyUtil.trim(quizItem.array[row]))
-            
+
             Spacer()
-            
+
             if quizItem.multi_select {
                 if quizItem.answer.contains("\(row)") {
                     Image("btn_check_on").frame(width: size, height: size)

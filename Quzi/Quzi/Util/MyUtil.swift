@@ -36,4 +36,46 @@ final class MyUtil {
         return str.trimmingCharacters(in: CharacterSet.whitespaces)
     }
 
+    // Read file data
+    static func readFile(_ file: String) -> Data {
+        let data: Data
+
+        guard let url = Bundle.main.url(forResource: file, withExtension: nil)
+        else {
+            fatalError("Couldn't find \(file) in main bundle.")
+        }
+
+        do {
+            data = try Data(contentsOf: url)
+        } catch {
+            fatalError("Couldn't load \(file) from main bundle:\n\(error)")
+        }
+
+        return data
+    }
+
+    // Load object from data
+    static func load<T: Decodable>(data: Data) -> T {
+        do {
+            let decoder = JSONDecoder()
+            return try decoder.decode(T.self, from: data)
+        } catch {
+            fatalError("Couldn't parse \(data) as \(T.self):\n\(error)")
+        }
+    }
+
+    // Load object from file
+    static func load<T: Decodable>(file: String) -> T {
+        let data = readFile(file)
+        return load(data: data)
+    }
+
+    // To json string
+    static func toJsonStr<T: Encodable>(_ object: T) -> String {
+        let jsonEncoder = JSONEncoder()
+        let data = try? jsonEncoder.encode(object)
+        let str = String(data: data!, encoding: String.Encoding.utf8)
+        return str!
+    }
+
 }

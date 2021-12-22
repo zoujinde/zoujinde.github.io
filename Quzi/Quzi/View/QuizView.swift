@@ -11,6 +11,7 @@ import SwiftUI
 struct QuizView: View {
 
     private let width = CGFloat(390)
+    private let user_id = 1
     private let user_name = "Admas"
     private let quiz_name = "Survey of Spanish Media"
 
@@ -47,7 +48,7 @@ struct QuizView: View {
             .foregroundColor(Color.black)
 
             Spacer()
-                        
+
             HStack {
                 Button(action: {self.previous()}, label: {Text("<- Previous")})
                     .frame(width: 120)
@@ -71,15 +72,14 @@ struct QuizView: View {
             Text("User : \(user_name) \t (Questions : \(quiz_list.count))")
                 .frame(width: width, height: 30)
                 .padding(.bottom, 30)
-            
-            
+
         }.font(.system(size: 20))
 
     }
 
     //struct is a value type. For value types, only methods explicitly marked as mutating can modify the properties of self.
     //If you change struct to be a class then your code compiles without problems.
-    
+
     // Previous item
     private func previous() {
         if index > 0 {
@@ -88,7 +88,7 @@ struct QuizView: View {
             MyUtil.showAlert("To the first item")
         }
     }
-    
+
     // Next item
     private func next() {
         if index < quiz_list.count - 1 {
@@ -97,7 +97,7 @@ struct QuizView: View {
             MyUtil.showAlert("To the last item")
         }
     }
-    
+
     // On click the answer row
     private func onClickRow(_ row: Int) {
         // When we use : var item = quiz_list[index], we will get a new value copy
@@ -122,9 +122,33 @@ struct QuizView: View {
     private func newAnswerRow(_ row: Int) -> AnswerRow {
         return AnswerRow(quizItem: quiz_list[index], row: row)
     }
-    
-    // Submit data
+
+    // Submit the quiz result to server
     private func submit() {
+        // Check all answers
+        var i = 0
+        for item in quiz_list {
+            if MyUtil.trim(item.answer).isEmpty {
+                MyUtil.showAlert("The item \(i+1) no answer, please answer it")
+                self.index = i
+                return
+            }
+            i += 1
+        }
+
+        //Build the result list
+        var results: [QuizResult] = []
+        i = 0
+        for item in quiz_list {
+            var r = QuizResult()
+            r.quiz_id = item.quiz_id
+            r.item_id = item.item_id
+            r.user_id = user_id
+            r.answer = item.answer
+            results.append(r)
+        }
+        print("Submit string : " + MyUtil.toJsonStr(results))
+        MyUtil.showAlert("Submit OK")
     }
 
 }
