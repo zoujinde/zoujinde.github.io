@@ -17,8 +17,11 @@ struct QuizView: View {
 
     //For value type(struct, enum etc), use @State or @Binding for binding
     //For object type, use @StateObject, @ObservedObject, @EnvironmentObject
-    @State private var index = 0;
+    @State private var index = 0
     @State private var quiz_list = QuizList().quiz_list
+    @State private var btn_submit_disabled = false
+    //@State private var btn_prev_disabled = false
+    //@State private var btn_next_disabled = false
 
     var body: some View {
 
@@ -54,16 +57,19 @@ struct QuizView: View {
                     .frame(width: 120)
                     .padding(3)
                     .border(Color.red)
+                    //.disabled(btn_prev_disabled)
 
                 Button(action: {self.submit()}, label: {Text("Submit")})
                     .frame(width: 120)
                     .padding(3)
                     .border(Color.red)
+                    .disabled(btn_submit_disabled)
 
                 Button(action: {self.next()}, label: {Text("Next ->")})
                     .frame(width: 120)
                     .padding(3)
                     .border(Color.red)
+                    //.disabled(btn_next_disabled)
 
             }
 
@@ -84,8 +90,10 @@ struct QuizView: View {
     private func previous() {
         if index > 0 {
             index -= 1 // @State value changed to UI
+            //btn_next_disabled = false
         } else {
             MyUtil.showAlert("To the first item")
+            //btn_prev_disabled = true
         }
     }
 
@@ -93,8 +101,10 @@ struct QuizView: View {
     private func next() {
         if index < quiz_list.count - 1 {
             index += 1 // @State value changed to UI
+            //btn_prev_disabled = false
         } else {
             MyUtil.showAlert("To the last item")
+            //btn_next_disabled = true
         }
     }
 
@@ -103,6 +113,7 @@ struct QuizView: View {
         // When we use : var item = quiz_list[index], we will get a new value copy
         // So we have to pass it to a func with inout Object argument
         setItem(item: &quiz_list[index], rowStr: "\(row)")
+        btn_submit_disabled = false
     }
 
     // Set item answer result
@@ -147,6 +158,7 @@ struct QuizView: View {
             r.answer = item.answer
             results.append(r)
         }
+        btn_submit_disabled = true
         print("Submit string : " + MyUtil.toJsonStr(results))
         MyUtil.showAlert("Submit OK")
     }
