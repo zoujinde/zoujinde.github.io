@@ -3,6 +3,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>com.jinde.web</groupId>
     <artifactId>web-servlet-hello</artifactId>
     <packaging>war</packaging>
@@ -16,19 +17,10 @@
         <java.version>8</java.version>
         <tomcat.version>9.0.56</tomcat.version>
         <spring.version>5.2.3.RELEASE</spring.version>
-
     </properties>
 
     <dependencies>
-        <!-- Don't add servlet, bacause tomcat already includes it.
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        -->
-
+        <!-- Don't add servlet, bacause tomcat already includes it-->
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
@@ -47,6 +39,7 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jdbc</artifactId>
             <version>${tomcat.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -56,14 +49,6 @@
             <version>8.0.27</version>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- Use tomcat-jdbc instead of HikariCP
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>2.7.1</version>
-        </dependency>
-        -->
 
     </dependencies>
 

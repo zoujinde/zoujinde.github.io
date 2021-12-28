@@ -18,7 +18,7 @@ public class HelloServlet extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
         PrintWriter pw = resp.getWriter();
         //pw.write("<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">");
-        pw.write("<h1>Tomcat JDBC pool</h1>");
+        pw.write("<h1>Hello Tomcat</h1>");
         // Don't forget to flush
         pw.flush();
     }
