@@ -79,19 +79,16 @@ public class DataManager {
     // Return JSON string
     public String select(String sql, Object[] values) {
         ArrayList<String> list = select(sql, values, String.class);
-        int size = list.size();
         String jsonStr = null;
+        int size = list.size();
         if (size > 0) {
             StringBuilder builder = new StringBuilder("[\n");
             for (int i = 0; i < size; i++) {
                 builder.append(list.get(i));
-                if (i < size - 1) {
-                    builder.append(",\n");
-                } else {
-                    builder.append("\n");
-                }
+                builder.append(",\n");
             }
-            builder.append("]\n");
+            builder.setLength(builder.length() - 2);
+            builder.append("\n]\n");
             jsonStr = builder.toString();
         }
         return jsonStr;
@@ -131,8 +128,11 @@ public class DataManager {
         return list;
     }
 
-    // Run SQL insert
-    public <T extends DataObject> long insert(T[] array) {
+    // Run SQL statements
+    // Argument : SqlAction has the nextAction link
+    // This will save memory to use link instead of list
+    // Return : long as AutoId
+    public long runSql(SqlAction[] actions) {
         Connection cn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -140,61 +140,52 @@ public class DataManager {
         try {
             cn = mDataSource.getConnection();
             cn.setAutoCommit(false); // Begin Transaction
-            String autoIdName = null;
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < array.length; i++) {
-                autoIdName = array[i].getAutoIdName();
-                ps = buildInsertSql(cn, array[i], builder, autoId);
-                ps.executeUpdate();
-                if (autoIdName != null) {
-                    rs = ps.getGeneratedKeys();
-                    if (rs.next()) {
-                        autoId = rs.getLong(1);
+            // Run the sqlAct one by one
+            for (SqlAction a : actions) {
+                DataObject obj = a.dataObj;
+                String act = a.action;
+                if (act.equals(WebUtil.ACT_INSERT)) {
+                    ps = buildInsertSql(cn, obj, builder, autoId);
+                    ps.executeUpdate();
+                    if (obj.getAutoIdName() != null) {
+                        rs = ps.getGeneratedKeys();
+                        if (rs.next()) {autoId = rs.getLong(1);}
+                        rs.close(); // Must close rs
                     }
-                    rs.close(); // Must close rs
+                } else if (act.equals(WebUtil.ACT_UPDATE)) {
+                    ps = buildUpdateSql(cn, obj, builder);
+                    ps.executeUpdate();
+                } else if (act.equals(WebUtil.ACT_DELETE)) {
+                    ps = buildDeleteSql(cn, obj, builder);
+                    ps.executeUpdate();
+                } else { // Run SQl with values
+                    ps = buildSql(cn, a);
+                    ps.executeUpdate();
                 }
                 ps.close(); // Must close ps
             }
             cn.commit(); // Commit Transaction
         } catch (Exception e) {
             //e.printStackTrace();
-            LogUtil.println(TAG, "insert : " + e);
+            autoId = -1; // return error id
+            LogUtil.println(TAG, "runSql : " + e);
             try {
                 if (cn != null) cn.rollback();
             } catch (Exception ex) {
-                LogUtil.println(TAG, "insert rollback : " + ex);
+                LogUtil.println(TAG, "runSql rollback : " + ex);
             }
         } finally {
             try {
                 if (cn != null) cn.setAutoCommit(true);
             } catch (Exception e) {
-                LogUtil.println(TAG, "insert finally : " + e);
+                LogUtil.println(TAG, "runSql finally : " + e);
             }
             close(rs);
             close(ps);
             close(cn);
         }
         return autoId;
-    }
-
-    // Run SQL delete
-    public String delete(String sql, Object[] values) {
-        try {
-            checkSqlValues(sql, values);
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        return null;
-    }
-
-    // Run SQL update
-    public String update(String sql, Object[] values) {
-        try {
-            checkSqlValues(sql, values);
-        } catch (Exception e) {
-            //e.printStackTrace();
-        }
-        return null;
     }
 
     // Build a new object
@@ -274,7 +265,7 @@ public class DataManager {
     }
 
     // Build SQL insert
-    private <T extends DataObject> PreparedStatement buildInsertSql(Connection cn, T T,
+    private PreparedStatement buildInsertSql(Connection cn, DataObject T,
             StringBuilder builder, long autoId) throws SQLException, IllegalAccessException {
         String autoIdName = T.getAutoIdName();
         String slaveIdName = T.getSlaveIdName();
@@ -321,6 +312,110 @@ public class DataManager {
                 }
                 i++;
             }
+        }
+        return ps;
+    }
+
+    // Build SQL update
+    private PreparedStatement buildUpdateSql(Connection cn, DataObject T,
+            StringBuilder builder) throws SQLException, IllegalAccessException{
+        builder.setLength(0);
+        builder.append(WebUtil.ACT_UPDATE).append(" ");
+        builder.append(T.getTableName()).append(" set ");
+        Field[] array = T.getClass().getFields();
+        String[] pks = T.getPrimaryKey();
+        String name = null;
+        for (Field f : array) {
+            name = f.getName();
+            if (!contains(pks, name)) {
+                builder.append(name).append("=?,");
+            }
+        }
+        builder.setLength(builder.length() - 1);//Remove,
+
+        // Add the update condition using the primary key
+        builder.append(" where ");
+        for (String k : pks) {
+            builder.append(k).append("=? and ");
+        }
+        builder.setLength(builder.length() - 5);//Remove and
+        String sql = builder.toString();
+        //LogUtil.println(TAG, "build : " + sql);
+        PreparedStatement ps = cn.prepareStatement(sql);
+
+        // Set values
+        int i = 1;
+        for (Field f : array) {
+            name = f.getName();
+            if (!contains(pks, name)) {
+                ps.setObject(i, f.get(T));
+                i++;
+            }
+        }
+
+        // Set conditions
+        for (Field f : array) {
+            name = f.getName();
+            if (contains(pks, name)) {
+                ps.setObject(i, f.get(T));
+                i++;
+            }
+        }
+        return ps;
+    }
+
+    // Build SQL delete
+    private PreparedStatement buildDeleteSql(Connection cn, DataObject T,
+            StringBuilder builder) throws SQLException, IllegalAccessException{
+        builder.setLength(0);
+        builder.append(WebUtil.ACT_DELETE).append(" from ");
+        builder.append(T.getTableName()).append(" where ");
+        Field[] array = T.getClass().getFields();
+        String[] pks = T.getPrimaryKey();
+        String name = null;
+        for (Field f : array) {
+            name = f.getName();
+            if (contains(pks, name)) {
+                builder.append(name).append("=? and ");
+            }
+        }
+        builder.setLength(builder.length() - 5);//Remove and
+        String sql = builder.toString();
+        //LogUtil.println(TAG, "build : " + sql);
+        PreparedStatement ps = cn.prepareStatement(sql);
+
+        // Set conditions
+        int i = 1;
+        for (Field f : array) {
+            name = f.getName();
+            if (contains(pks, name)) {
+                ps.setObject(i, f.get(T));
+                i++;
+            }
+        }
+        return ps;
+    }
+
+    // Check if the array contains the object
+    private boolean contains(Object[] array, Object obj) {
+        boolean found = false;
+        for (Object o : array) {
+            if (o.equals(obj)) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+
+    // Build SQL statement
+    private PreparedStatement buildSql(Connection cn, SqlAction sqlObj)
+            throws SQLException {
+        Object[] values = sqlObj.values;
+        checkSqlValues(sqlObj.sql, values);
+        PreparedStatement ps = cn.prepareStatement(sqlObj.sql);
+        for (int i = 0; i < values.length; i++) {
+            ps.setObject(i + 1, values[i]);
         }
         return ps;
     }

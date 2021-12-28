@@ -22,4 +22,9 @@ public class Student implements DataObject {
         return null;
     }
 
+    @Override
+    public String[] getPrimaryKey() {
+        return new String[]{"id"};
+    }
+
 }

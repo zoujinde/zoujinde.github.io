@@ -21,7 +21,7 @@ public class WebUtil {
     public static String getPara(HttpServletRequest req, String name) throws WebException {
         String para = req.getParameter(name);
         if (para == null) {
-            throw new WebException("Invalid " + name);
+            throw new WebException(name + " is null");
         }
         return para;
     }
@@ -31,7 +31,7 @@ public class WebUtil {
         T object = null;
         try {
             object = T.newInstance();
-            Field[] array = T.getDeclaredFields();
+            Field[] array = T.getFields();
             String name = null;
             String value = null;
             Class<?> type = null;
