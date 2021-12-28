@@ -1,6 +1,6 @@
 package com.jinde.web.model;
 
-public class Student implements DataObject {
+public class Student extends DataObject {
     public long id;// bigint AI PK 
     public String name;// varchar(50) 
     public boolean gender;// tinyint(1) 

@@ -1,7 +1,5 @@
 package com.jinde.web.controller;
 
-import java.util.ArrayList;
-
 import javax.servlet.http.HttpServletRequest;
 
 import com.jinde.web.model.DataManager;
@@ -28,9 +26,11 @@ public class StudentController {
         Object[] values = new Object[]{100};
         DataManager dm = DataManager.instance();
         String jsonStr = dm.select(sql, values);
-        ArrayList<Student> list = dm.select(sql, values, Student.class);
-        for (Student s : list) {
-            jsonStr += s.name + "\n";
+        Student[] array = dm.select(sql, values, Student.class);
+        if (array != null) {
+            for (Student student : array) {
+                jsonStr += student.name + "\n";
+            }
         }
         return jsonStr;
     }

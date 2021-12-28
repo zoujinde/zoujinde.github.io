@@ -1,17 +1,31 @@
 package com.jinde.web.model;
 
-public interface DataObject {
+public abstract class DataObject {
+
+    // The next object for the singly linked list
+    private DataObject next;
+
+    // Get the next object
+    @SuppressWarnings("unchecked")
+    public <T> T getNext(){
+        return (T) next;
+    }
+
+    // Set the next object
+    public void setNext(DataObject obj){
+        this.next = obj;
+    }
 
     // Get the table name
-    public String getTableName();
+    public abstract String getTableName();
 
     // Get the primary key name
-    public String[] getPrimaryKey();
+    public abstract String[] getPrimaryKey();
 
     // Get the AutoId name
-    public String getAutoIdName();
+    public abstract String getAutoIdName();
 
     // Get the slave table ID name
-    public String getSlaveIdName();
+    public abstract String getSlaveIdName();
 
 }

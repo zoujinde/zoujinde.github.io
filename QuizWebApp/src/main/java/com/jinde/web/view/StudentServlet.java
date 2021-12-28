@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.jinde.web.controller.StudentController;
 import com.jinde.web.util.LogUtil;
-import com.jinde.web.util.WebException;
 import com.jinde.web.util.WebUtil;
 
 @SuppressWarnings("serial")
@@ -23,19 +22,17 @@ public class StudentServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String result = null;
-        try {
-            String act = WebUtil.getPara(req, WebUtil.ACT);
-            if (act.equals(WebUtil.ACT_SELECT)) {
-                result = StudentController.instance().getStudent(req);
-            } else if (act.equals(WebUtil.ACT_INSERT)) {
-                result = StudentController.instance().addStudent(req);
-            } else if (act.equals(WebUtil.ACT_UPDATE)) {
-                result = StudentController.instance().updateStudent(req);
-            } else if (act.equals(WebUtil.ACT_DELETE)) {
-                result = StudentController.instance().deleteStudent(req);
-            }
-        } catch (WebException e) {
-            LogUtil.println(TAG, e.toString());
+        String act = req.getParameter(WebUtil.ACT);
+        if (act == null) {
+            LogUtil.println(TAG, "act is null");
+        } else if (act.equals(WebUtil.ACT_SELECT)) {
+            result = StudentController.instance().getStudent(req);
+        } else if (act.equals(WebUtil.ACT_INSERT)) {
+            result = StudentController.instance().addStudent(req);
+        } else if (act.equals(WebUtil.ACT_UPDATE)) {
+            result = StudentController.instance().updateStudent(req);
+        } else if (act.equals(WebUtil.ACT_DELETE)) {
+            result = StudentController.instance().deleteStudent(req);
         }
 
         // Write response

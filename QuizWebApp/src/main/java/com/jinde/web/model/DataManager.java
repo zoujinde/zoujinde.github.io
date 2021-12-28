@@ -1,12 +1,12 @@
 package com.jinde.web.model;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -75,46 +75,64 @@ public class DataManager {
         mDataSource.setPoolProperties(p);
     }
 
-    // Run SQL select
-    // Return JSON string
+    // Run SQL select -> Return JSON string
     public String select(String sql, Object[] values) {
-        ArrayList<String> list = select(sql, values, String.class);
-        String jsonStr = null;
-        int size = list.size();
-        if (size > 0) {
-            StringBuilder builder = new StringBuilder("[\n");
-            for (int i = 0; i < size; i++) {
-                builder.append(list.get(i));
-                builder.append(",\n");
-            }
-            builder.setLength(builder.length() - 2);
-            builder.append("\n]\n");
-            jsonStr = builder.toString();
-        }
-        return jsonStr;
+        StringBuilder builder = new StringBuilder();
+        select(sql, values, null, builder);
+        return builder.toString();
+    }
+
+    // Run SQL select -> Return T[] array
+    public <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type) {
+        return select(sql, values, type, null);
     }
 
     // Run SQL select -> Return T[] array
     @SuppressWarnings("unchecked")
-    public <T> ArrayList<T> select(String sql, Object[] values, Class<T> T) {
-        ArrayList<T> list = new ArrayList<T>();
+    private <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type, StringBuilder builder) {
+        T[] result = null;
+        T topObj = null;
+        T lastObj = null;
         Connection cn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            checkSqlValues(sql, values);
+            checkSqlSelect(sql, values);
             cn = mDataSource.getConnection();
             ps = cn.prepareStatement(sql);
             for (int i = 0; i < values.length; i++) {
                 ps.setObject(i + 1, values[i]); // setObject(i + 1, xxx)
             }
             rs = ps.executeQuery();
-            StringBuilder b = (T == String.class ? new StringBuilder() : null);
+            // Start the JSON string
+            if (builder != null) {
+                builder.append("[\n");
+            }
+            // Read lines
+            int count = 0;
             while (rs.next()) {
-                if (T == String.class) {
-                    list.add((T)buildJson(rs, b));
+                if (builder != null) {
+                    buildJson(rs, builder);
                 } else {
-                    list.add(buildObject(rs, T));
+                    T obj = buildObject(rs, type);
+                    if (topObj == null) {
+                        topObj = obj;
+                    } else {
+                        lastObj.setNext(obj);
+                    }
+                    lastObj = obj;
+                    count++; // Add count
+                }
+            }
+            // End the JSON string
+            if (builder != null) {
+                builder.setLength(builder.length() - 2);
+                builder.append("\n]\n");
+            } else if (count > 0) {
+                result = (T[]) Array.newInstance(type, count);
+                for (int i = 0; i < count; i++) {
+                    result[i] = topObj;
+                    topObj = topObj.getNext();
                 }
             }
         } catch (Exception e) {
@@ -125,12 +143,10 @@ public class DataManager {
             close(ps);
             close(cn);
         }
-        return list;
+        return result;
     }
 
-    // Run SQL statements
-    // Argument : SqlAction has the nextAction link
-    // This will save memory to use link instead of list
+    // Run SqlActions one by one
     // Return : long as AutoId
     public long runSql(SqlAction[] actions) {
         Connection cn = null;
@@ -189,24 +205,23 @@ public class DataManager {
     }
 
     // Build a new object
-    private <T> T buildObject(ResultSet rs, Class<T> T)
+    private <T> T buildObject(ResultSet rs, Class<T> type)
             throws InstantiationException, IllegalAccessException,
             SQLException, NoSuchFieldException, SecurityException {
         ResultSetMetaData data = rs.getMetaData();
         int count = data.getColumnCount();
         String name = null;
-        T t = T.newInstance();
+        T obj = type.newInstance();
         for (int c = 1; c <= count; c++) {
             name = data.getColumnName(c);
-            Field f = T.getField(name);
-            f.set(t, rs.getObject(c));
+            Field f = type.getField(name);
+            f.set(obj, rs.getObject(c));
         }
-        return t;
+        return obj;
     }
 
     // Build the JSON String
     private String buildJson(ResultSet rs, StringBuilder builder) throws SQLException {
-        builder.setLength(0);
         ResultSetMetaData data = rs.getMetaData();
         int count = data.getColumnCount();
         int type = 0;
@@ -229,7 +244,7 @@ public class DataManager {
                 builder.append(",");
             }
         }
-        builder.append("}");
+        builder.append("},\n");
         return builder.toString();
     }
 
@@ -244,8 +259,8 @@ public class DataManager {
         }
     }
 
-    // Check SQL and values
-    private void checkSqlValues(String sql, Object[] values) throws SQLException {
+    // Check SQL select
+    private void checkSqlSelect(String sql, Object[] values) throws SQLException {
         //JVM default ignore assert. Use java -enableassertions （or -ea） to enable assert
         //assert sql.contains("?") && values.length > 0;
         //assert sql.startsWith(SQL_SELECT) : "Invalid SQL select";
@@ -254,8 +269,21 @@ public class DataManager {
         } else {
             throw new SQLException("SQL must use ? and values");
         }
-        if (sql.startsWith(WebUtil.ACT_SELECT) ||
-            sql.startsWith(WebUtil.ACT_INSERT) ||
+        if (sql.startsWith(WebUtil.ACT_SELECT)) {
+            // SQL lower case
+        } else {
+            throw new SQLException("Only accept lower case SQL");
+        }
+    }
+
+    // Check SQL DML
+    private void checkSqlDml(String sql, Object[] values) throws SQLException {
+        if (sql.contains("?") && values.length > 0) {
+            // SQL must use ? and values to avoid injection
+        } else {
+            throw new SQLException("SQL must use ? and values");
+        }
+        if (sql.startsWith(WebUtil.ACT_INSERT) ||
             sql.startsWith(WebUtil.ACT_UPDATE) ||
             sql.startsWith(WebUtil.ACT_DELETE)) {
             // SQL lower case
@@ -412,7 +440,7 @@ public class DataManager {
     private PreparedStatement buildSql(Connection cn, SqlAction sqlObj)
             throws SQLException {
         Object[] values = sqlObj.values;
-        checkSqlValues(sqlObj.sql, values);
+        checkSqlDml(sqlObj.sql, values);
         PreparedStatement ps = cn.prepareStatement(sqlObj.sql);
         for (int i = 0; i < values.length; i++) {
             ps.setObject(i + 1, values[i]);
