@@ -192,16 +192,30 @@ public class DataManager {
                 LogUtil.println(TAG, "runSql rollback : " + ex);
             }
         } finally {
-            try {
-                if (cn != null) cn.setAutoCommit(true);
-            } catch (Exception e) {
-                LogUtil.println(TAG, "runSql finally : " + e);
-            }
             close(rs);
             close(ps);
-            close(cn);
+            close(cn); // Set AutoCommit
         }
         return autoId;
+    }
+
+    // Close method
+    private void close(AutoCloseable obj) {
+        if (obj != null) {
+            if (obj instanceof Connection) {
+                try {
+                    Connection cn = (Connection) obj;
+                    cn.setAutoCommit(true); // Set AutoCommit
+                } catch (Exception e) {
+                    LogUtil.println(TAG, "cn.set : " + e);
+                }
+            }
+            try {
+                obj.close();
+            } catch (Exception e) {
+                LogUtil.println(TAG, "close : " + e);
+            }
+        }
     }
 
     // Build a new object
@@ -246,17 +260,6 @@ public class DataManager {
         }
         builder.append("},\n");
         return builder.toString();
-    }
-
-    // Close method
-    private void close(AutoCloseable obj) {
-        if (obj != null) {
-            try {
-                obj.close();
-            } catch (Exception e) {
-                LogUtil.println(TAG, "close : " + e);
-            }
-        }
     }
 
     // Check SQL select

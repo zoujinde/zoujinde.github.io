@@ -21,6 +21,11 @@
 
     <dependencies>
         <!-- Don't add servlet, bacause tomcat already includes it-->
+        <!-- The jsp can't be shown in Eclipse, seems we should add below jars:
+             ecj-4.20.jar       in tomcat 9
+             tomcat-annotations in .m2
+             tomcat-embed-el    in .m2
+        -->
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
@@ -47,7 +52,8 @@
             <artifactId>mysql-connector-java</artifactId>
             <!-- Thought 5.x can support 8.x, but recommended to use 8.x --> 
             <version>8.0.27</version>
-            <scope>runtime</scope>
+            <!-- Use provided insetead of runtime -->
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
