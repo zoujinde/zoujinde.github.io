@@ -1,7 +1,7 @@
 package com.jinde.web.model;
 
 public class Student extends DataObject {
-    public long id;// bigint AI PK 
+    public int id;// int AI PK 
     public String name;// varchar(50) 
     public boolean gender;// tinyint(1) 
     public int grade;// int 

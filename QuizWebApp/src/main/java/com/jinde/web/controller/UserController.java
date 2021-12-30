@@ -26,17 +26,42 @@ public class UserController {
 
     // Select user data
     public String select(String body) {
-        Integer id1 = JsonUtil.getInt(body, "id1");
-        Integer id2 = JsonUtil.getInt(body, "id2");
+        Integer[] id = new Integer[]{0,0};
+        String result = getIdRange(body, id);
+        if (id[0] > 0 && id[1] > 0) {
+            String sql = "select * from user where user_id between ? and ?";
+            result = DataManager.instance().select(sql, id);
+        }
+        return result;
+    }
+
+    // Get ID range
+    private String getIdRange(String body, Integer[] id) {
+        String[] range = JsonUtil.getString(body, "user_id_range").split("-");
+        Integer id1 = Integer.parseInt(range[0].trim());
+        Integer id2 = Integer.parseInt(range[1].trim());
         //LogUtil.println(TAG, id1 + " - " + id2);
         String result = null;
         if (id1 == null || id2 == null || id1 > id2 || id1 < 0) {
-            result = "Invalid id1 or id2";
+            result = "Invalid user_id_range";
         } else if (id2 - id1 > 100) {
-            result = "Invalid id2 - id1 > 100";
+            result = "Invalid user_id_range > 100";
         } else {
-            String sql = "select * from user where user_id >= ? and user_id <= ?";
-            result = DataManager.instance().select(sql, new Object[]{id1, id2});
+            id[0] = id1;
+            id[1] = id2;
+        }
+        return result;
+    }
+
+    // Delete user data
+    public String delete(String body) {
+        Integer[] id = new Integer[]{0,0};
+        String result = getIdRange(body, id);
+        if (id[0] > 0 && id[1] > 0) {
+            String sql = "delete from user where user_id between ? and ?";
+            SqlAction[] actions = new SqlAction[1];
+            actions[0] = new SqlAction(sql, id);
+            result = DataManager.instance().runSql(actions);
         }
         return result;
     }
@@ -49,9 +74,21 @@ public class UserController {
             user = WebUtil.buildObject(data[i], User.class);
             act[i] = new SqlAction(user, WebUtil.ACT_INSERT);
         }
-        long autoId = DataManager.instance().runSql(act);
-        String result = "insert " + autoId;
+        String result = DataManager.instance().runSql(act);
         LogUtil.println(TAG, result);
+        return result;
+    }
+
+    // Update user data
+    public String update(String[] data) {
+        SqlAction[] act = new SqlAction[data.length];
+        User user = null;
+        for (int i = 0; i < data.length; i++) {
+            user = WebUtil.buildObject(data[i], User.class);
+            act[i] = new SqlAction(user, WebUtil.ACT_UPDATE);
+        }
+        String result = DataManager.instance().runSql(act);
+        //LogUtil.println(TAG, result);
         return result;
     }
 

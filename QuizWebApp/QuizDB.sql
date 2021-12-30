@@ -4,7 +4,7 @@ USE quzi;
 
 -- User table
 CREATE TABLE user (
-  user_id     BIGINT AUTO_INCREMENT NOT NULL,
+  user_id     INT AUTO_INCREMENT NOT NULL,
   user_name   VARCHAR(30) NOT NULL,
   password    VARCHAR(20) NOT NULL,
   email       VARCHAR(30) NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE user (
 
 -- Quiz main table
 CREATE TABLE quiz (
-  quiz_id     BIGINT AUTO_INCREMENT NOT NULL,
+  quiz_id     INT AUTO_INCREMENT NOT NULL,
   quiz_name   VARCHAR(50) NOT NULL,
   create_time DATETIME    NOT NULL,
   PRIMARY KEY(quiz_id),
@@ -29,7 +29,7 @@ CREATE TABLE quiz (
 -- We can get the last_insert_id() for current session as below:
 -- insert quiz_item values(last_insert_id(), 1, "?", "@", 1);
 CREATE TABLE quiz_item (
-  quiz_id      BIGINT  NOT NULL,
+  quiz_id      INT     NOT NULL,
   item_id      TINYINT NOT NULL,
   item_content VARCHAR(300) NOT NULL,
   item_answer  VARCHAR(300) NOT NULL,
@@ -39,9 +39,9 @@ CREATE TABLE quiz_item (
 
 -- Quiz result table
 CREATE TABLE quiz_result (
-  quiz_id      BIGINT  NOT NULL,
+  quiz_id      INT     NOT NULL,
   item_id      TINYINT NOT NULL,
-  user_id      BIGINT  NOT NULL,
+  user_id      INT     NOT NULL,
   answer       VARCHAR(10) NOT NULL,
   answer_time  DATETIME    NOT NULL,
   PRIMARY KEY(quiz_id, item_id, user_id)

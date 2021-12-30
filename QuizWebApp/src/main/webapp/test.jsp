@@ -3,20 +3,21 @@
 <title>Quzi Data Management</title>
 <label>Quzi Data Management
        &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
-       &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
        Please input the URL : </label>
 <input type="text" id="url" value="/user" />
 <div style="width:100%; margin:auto; overflow:auto;">
 
   <!-- Remove the float:right; -->
   <div style="width:99%; background:#EEE">
-    <label> Please input the query condition : </label><br>
-    <textarea rows="2" cols="200" id="text_query">
-    {"act"="select", "id1"=1, "id2"=100}
-    </textarea><br>
+    <label> Please input the query condition : </label>
+    <textarea rows="2" cols="80" id="text_query">{"act"="select", "user_id_range"="1-100"}</textarea>
     <input type="button" onclick="queryData()" value="Query Data">
-    <label> * </label><br>
-    <textarea rows="10" cols="200" id="result_query"></textarea>
+    <label id="state"> * </label><br>
+    <!-- The textarea can't wrap line, so use DIV to wrap line
+    <textarea rows="16" cols="200" id="result_query"></textarea>
+    DIV don't need add white-space:pre-wrap;
+    DIV add overfolow:auto; to show scroll bar-->
+    <div id="result_query" style="height:36%; overflow:auto;"></div> 
   </div>
 
   <div style="width:99%; background:#EEE">
@@ -33,7 +34,7 @@
     <label id="result_add" > * </label>
     <hr>
 
-    <textarea rows="6" cols="200">
+    <textarea rows="6" cols="200" id="text_update">
     {"act"="update", "data"=[
        {"user_id"=1, "user_name"="刘备",  "password"="111", "email"="", "phone"="", "address"="", "token"=""},
        {"user_id"=2, "user_name"="关羽",  "password"="222", "email"="", "phone"="", "address"="", "token"=""}
@@ -43,12 +44,10 @@
     <label id="result_update" > * </label>
     <hr>
 
-    <textarea rows="3" cols="200">
-    {"act"="delete", "id1"=3, "id2"=10}
-    </textarea><br>
+    <label> Please input the delete condition : </label>
+    <textarea rows="3" cols="80" id="text_delete">{"act"="delete", "user_id_range"="1-10"}</textarea>
     <input type="button" onclick="deleteData()" value="Delete Data">
     <label id="result_delete" > * </label>
-    <hr>
   </div>
 </div>
 </HTML>
@@ -56,7 +55,7 @@
 <style>
   div{
     border-style:solid;
-    border-width:3px;
+    border-width:1px;
     border-color:#999999
   }
 
@@ -77,7 +76,7 @@
 
   input[id="url"]{
     margin: 1px 3px;
-    width: 500px;
+    width: 300px;
     vertical-align: top;
   }
 
@@ -91,15 +90,20 @@
 <script type="text/javascript">
   var httpRequest = null;
   var url = document.getElementById("url");
+  var state = document.getElementById("state");
   var text_query = document.getElementById("text_query");
   var text_add = document.getElementById("text_add");
-  var result_add = document.getElementById("result_add");
+  var text_update = document.getElementById("text_update");
+  var text_delete = document.getElementById("text_delete");
   var result_query = document.getElementById("result_query");
+  var result_add = document.getElementById("result_add");
+  var result_update = document.getElementById("result_update");
+  var result_delete = document.getElementById("result_delete");
 
   // Initiate http
   function initHttp() {
     if (httpRequest != null) {
-      result_add.innerText = "reuse http object"
+      state.innerText = "reuse http object"
     } else if (window.XMLHttpRequest) { //IE6 above and other browser
       httpRequest = new XMLHttpRequest()
     } else if(window.ActiveXObject) { //IE6 and lower
@@ -115,12 +119,12 @@
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // Set callback
-    httpRequest.onreadystatechange = response_add;
+    httpRequest.onreadystatechange = addResult;
     httpRequest.send(text_add.value);
   }
 
-  // Callback
-  function response_add() {
+  // Add Callback
+  function addResult() {
     // Check 4 : data received
     if(httpRequest.readyState==4) {
       if(httpRequest.status==200) { // 200 OK
@@ -133,20 +137,64 @@
 
   // Query data
   function queryData() {
+    result_query.innerText = ""
     initHttp();
     httpRequest.open("POST", url.value, true);
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    httpRequest.onreadystatechange = response_query;
+    httpRequest.onreadystatechange = queryResult;
     httpRequest.send(text_query.value);
   }
 
-  // Callback
-  function response_query() {
+  // Querey Callback
+  function queryResult() {
     if(httpRequest.readyState==4) {
       if(httpRequest.status==200) { // 200 OK
         result_query.innerText = httpRequest.responseText;
+        //Don't need call Text.replace('\n','<br/>'), the DIV supports wrap line
       } else {
         result_query.innerText = httpRequest.status
+      }
+    }
+  }
+
+  // Update data
+  function updateData() {
+    result_update.innerText = ""
+    initHttp();
+    httpRequest.open("POST", url.value, true);
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    httpRequest.onreadystatechange = updateResult;
+    httpRequest.send(text_update.value);
+  }
+
+  // Update Callback
+  function updateResult() {
+    if(httpRequest.readyState==4) {
+      if(httpRequest.status==200) { // 200 OK
+        result_update.innerText = httpRequest.responseText;
+      } else {
+        result_update.innerText = httpRequest.status
+      }
+    }
+  }
+
+  // Delete data
+  function deleteData() {
+    result_delete.innerText = ""
+    initHttp();
+    httpRequest.open("POST", url.value, true);
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    httpRequest.onreadystatechange = deleteResult;
+    httpRequest.send(text_delete.value);
+  }
+
+  // Delete Callback
+  function deleteResult() {
+    if(httpRequest.readyState==4) {
+      if(httpRequest.status==200) { // 200 OK
+        result_delete.innerText = httpRequest.responseText;
+      } else {
+        result_delete.innerText = httpRequest.status
       }
     }
   }

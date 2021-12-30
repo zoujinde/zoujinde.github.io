@@ -106,7 +106,7 @@ public class DataManager {
             rs = ps.executeQuery();
             // Start the JSON string
             if (builder != null) {
-                builder.append("[\n");
+                builder.append("[ \n"); // Must add 1 space
             }
             // Read lines
             int count = 0;
@@ -151,12 +151,13 @@ public class DataManager {
     }
 
     // Run SqlActions one by one
-    // Return : long as AutoId
-    public long runSql(SqlAction[] actions) {
+    // Return : result
+    public String runSql(SqlAction[] actions) {
+        String result = null;
         Connection cn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        long autoId = 0;
+        int autoId = 0;
         try {
             cn = mDataSource.getConnection();
             cn.setAutoCommit(false); // Begin Transaction
@@ -170,7 +171,7 @@ public class DataManager {
                     ps.executeUpdate();
                     if (obj.getAutoIdName() != null) {
                         rs = ps.getGeneratedKeys();
-                        if (rs.next()) {autoId = rs.getLong(1);}
+                        if (rs.next()) {autoId = rs.getInt(1);}
                         rs.close(); // Must close rs
                     }
                 } else if (act.equals(WebUtil.ACT_UPDATE)) {
@@ -186,10 +187,11 @@ public class DataManager {
                 ps.close(); // Must close ps
             }
             cn.commit(); // Commit Transaction
+            result = WebUtil.OK;
         } catch (Exception e) {
             //e.printStackTrace();
-            autoId = -1; // return error id
-            LogUtil.println(TAG, "runSql : " + e);
+            result = "return : " + e.getMessage();
+            LogUtil.println(TAG, result);
             try {
                 if (cn != null) cn.rollback();
             } catch (Exception ex) {
@@ -200,7 +202,7 @@ public class DataManager {
             close(ps);
             close(cn); // Set AutoCommit
         }
-        return autoId;
+        return result;
     }
 
     // Close method
@@ -255,8 +257,10 @@ public class DataManager {
                 builder.append(rs.getBoolean(c));
             } else if (type == java.sql.Types.VARCHAR) {
                 builder.append("\"").append(rs.getString(c)).append("\"");
+            } else if (type == java.sql.Types.TIMESTAMP) {
+                builder.append(rs.getTimestamp(c));
             } else {
-                builder.append(type);
+                builder.append("unknown_type");
             }
             if (c < count) {
                 builder.append(",");
@@ -279,7 +283,7 @@ public class DataManager {
         if (sql.startsWith(WebUtil.ACT_SELECT)) {
             // SQL lower case
         } else {
-            throw new SQLException("Only accept lower case SQL");
+            throw new SQLException("Invalid select SQL");
         }
     }
 
@@ -295,7 +299,7 @@ public class DataManager {
             sql.startsWith(WebUtil.ACT_DELETE)) {
             // SQL lower case
         } else {
-            throw new SQLException("Only accept lower case SQL");
+            throw new SQLException("Invalid DML SQL");
         }
     }
 

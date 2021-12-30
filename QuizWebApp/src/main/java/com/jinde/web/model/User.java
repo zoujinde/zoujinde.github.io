@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 public class User extends DataObject {
 
-    public long   user_id;   // BIGINT AUTO_INCREMENT NOT NULL,
+    public int    user_id;   // INT AUTO_INCREMENT NOT NULL,
     public String user_name; // VARCHAR(30) NOT NULL,
     public String password;  // VARCHAR(20) NOT NULL,
     public String email;     // VARCHAR(30) NOT NULL,
