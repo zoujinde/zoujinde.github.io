@@ -9,16 +9,37 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jinde.web.controller.UserController;
+import com.jinde.web.util.JsonUtil;
+import com.jinde.web.util.LogUtil;
+import com.jinde.web.util.WebUtil;
+
 @WebServlet(urlPatterns = "/user")
 public class UserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final String TAG = "UserServlet";
 
     // Only define doPost
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String result = "";
+        String body = WebUtil.getPostBody(req);
+        String act = JsonUtil.getString(body, WebUtil.ACT);
+        //LogUtil.println(TAG, "act=" + act);
+        if (act == null) {
+            LogUtil.println(TAG, "act is null");
+        } else if (act.equals(WebUtil.ACT_SELECT)) {
+        } else if (act.equals(WebUtil.ACT_INSERT)) {
+            String[] data = JsonUtil.getArray(body, WebUtil.DATA);
+            result = UserController.instance().insert(data);
+        } else if (act.equals(WebUtil.ACT_UPDATE)) {
+        } else if (act.equals(WebUtil.ACT_DELETE)) {
+        }
+
+        // Write response
         resp.setContentType("text/html");
         resp.setCharacterEncoding("UTF-8");
         PrintWriter pw = resp.getWriter();
-        pw.write("<h1>Hello User</h1>");
+        pw.write(result);
         pw.flush();
     }
 

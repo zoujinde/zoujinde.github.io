@@ -36,7 +36,7 @@ public class DataManager {
 
     // Private constructor
     private DataManager() {
-        String url = "jdbc:mysql://localhost:3306/learnjdbc?useSSL=false&characterEncoding=utf8";
+        String url = "jdbc:mysql://localhost:3306/quzi?useSSL=false&characterEncoding=utf8";
         /* Use Tomcat DBCP instead of HikariCP
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);

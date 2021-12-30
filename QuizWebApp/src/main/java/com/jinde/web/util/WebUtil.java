@@ -1,17 +1,26 @@
 package com.jinde.web.util;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class WebUtil {
     public static final String TAG = "WebUtil";
+    public static final String UTF8 = "utf-8";
 
     public static final String ACT = "act";
     public static final String ACT_SELECT = "select";
     public static final String ACT_INSERT = "insert";
     public static final String ACT_DELETE = "delete";
     public static final String ACT_UPDATE = "update";
+
+    public static final String DATA = "data";
+    public static final String OK = "OK";
+
+    private static final Timestamp START_TIME = new Timestamp(System.currentTimeMillis());
 
     // Private Constructor
     private WebUtil() {
@@ -29,10 +38,10 @@ public class WebUtil {
     // Build object
     public static <T> T buildObject(HttpServletRequest req, Class<T> T){
         T object = null;
+        String name = null;
         try {
             object = T.newInstance();
             Field[] array = T.getFields();
-            String name = null;
             String value = null;
             Class<?> type = null;
             for (Field f : array) {
@@ -53,9 +62,67 @@ public class WebUtil {
                 }
             }
         } catch (Exception e) {
-            LogUtil.println(TAG, e.toString());
+            LogUtil.println(TAG, name + " build " + e);
         }
         return object;
+    }
+
+    // Build object from the JSON map {...} string
+    public static <T> T buildObject(String json, Class<T> T){
+        //LogUtil.println(TAG, "build " + json);
+        T object = null;
+        String name = null;
+        try {
+            object = T.newInstance();
+            Field[] array = T.getFields();
+            Class<?> type = null;
+            for (Field f : array) {
+                name = f.getName();
+                type = f.getType();
+                if (type == boolean.class) {
+                    Boolean b = JsonUtil.getBoolean(json, name);
+                    f.setBoolean(object, b);
+                } else if (type == int.class) {
+                    Integer i = JsonUtil.getInt(json, name);
+                    f.setInt(object, i);
+                } else if (type == long.class) {
+                    Long l = JsonUtil.getLong(json, name);
+                    if (l == null) {
+                        // AutoId is long, we should let it null
+                    } else {
+                        f.setLong(object, l);
+                    }
+                } else if (type == Timestamp.class) {
+                    String t = JsonUtil.getString(json, name);
+                    if (t != null) {
+                        f.set(object, t);
+                    } else {
+                        // Format is SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                        // Or use String.format() is better
+                        f.set(object, START_TIME);
+                    }
+                } else {
+                    String s = JsonUtil.getString(json, name);
+                    //LogUtil.println(TAG, "build " + name + "=" + s);
+                    f.set(object, (s));
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.println(TAG, name + " build " + e);
+        }
+        return object;
+    }
+
+    // Get the post body
+    public static String getPostBody(HttpServletRequest req) {
+        String body = null;
+        try {
+            req.setCharacterEncoding(UTF8);
+            body = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+        } catch (IOException e) {
+            LogUtil.println(TAG, "getPostBody : " + e);
+        }
+        return body;
     }
 
 }

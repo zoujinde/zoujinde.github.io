@@ -1,23 +1,35 @@
 package com.jinde.web.model;
 
-public class User {
+import java.sql.Timestamp;
 
-    public User(int i, String string, String string2, String string3) {
-        // TODO Auto-generated constructor stub
+public class User extends DataObject {
+
+    public long   user_id;   // BIGINT AUTO_INCREMENT NOT NULL,
+    public String user_name; // VARCHAR(30) NOT NULL,
+    public String password;  // VARCHAR(20) NOT NULL,
+    public String email;     // VARCHAR(30) NOT NULL,
+    public String phone;     // VARCHAR(20) NOT NULL,
+    public String address;   // VARCHAR(50) NOT NULL,
+    public String token;     // VARCHAR(50) NOT NULL,
+    public Timestamp create_time; // DATETIME  NOT NULL,
+
+    @Override
+    public String getTableName() {
+        return "user";
     }
 
-    public String getEmail() {
-        // TODO Auto-generated method stub
-        return null;
+    @Override
+    public String[] getPrimaryKey() {
+        return new String[]{"user_id"};
     }
 
-    public Object getPassword() {
-        // TODO Auto-generated method stub
-        return null;
+    @Override
+    public String getAutoIdName() {
+        return "user_id";
     }
 
-    public Object getName() {
-        // TODO Auto-generated method stub
+    @Override
+    public String getSlaveIdName() {
         return null;
     }
 
