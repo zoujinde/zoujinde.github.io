@@ -16,6 +16,9 @@ import com.jinde.web.util.WebUtil;
 
 public class DataManager {
 
+    // MySQL uses LAST_INSERT_ID() for AUTO_INCREMENT ID
+    public static final int LAST_INSERT_ID = 0;
+
     private static final String TAG = "DataManager";
 
     // volatile ensures the memory synchronized safely
@@ -307,7 +310,6 @@ public class DataManager {
     private PreparedStatement buildInsertSql(Connection cn, DataObject T,
             StringBuilder builder, long autoId) throws SQLException, IllegalAccessException {
         String autoIdName = T.getAutoIdName();
-        String slaveIdName = T.getSlaveIdName();
         builder.setLength(0);
         builder.append(WebUtil.ACT_INSERT).append(" into ");
         builder.append(T.getTableName()).append(" (");
@@ -344,7 +346,7 @@ public class DataManager {
         for (Field f : array) {
             name = f.getName();
             if (!name.equals(autoIdName)) {
-                if (autoId > 0 && name.equals(slaveIdName)) {
+                if (autoId > 0 && f.get(T).equals(LAST_INSERT_ID)) {
                     ps.setObject(i, autoId);
                 } else {
                     ps.setObject(i, f.get(T));

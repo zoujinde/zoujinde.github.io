@@ -18,11 +18,6 @@ public class Student extends DataObject {
     }
 
     @Override
-    public String getSlaveIdName() {
-        return null;
-    }
-
-    @Override
     public String[] getPrimaryKey() {
         return new String[]{"id"};
     }

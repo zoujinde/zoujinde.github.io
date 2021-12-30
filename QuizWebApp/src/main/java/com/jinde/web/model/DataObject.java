@@ -25,7 +25,4 @@ public abstract class DataObject {
     // Get the AutoId name
     public abstract String getAutoIdName();
 
-    // Get the slave table ID name
-    public abstract String getSlaveIdName();
-
 }

@@ -37,18 +37,22 @@ public class UserController {
 
     // Get ID range
     private String getIdRange(String body, Integer[] id) {
-        String[] range = JsonUtil.getString(body, "user_id_range").split("-");
-        Integer id1 = Integer.parseInt(range[0].trim());
-        Integer id2 = Integer.parseInt(range[1].trim());
-        //LogUtil.println(TAG, id1 + " - " + id2);
         String result = null;
-        if (id1 == null || id2 == null || id1 > id2 || id1 < 0) {
-            result = "Invalid user_id_range";
-        } else if (id2 - id1 > 100) {
-            result = "Invalid user_id_range > 100";
-        } else {
-            id[0] = id1;
-            id[1] = id2;
+        try {
+            String[] range = JsonUtil.getString(body, "user_id_range").split("-");
+            Integer id1 = Integer.parseInt(range[0].trim());
+            Integer id2 = Integer.parseInt(range[1].trim());
+            //LogUtil.println(TAG, id1 + " - " + id2);
+            if (id1 > id2 || id1 < 0) {
+                result = "Invalid user_id_range";
+            } else if (id2 - id1 > 100) {
+                result = "Invalid user_id_range > 100";
+            } else {
+                id[0] = id1;
+                id[1] = id2;
+            }
+        } catch (Exception e) {
+            result = e.toString();
         }
         return result;
     }

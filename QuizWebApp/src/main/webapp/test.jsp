@@ -27,7 +27,7 @@
        {"user_id"=0, "user_name"="关羽",  "password"="222", "email"="", "phone"="", "address"="", "token"=""},
        {"user_id"=0, "user_name"="张飞",  "password"="333", "email"="", "phone"="", "address"="", "token"=""},
        {"user_id"=0, "user_name"="赵云",  "password"="444", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_id"=0, "user_name"="诸葛亮", "password"="555", "email"="", "phone"="", "address"="", "token"=""}
+       {"user_id"=0, "user_name"="孔明",  "password"="555", "email"="", "phone"="", "address"="", "token"=""}
     ]}
     </textarea><br>
     <input type="button" onclick="addData()" value="Add Data">

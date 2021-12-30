@@ -28,9 +28,4 @@ public class User extends DataObject {
         return "user_id";
     }
 
-    @Override
-    public String getSlaveIdName() {
-        return null;
-    }
-
 }
