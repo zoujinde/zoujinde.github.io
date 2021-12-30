@@ -122,6 +122,10 @@ public class DataManager {
                     }
                     lastObj = obj;
                     count++; // Add count
+                    if (count > WebUtil.ROWS_LIMIT) {
+                        LogUtil.println(TAG, "ROWS > " +  WebUtil.ROWS_LIMIT);
+                        break;
+                    }
                 }
             }
             // End the JSON string

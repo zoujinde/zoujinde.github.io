@@ -28,6 +28,7 @@ public class UserServlet extends HttpServlet {
         if (act == null) {
             LogUtil.println(TAG, "act is null");
         } else if (act.equals(WebUtil.ACT_SELECT)) {
+            result = UserController.instance().select(body);
         } else if (act.equals(WebUtil.ACT_INSERT)) {
             String[] data = JsonUtil.getArray(body, WebUtil.DATA);
             result = UserController.instance().insert(data);

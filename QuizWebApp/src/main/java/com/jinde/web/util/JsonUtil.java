@@ -86,8 +86,11 @@ public class JsonUtil {
 
         // Find the end ,
         int p2 = jsonStr.indexOf(",", p1 + 1);
+        if (p2 < 0) {
+            p2 = jsonStr.indexOf("}", p1 + 1);
+            if (p2 < 0) return null;
+        }
         String tmp = jsonStr.substring(p1 + 1, p2);
-
         // Don't catch the runtime exception, let caller know it.
         return Boolean.parseBoolean(tmp.trim());
     }
@@ -103,10 +106,13 @@ public class JsonUtil {
         p1 = jsonStr.indexOf("=", p1);
         if (p1 < 0) return null;
 
-        // Find the end ,
+        // Find the end , or }
         int p2 = jsonStr.indexOf(",", p1 + 1);
+        if (p2 < 0) {
+            p2 = jsonStr.indexOf("}", p1 + 1);
+            if (p2 < 0) return null;
+        }
         String tmp = jsonStr.substring(p1 + 1, p2);
-
         // Don't catch the runtime exception, let caller know it.
         return Integer.parseInt(tmp.trim());
     }
@@ -122,10 +128,13 @@ public class JsonUtil {
         p1 = jsonStr.indexOf("=", p1);
         if (p1 < 0) return null;
 
-        // Find the end ,
+        // Find the end , or }
         int p2 = jsonStr.indexOf(",", p1 + 1);
+        if (p2 < 0) {
+            p2 = jsonStr.indexOf("}", p1 + 1);
+            if (p2 < 0) return null;
+        }
         String tmp = jsonStr.substring(p1 + 1, p2);
-
         // Don't catch the runtime exception, let caller know it.
         return Long.parseLong(tmp.trim());
     }

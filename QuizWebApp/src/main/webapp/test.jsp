@@ -12,7 +12,7 @@
   <div style="width:99%; background:#EEE">
     <label> Please input the query condition : </label><br>
     <textarea rows="2" cols="200" id="text_query">
-    {"act"="select", "user_id_list"="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"}
+    {"act"="select", "id1"=1, "id2"=100}
     </textarea><br>
     <input type="button" onclick="queryData()" value="Query Data">
     <label> * </label><br>
@@ -22,11 +22,11 @@
   <div style="width:99%; background:#EEE">
     <textarea rows="9" cols="200" id="text_add" >
     {"act"="insert", "data"=[
-       {"user_name"="刘备",  "password"="111", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_name"="关羽",  "password"="222", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_name"="张飞",  "password"="333", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_name"="赵云",  "password"="444", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_name"="诸葛亮", "password"="555", "email"="", "phone"="", "address"="", "token"=""}
+       {"user_id"=0, "user_name"="刘备",  "password"="111", "email"="", "phone"="", "address"="", "token"=""},
+       {"user_id"=0, "user_name"="关羽",  "password"="222", "email"="", "phone"="", "address"="", "token"=""},
+       {"user_id"=0, "user_name"="张飞",  "password"="333", "email"="", "phone"="", "address"="", "token"=""},
+       {"user_id"=0, "user_name"="赵云",  "password"="444", "email"="", "phone"="", "address"="", "token"=""},
+       {"user_id"=0, "user_name"="诸葛亮", "password"="555", "email"="", "phone"="", "address"="", "token"=""}
     ]}
     </textarea><br>
     <input type="button" onclick="addData()" value="Add Data">
@@ -44,7 +44,7 @@
     <hr>
 
     <textarea rows="3" cols="200">
-    {"act"="delete", "user_id_list"="3,5,7" }
+    {"act"="delete", "id1"=3, "id2"=10}
     </textarea><br>
     <input type="button" onclick="deleteData()" value="Delete Data">
     <label id="result_delete" > * </label>
@@ -91,11 +91,13 @@
 <script type="text/javascript">
   var httpRequest = null;
   var url = document.getElementById("url");
+  var text_query = document.getElementById("text_query");
   var text_add = document.getElementById("text_add");
   var result_add = document.getElementById("result_add");
+  var result_query = document.getElementById("result_query");
 
-  // Add data
-  function addData() {
+  // Initiate http
+  function initHttp() {
     if (httpRequest != null) {
       result_add.innerText = "reuse http object"
     } else if (window.XMLHttpRequest) { //IE6 above and other browser
@@ -103,18 +105,22 @@
     } else if(window.ActiveXObject) { //IE6 and lower
       httpRequest = new ActiveXObject();
     }
+  }
 
+  // Add data
+  function addData() {
+    initHttp();
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", url.value, true);
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // Set callback
-    httpRequest.onreadystatechange = response;
+    httpRequest.onreadystatechange = response_add;
     httpRequest.send(text_add.value);
   }
 
   // Callback
-  function response() {
+  function response_add() {
     // Check 4 : data received
     if(httpRequest.readyState==4) {
       if(httpRequest.status==200) { // 200 OK
@@ -124,5 +130,26 @@
       }
     }
   }
+
+  // Query data
+  function queryData() {
+    initHttp();
+    httpRequest.open("POST", url.value, true);
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    httpRequest.onreadystatechange = response_query;
+    httpRequest.send(text_query.value);
+  }
+
+  // Callback
+  function response_query() {
+    if(httpRequest.readyState==4) {
+      if(httpRequest.status==200) { // 200 OK
+        result_query.innerText = httpRequest.responseText;
+      } else {
+        result_query.innerText = httpRequest.status
+      }
+    }
+  }
+
 </script>
 

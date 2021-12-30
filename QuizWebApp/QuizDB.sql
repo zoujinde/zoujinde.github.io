@@ -26,6 +26,8 @@ CREATE TABLE quiz (
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
 
 -- Quiz item table
+-- We can get the last_insert_id() for current session as below:
+-- insert quiz_item values(last_insert_id(), 1, "?", "@", 1);
 CREATE TABLE quiz_item (
   quiz_id      BIGINT  NOT NULL,
   item_id      TINYINT NOT NULL,

@@ -19,8 +19,29 @@ public class WebUtil {
 
     public static final String DATA = "data";
     public static final String OK = "OK";
+    public static final int ROWS_LIMIT = 1000;
 
-    private static final Timestamp START_TIME = new Timestamp(System.currentTimeMillis());
+    // SYS_TIME for table time
+    private static final Timestamp SYS_TIME = new Timestamp(System.currentTimeMillis());
+
+    // Update SYS_TIME per minute and do other task
+    static {
+       new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        LogUtil.println(TAG, "SYS " + SYS_TIME);
+                        Thread.sleep(60000);
+                        SYS_TIME.setTime(System.currentTimeMillis());
+                    } catch (Exception e) {
+                        LogUtil.println(TAG, "SYS " + e);
+                        break;
+                    }
+                }
+            }
+        }.start();
+    }
 
     // Private Constructor
     private WebUtil() {
@@ -87,19 +108,13 @@ public class WebUtil {
                     f.setInt(object, i);
                 } else if (type == long.class) {
                     Long l = JsonUtil.getLong(json, name);
-                    if (l == null) {
-                        // AutoId is long, we should let it null
-                    } else {
-                        f.setLong(object, l);
-                    }
+                    f.setLong(object, l);
                 } else if (type == Timestamp.class) {
                     String t = JsonUtil.getString(json, name);
                     if (t != null) {
                         f.set(object, t);
                     } else {
-                        // Format is SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                        // Or use String.format() is better
-                        f.set(object, START_TIME);
+                        f.set(object, SYS_TIME);
                     }
                 } else {
                     String s = JsonUtil.getString(json, name);
@@ -109,6 +124,7 @@ public class WebUtil {
             }
         } catch (Exception e) {
             LogUtil.println(TAG, name + " build " + e);
+            object = null;
         }
         return object;
     }
