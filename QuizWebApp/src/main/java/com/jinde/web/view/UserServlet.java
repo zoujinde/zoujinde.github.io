@@ -30,11 +30,9 @@ public class UserServlet extends HttpServlet {
         } else if (act.equals(WebUtil.ACT_SELECT)) {
             result = UserController.instance().select(body);
         } else if (act.equals(WebUtil.ACT_INSERT)) {
-            String[] data = JsonUtil.getArray(body, WebUtil.DATA);
-            result = UserController.instance().insert(data);
+            result = UserController.instance().insert(body);
         } else if (act.equals(WebUtil.ACT_UPDATE)) {
-            String[] data = JsonUtil.getArray(body, WebUtil.DATA);
-            result = UserController.instance().update(data);
+            result = UserController.instance().update(body);
         } else if (act.equals(WebUtil.ACT_DELETE)) {
             result = UserController.instance().delete(body);
         }

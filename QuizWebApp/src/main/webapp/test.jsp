@@ -10,7 +10,7 @@
   <!-- Remove the float:right; -->
   <div style="width:99%; background:#EEE">
     <label> Please input the query condition : </label>
-    <textarea rows="2" cols="80" id="text_query">{"act"="select", "user_id_range"="1-100"}</textarea>
+    <textarea rows="2" cols="80" id="text_query">{"act":"select", "user_id_range":"1-100"}</textarea>
     <input type="button" onclick="queryData()" value="Query Data">
     <label id="state"> * </label><br>
     <!-- The textarea can't wrap line, so use DIV to wrap line
@@ -22,12 +22,12 @@
 
   <div style="width:99%; background:#EEE">
     <textarea rows="9" cols="200" id="text_add" >
-    {"act"="insert", "data"=[
-       {"user_id"=0, "user_name"="刘备",  "password"="111", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_id"=0, "user_name"="关羽",  "password"="222", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_id"=0, "user_name"="张飞",  "password"="333", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_id"=0, "user_name"="赵云",  "password"="444", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_id"=0, "user_name"="孔明",  "password"="555", "email"="", "phone"="", "address"="", "token"=""}
+    {"act":"insert", "data":[
+       {"user_id":0, "user_name":"刘备",  "password":"111", "email":"", "phone":"", "address":"", "token":""},
+       {"user_id":0, "user_name":"关羽",  "password":"222", "email":"", "phone":"", "address":"", "token":""},
+       {"user_id":0, "user_name":"张飞",  "password":"333", "email":"", "phone":"", "address":"", "token":""},
+       {"user_id":0, "user_name":"赵云",  "password":"444", "email":"", "phone":"", "address":"", "token":""},
+       {"user_id":0, "user_name":"孔明",  "password":"555", "email":"", "phone":"", "address":"", "token":""}
     ]}
     </textarea><br>
     <input type="button" onclick="addData()" value="Add Data">
@@ -35,9 +35,9 @@
     <hr>
 
     <textarea rows="6" cols="200" id="text_update">
-    {"act"="update", "data"=[
-       {"user_id"=1, "user_name"="刘备",  "password"="111", "email"="", "phone"="", "address"="", "token"=""},
-       {"user_id"=2, "user_name"="关羽",  "password"="222", "email"="", "phone"="", "address"="", "token"=""}
+    {"act":"update", "data":[
+       {"user_id":1, "user_name":"刘备",  "password":"111", "email":"", "phone":"", "address":"", "token":""},
+       {"user_id":2, "user_name":"关羽",  "password":"222", "email":"", "phone":"", "address":"", "token":""}
     ]}
     </textarea><br>
     <input type="button" onclick="updateData()"  value="Update Data">
@@ -45,7 +45,7 @@
     <hr>
 
     <label> Please input the delete condition : </label>
-    <textarea rows="3" cols="80" id="text_delete">{"act"="delete", "user_id_range"="1-10"}</textarea>
+    <textarea rows="3" cols="80" id="text_delete">{"act":"delete", "user_id_range":"1-10"}</textarea>
     <input type="button" onclick="deleteData()" value="Delete Data">
     <label id="result_delete" > * </label>
   </div>

@@ -29,7 +29,7 @@ public class JsonUtil {
         if (p1 < 0) return null; // No data
 
         // Find the = position
-        p1 = jsonStr.indexOf("=", p1);
+        p1 = jsonStr.indexOf(":", p1);
         if (p1 < 0) return null;
 
         // Find the 1st ""
@@ -51,7 +51,7 @@ public class JsonUtil {
         if (p1 < 0) return null;
 
         // Find the = position
-        p1 = jsonStr.indexOf("=", p1);
+        p1 = jsonStr.indexOf(":", p1);
         if (p1 < 0) return null;
 
         // Find the [
@@ -81,7 +81,7 @@ public class JsonUtil {
         if (p1 < 0) return null; // No data
 
         // Find the = position
-        p1 = jsonStr.indexOf("=", p1);
+        p1 = jsonStr.indexOf(":", p1);
         if (p1 < 0) return null;
 
         // Find the end ,
@@ -103,7 +103,7 @@ public class JsonUtil {
         if (p1 < 0) return null; // No data
 
         // Find the = position
-        p1 = jsonStr.indexOf("=", p1);
+        p1 = jsonStr.indexOf(":", p1);
         if (p1 < 0) return null;
 
         // Find the end , or }
@@ -125,7 +125,7 @@ public class JsonUtil {
         if (p1 < 0) return null; // No data
 
         // Find the = position
-        p1 = jsonStr.indexOf("=", p1);
+        p1 = jsonStr.indexOf(":", p1);
         if (p1 < 0) return null;
 
         // Find the end , or }

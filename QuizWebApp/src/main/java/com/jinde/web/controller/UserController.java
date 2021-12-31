@@ -71,27 +71,39 @@ public class UserController {
     }
 
     // Insert user data
-    public String insert(String[] data) {
-        SqlAction[] act = new SqlAction[data.length];
-        User user = null;
-        for (int i = 0; i < data.length; i++) {
-            user = WebUtil.buildObject(data[i], User.class);
-            act[i] = new SqlAction(user, WebUtil.ACT_INSERT);
+    public String insert(String body) {
+        String[] data = JsonUtil.getArray(body, WebUtil.DATA);
+        String result = null;
+        if (data == null) {
+            result = "No data";
+        } else {
+            SqlAction[] act = new SqlAction[data.length];
+            User user = null;
+            for (int i = 0; i < data.length; i++) {
+                user = WebUtil.buildObject(data[i], User.class);
+                act[i] = new SqlAction(user, WebUtil.ACT_INSERT);
+            }
+            result = DataManager.instance().runSql(act);
+            LogUtil.println(TAG, result);
         }
-        String result = DataManager.instance().runSql(act);
-        LogUtil.println(TAG, result);
         return result;
     }
 
     // Update user data
-    public String update(String[] data) {
-        SqlAction[] act = new SqlAction[data.length];
-        User user = null;
-        for (int i = 0; i < data.length; i++) {
-            user = WebUtil.buildObject(data[i], User.class);
-            act[i] = new SqlAction(user, WebUtil.ACT_UPDATE);
+    public String update(String body) {
+        String[] data = JsonUtil.getArray(body, WebUtil.DATA);
+        String result = null;
+        if (data == null) {
+            result = "No data";
+        } else {
+            SqlAction[] act = new SqlAction[data.length];
+            User user = null;
+            for (int i = 0; i < data.length; i++) {
+                user = WebUtil.buildObject(data[i], User.class);
+                act[i] = new SqlAction(user, WebUtil.ACT_UPDATE);
+            }
+            result = DataManager.instance().runSql(act);
         }
-        String result = DataManager.instance().runSql(act);
         //LogUtil.println(TAG, result);
         return result;
     }

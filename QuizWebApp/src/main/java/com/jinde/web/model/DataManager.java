@@ -261,16 +261,21 @@ public class DataManager {
             } else if (type == java.sql.Types.VARCHAR) {
                 builder.append("\"").append(rs.getString(c)).append("\"");
             } else if (type == java.sql.Types.TIMESTAMP) {
-                builder.append(rs.getTimestamp(c));
+                builder.append("\"").append(getYMD(rs,c)).append("\"");
             } else {
-                builder.append("unknown_type");
+                builder.append("unknown");
             }
             if (c < count) {
-                builder.append(",");
+                builder.append(", ");//Must a space
             }
         }
         builder.append("},\n");
         return builder.toString();
+    }
+
+    // Get YYYY-MM-DD
+    private String getYMD(ResultSet rs, int col) throws SQLException {
+        return rs.getTimestamp(col).toString().substring(0,10);
     }
 
     // Check SQL select
