@@ -40,7 +40,7 @@ public class JsonUtil {
         int p2 = jsonStr.indexOf("\"", p1 + 1);
         if (p2 < 0) return null;
 
-        return jsonStr.substring(p1 + 1, p2);
+        return jsonStr.substring(p1 + 1, p2).trim(); // Must trim
     }
 
     // Get the array by the key from the JSON string

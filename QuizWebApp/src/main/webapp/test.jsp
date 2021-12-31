@@ -1,16 +1,19 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <HTML>
 <title>Quzi Data Management</title>
-<label>Quzi Data Management
-       &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
-       Please input the URL : </label>
-<input type="text" id="url" value="/user" />
+<label>Quzi Data Management &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
+       Please select the URL : </label>
+<select id="url" onchange="onUrlChange(this)">
+  <option value="/user">/user</option>
+  <option value="/quiz_main">/quiz_main</option>
+  <option value="/quiz_item">/quiz_item</option>
+</select>
 <div style="width:100%; margin:auto; overflow:auto;">
 
   <!-- Remove the float:right; -->
   <div style="width:99%; background:#EEE">
     <label> Please input the query condition : </label>
-    <textarea rows="2" cols="80" id="text_query">{"act":"select", "user_id_range":"1-300"}</textarea>
+    <textarea rows="2" cols="80" id="text_query" style="resize:none;">{"act":"select", "user_id_range":"1-300"}</textarea>
     <input type="button" onclick="queryData()" value="Query Data">
     <label id="state"> * </label><br>
     <!-- The textarea can't wrap line, so use DIV to wrap line
@@ -45,7 +48,7 @@
     <hr>
 
     <label> Please input the delete condition : </label>
-    <textarea rows="3" cols="80" id="text_delete">{"act":"delete", "user_id_range":"1-10"}</textarea>
+    <textarea rows="3" cols="80" id="text_delete" style="resize:none;">{"act":"delete", "user_id_range":"1-10"}</textarea>
     <input type="button" onclick="deleteData()" value="Delete Data">
     <label id="result_delete" > * </label>
   </div>
@@ -74,9 +77,10 @@
     vertical-align: top;
   }
 
-  input[id="url"]{
-    margin: 1px 3px;
-    width: 300px;
+  select[id="url"]{
+    margin: 3px 3px;
+    width: 200px;
+    height: 50px
     vertical-align: top;
   }
 
@@ -99,6 +103,31 @@
   var result_add = document.getElementById("result_add");
   var result_update = document.getElementById("result_update");
   var result_delete = document.getElementById("result_delete");
+
+  // On URL change
+  function onUrlChange(obj) {
+    var index = obj.selectedIndex;
+    var val = obj.options[index].value;
+    var txt = obj.options[index].text;
+    result_query.innerText = ''
+    // change all texts
+    if (val == '/user') {
+      text_query.value  = '{"act":"select", "user_id_range":"1-300"}'
+      text_add.value    = '{"act":"insert", "data":[\n  {"user_id":0, "user_name":"曹操",  "password":"555", "email":"", "phone":"", "address":"", "token":""},\n  {"user_id":0, "user_name":"孙权",  "password":"777", "email":"", "phone":"", "address":"", "token":""}\n]}'
+      text_update.value = '{"act":"update", "data":[\n  {"user_id":0, "user_name":"曹操",  "password":"555", "email":"", "phone":"", "address":"", "token":""},\n  {"user_id":0, "user_name":"孙权",  "password":"777", "email":"", "phone":"", "address":"", "token":""}\n]}'
+      text_delete.value = '{"act":"delete", "user_id_range":"1-10"}'
+    } else if (val == '/quiz_main') {
+      text_query.value  = '{"act":"select", "quiz_id_range":"1-300"}'
+      text_add.value    = '{"act":"insert", "data":[\n  {"quiz_id":0, "quiz_name"="Sports Quiz"},\n  {"quiz_id":0, "quiz_name"="News Quiz"}\n]}'
+      text_update.value = '{"act":"update", "data":[\n  {"quiz_id":0, "quiz_name"="Sports Quiz"},\n  {"quiz_id":0, "quiz_name"="News Quiz"}\n]}'
+      text_delete.value = '{"act":"delete", "quiz_id_range":"1-10"}'
+    } else if (val == '/quiz_item') {
+      text_query.value  = '{"act":"select", "quiz_id_range":"1-300"}'
+      text_add.value    = '{"act":"insert", "data":[\n  {"quiz_id":1, "item_id"=1, "item_content"="Which sport you like?", "item_answer"="(a)Football (b)Swimming", "multi_select":true}\n  {"quiz_id":1, "item_id"=2, "item_content"="Which city you like?", "item_answer"="(a)New York (b)Boston", "multi_select":true}\n]}'
+      text_update.value = '{"act":"update", "data":[\n  {"quiz_id":1, "item_id"=1, "item_content"="Which sport you like?", "item_answer"="(a)Football (b)Swimming", "multi_select":true}\n  {"quiz_id":1, "item_id"=2, "item_content"="Which city you like?", "item_answer"="(a)New York (b)Boston", "multi_select":true}\n]}'
+      text_delete.value = '{"act":"delete", "quiz_id_range":"1-10"}'
+    }
+  }
 
   // Initiate http
   function initHttp() {
