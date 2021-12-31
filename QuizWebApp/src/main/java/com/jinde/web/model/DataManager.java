@@ -65,7 +65,7 @@ public class DataManager {
         p.setMaxWait(10000);
         p.setRemoveAbandonedTimeout(60);
         p.setMinEvictableIdleTimeMillis(30000);
-        p.setMinIdle(10);
+        p.setMinIdle(1);
         p.setLogAbandoned(true);
         p.setRemoveAbandoned(true);
         p.setJdbcInterceptors(
@@ -352,10 +352,10 @@ public class DataManager {
                 // When we insert data to the main-item(1-N) tables
                 // The main table has the autoId(AutoIncrementId) as PK
                 // The item table has the (autoId, itemId) as PK
-                // Because we don't know the autoId, so we set the id=0
+                // Because we don't know the autoId, so have to set id=0
                 // Then MySQL will use the LAST_INSERT_ID() to get  autoId
                 // Then below codes will set the item table PK[0] = autoId
-                if (autoId > 0 && f.get(T).equals(0) && name.equals(pk[0])) {
+                if (autoId > 0 && f.get(T).equals(0) && contains(pk, name)) {
                     ps.setObject(i, autoId);
                 } else {
                     ps.setObject(i, f.get(T));
