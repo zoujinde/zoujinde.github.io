@@ -45,8 +45,8 @@ public class UserController {
             //LogUtil.println(TAG, id1 + " - " + id2);
             if (id1 > id2 || id1 < 0) {
                 result = "Invalid user_id_range";
-            } else if (id2 - id1 > 100) {
-                result = "Invalid user_id_range > 100";
+            } else if (id2 - id1 > 300) {
+                result = "Invalid user_id_range > 300";
             } else {
                 id[0] = id1;
                 id[1] = id2;

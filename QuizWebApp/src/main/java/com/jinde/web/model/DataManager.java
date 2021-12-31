@@ -16,9 +16,6 @@ import com.jinde.web.util.WebUtil;
 
 public class DataManager {
 
-    // MySQL uses LAST_INSERT_ID() for AUTO_INCREMENT ID
-    public static final int LAST_INSERT_ID = 0;
-
     private static final String TAG = "DataManager";
 
     // volatile ensures the memory synchronized safely
@@ -347,11 +344,18 @@ public class DataManager {
         }
 
         // Build values
+        String[] pk = T.getPrimaryKey();
         int i = 1; // Starts from 1
         for (Field f : array) {
             name = f.getName();
             if (!name.equals(autoIdName)) {
-                if (autoId > 0 && f.get(T).equals(LAST_INSERT_ID)) {
+                // When we insert data to the main-item(1-N) tables
+                // The main table has the autoId(AutoIncrementId) as PK
+                // The item table has the (autoId, itemId) as PK
+                // Because we don't know the autoId, so we set the id=0
+                // Then MySQL will use the LAST_INSERT_ID() to get  autoId
+                // Then below codes will set the item table PK[0] = autoId
+                if (autoId > 0 && f.get(T).equals(0) && name.equals(pk[0])) {
                     ps.setObject(i, autoId);
                 } else {
                     ps.setObject(i, f.get(T));

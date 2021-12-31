@@ -10,7 +10,7 @@
   <!-- Remove the float:right; -->
   <div style="width:99%; background:#EEE">
     <label> Please input the query condition : </label>
-    <textarea rows="2" cols="80" id="text_query">{"act":"select", "user_id_range":"1-100"}</textarea>
+    <textarea rows="2" cols="80" id="text_query">{"act":"select", "user_id_range":"1-300"}</textarea>
     <input type="button" onclick="queryData()" value="Query Data">
     <label id="state"> * </label><br>
     <!-- The textarea can't wrap line, so use DIV to wrap line
