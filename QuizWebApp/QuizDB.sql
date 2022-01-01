@@ -34,7 +34,8 @@ CREATE TABLE quiz_item (
   item_content VARCHAR(300) NOT NULL,
   item_answer  VARCHAR(300) NOT NULL,
   multi_select BIT          NOT NULL,
-  PRIMARY KEY(quiz_id, item_id)
+  PRIMARY KEY(quiz_id, item_id),
+  CONSTRAINT fk_quiz_item FOREIGN KEY (quiz_id) REFERENCES quiz(quiz_id)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
 
 -- Quiz result table
@@ -44,6 +45,8 @@ CREATE TABLE quiz_result (
   user_id      INT     NOT NULL,
   answer       VARCHAR(10) NOT NULL,
   answer_time  DATETIME    NOT NULL,
-  PRIMARY KEY(quiz_id, item_id, user_id)
+  PRIMARY KEY(quiz_id, item_id, user_id),
+  CONSTRAINT fk_quiz_result FOREIGN KEY (quiz_id, item_id) REFERENCES quiz_item(quiz_id, item_id),
+  CONSTRAINT fk_quiz_result_user FOREIGN KEY (user_id) REFERENCES user(user_id)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
 
