@@ -67,7 +67,7 @@
 
 <script type="text/javascript">
   var httpRequest = null;
-  var url = document.getElementById("url");
+  var select_url = document.getElementById("url");
   var text_query = document.getElementById("text_query");
   var text_data = document.getElementById("text_data");
   var result_query = document.getElementById("result_query");
@@ -76,13 +76,12 @@
 
   // Add new data
   function addData() {
-    var index = result_query.selectedIndex;
-    if (index >= 0) {
-      var text = result_query.options[index].text;
+    if (result_query.options.length > 0) {
+      var text = result_query.options[0].text;
       // Can't use innerHTML or innerText, which can't work on the 2nd time
       text_data.value = '{"act":"insert", "data":[\n  ' + text + '\n]}';
     } else {
-      text_data.value = 'No selected data to insert';
+      text_data.value = 'No query data to insert';
     }
   }
 
@@ -151,13 +150,14 @@
       return;
     }
     // Confirm the request
-    var msg = "Would you submit below data to server?\n\n" + data;
+    var path = getPath() + select_url.value;
+    var msg = "Would you submit to " + path + "\n\n" + data;
     if (!confirm(msg)) {
       return;
     }
     initHttp();
     // Post URL is Servlet, the sync is true
-    httpRequest.open("POST", url.value, true);
+    httpRequest.open("POST", path, true);
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // Set callback
@@ -179,9 +179,9 @@
 
   // Query data
   function queryData() {
-    //result_query.innerText = ""
     initHttp();
-    httpRequest.open("POST", url.value, true);
+    var path = getPath() + select_url.value;
+    httpRequest.open("POST", path, true);
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     httpRequest.onreadystatechange = queryResult;
     httpRequest.send(text_query.value);
@@ -215,6 +215,13 @@
         result_state.innerText = httpRequest.status;
       }
     }
+  }
+
+  // Get path
+  function getPath(){
+    var path = document.location.pathname;
+    var index = path.indexOf("/", 1);
+    return path.substring(0, index);
   }
 
 </script>
