@@ -19,8 +19,7 @@ public class WebUtil {
 
     public static final String DATA = "data";
     public static final String OK = "OK";
-    public static final int ROWS_LIMIT = 1000;
-    private static final int ID_RANGE = 500;
+    public static final int ROWS_LIMIT = 500;
 
     // SYS_TIME for table time
     private static final Timestamp SYS_TIME = new Timestamp(System.currentTimeMillis());
@@ -165,8 +164,8 @@ public class WebUtil {
             //LogUtil.println(TAG, id1 + " - " + id2);
             if (id1 > id2 || id1 < 0) {
                 error = "Invalid user_id_range";
-            } else if (id2 - id1 > ID_RANGE) {
-                error = "Invalid id_range > " + ID_RANGE;
+            } else if (id2 - id1 > ROWS_LIMIT) {
+                error = "Invalid id_range > " + ROWS_LIMIT;
             } else {
                 id[0] = id1;
                 id[1] = id2;

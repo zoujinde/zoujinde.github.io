@@ -106,16 +106,17 @@ public class DataManager {
                 builder.append("[ \n"); // Must add 1 space
             }
             // Read lines
+            int count = 0;
             while (rs.next()) {
                 if (builder != null) {
                     buildJson(rs, builder);
                 } else {
-                    T obj = buildObject(rs, type);
-                    result.add(obj);
-                    if (result.size() > WebUtil.ROWS_LIMIT) {
-                        LogUtil.println(TAG, "ROWS > " +  WebUtil.ROWS_LIMIT);
-                        break;
-                    }
+                    result.add(buildObject(rs, type));
+                }
+                count++;
+                if (count > WebUtil.ROWS_LIMIT) {
+                    LogUtil.println(TAG, "break on ROWS > " +  WebUtil.ROWS_LIMIT);
+                    break;
                 }
             }
             // End the JSON string
@@ -125,6 +126,9 @@ public class DataManager {
             }
         } catch (Exception e) {
             //e.printStackTrace();
+            result = null;
+            builder.setLength(0);
+            builder.append(e);
             LogUtil.println(TAG, "select : " + e);
         } finally {
             close(rs);

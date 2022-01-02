@@ -79,9 +79,9 @@
     if (result_query.options.length > 0) {
       var text = result_query.options[0].text;
       // Can't use innerHTML or innerText, which can't work on the 2nd time
-      text_data.value = '{"act":"insert", "data":[\n  ' + text + '\n]}';
+      text_data.value = '{"act":"insert", "data":[\n  ' + text + ',\n]}';
     } else {
-      text_data.value = 'No query data to insert';
+      text_data.value = 'Can not add data, please query data firstly.';
     }
   }
 
@@ -90,9 +90,9 @@
     var index = result_query.selectedIndex;
     if (index >= 0) {
       var text = result_query.options[index].text;
-      text_data.value = '{"act":"update", "data":[\n  ' + text + '\n]}';
+      text_data.value = '{"act":"update", "data":[\n  ' + text + ',\n]}';
     } else {
-      text_data.value = 'No selected data to update';
+      text_data.value = 'Can not modify data, please select data row to update.';
     }
   }
 
@@ -116,7 +116,7 @@
         text_data.value = 'Can not get the ID value';
       }
     } else {
-      text_data.value = 'No selected data to delete';
+      text_data.value = 'Can not delete data, please select data row to delete.';
     }
   }
 
@@ -141,11 +141,13 @@
 
   // Submit data
   function submitData() {
+    result_data.innerText = '*';
     // Check the data
     var data = text_data.value.trim();
     if (data.startsWith('{') && data.endsWith('}')) {
       //data is OK
     } else {
+      // The result_data is a label, the result_data.value = 'xxx' can't work
       result_data.innerText = 'Invalid Data';
       return;
     }
