@@ -20,6 +20,7 @@ public class WebUtil {
     public static final String DATA = "data";
     public static final String OK = "OK";
     public static final int ROWS_LIMIT = 1000;
+    private static final int ID_RANGE = 500;
 
     // SYS_TIME for table time
     private static final Timestamp SYS_TIME = new Timestamp(System.currentTimeMillis());
@@ -110,12 +111,12 @@ public class WebUtil {
                     Long l = JsonUtil.getLong(json, name);
                     f.setLong(object, l);
                 } else if (type == Timestamp.class) {
+                    /* Don't read time fields for now
                     String t = JsonUtil.getString(json, name);
                     if (t != null) {
                         f.set(object, t);
-                    } else {
-                        f.set(object, SYS_TIME);
-                    }
+                    }*/
+                    f.set(object, SYS_TIME); // Set SYS_TIME for now
                 } else {
                     String s = JsonUtil.getString(json, name);
                     //LogUtil.println(TAG, "build " + name + "=" + s);
@@ -123,10 +124,22 @@ public class WebUtil {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             LogUtil.println(TAG, name + " build " + e);
             object = null;
         }
         return object;
+    }
+
+    // Get DataObject by table name
+    public static Object buildObject(Class<?> type) {
+        Object obj = null;
+        try {
+            obj = type.newInstance();
+        } catch (Exception e) {
+            LogUtil.println(TAG, type + " build " + e);
+        }
+        return obj;
     }
 
     // Get the post body
@@ -139,6 +152,29 @@ public class WebUtil {
             LogUtil.println(TAG, "getPostBody : " + e);
         }
         return body;
+    }
+
+
+    // Get ID range -> Return error
+    public static String getIdRange(String body, Integer[] id) {
+        String error = null;
+        try {
+            String[] range = JsonUtil.getString(body, "id_range").split("-");
+            Integer id1 = Integer.parseInt(range[0].trim());
+            Integer id2 = Integer.parseInt(range[1].trim());
+            //LogUtil.println(TAG, id1 + " - " + id2);
+            if (id1 > id2 || id1 < 0) {
+                error = "Invalid user_id_range";
+            } else if (id2 - id1 > ID_RANGE) {
+                error = "Invalid id_range > " + ID_RANGE;
+            } else {
+                id[0] = id1;
+                id[1] = id2;
+            }
+        } catch (Exception e) {
+            error = "getIdRange : " + e;
+        }
+        return error;
     }
 
 }

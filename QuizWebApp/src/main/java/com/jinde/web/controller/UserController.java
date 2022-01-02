@@ -28,7 +28,7 @@ public class UserController {
     public String select(String body) {
         String result = null;
         Integer[] id = new Integer[]{0,0};
-        String error = getIdRange(body, id);
+        String error = WebUtil.getIdRange(body, id);
         if (error != null) {
             result = error;
         } else {
@@ -38,33 +38,11 @@ public class UserController {
         return result;
     }
 
-    // Get ID range -> Return error
-    private String getIdRange(String body, Integer[] id) {
-        String error = null;
-        try {
-            String[] range = JsonUtil.getString(body, "user_id_range").split("-");
-            Integer id1 = Integer.parseInt(range[0].trim());
-            Integer id2 = Integer.parseInt(range[1].trim());
-            //LogUtil.println(TAG, id1 + " - " + id2);
-            if (id1 > id2 || id1 < 0) {
-                error = "Invalid user_id_range";
-            } else if (id2 - id1 > 300) {
-                error = "Invalid user_id_range > 300";
-            } else {
-                id[0] = id1;
-                id[1] = id2;
-            }
-        } catch (Exception e) {
-            error = e.toString();
-        }
-        return error;
-    }
-
     // Delete user data
     public String delete(String body) {
         String result = null;
         Integer[] id = new Integer[]{0,0};
-        String error = getIdRange(body, id);
+        String error = WebUtil.getIdRange(body, id);
         if (error != null) {
             result = error;
         } else {
