@@ -1,12 +1,12 @@
 package com.jinde.web.model;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -16,7 +16,7 @@ import com.jinde.web.util.WebUtil;
 
 public class DataManager {
 
-    private static final String TAG = "DataManager";
+    private static final String TAG = DataManager.class.getSimpleName();
 
     // volatile ensures the memory synchronized safely
     private static volatile DataManager sInstance = null;
@@ -83,16 +83,13 @@ public class DataManager {
     }
 
     // Run SQL select -> Return T[] array
-    public <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type) {
+    public <T extends DataObject> ArrayList<T> select(String sql, Object[] values, Class<T> type) {
         return select(sql, values, type, null);
     }
 
     // Run SQL select -> Return T[] array
-    @SuppressWarnings("unchecked")
-    private <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type, StringBuilder builder) {
-        T[] result = null;
-        T topObj = null;
-        T lastObj = null;
+    private <T extends DataObject> ArrayList<T> select(String sql, Object[] values, Class<T> type, StringBuilder builder) {
+        ArrayList<T> result = new ArrayList<T>();
         Connection cn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -109,20 +106,13 @@ public class DataManager {
                 builder.append("[ \n"); // Must add 1 space
             }
             // Read lines
-            int count = 0;
             while (rs.next()) {
                 if (builder != null) {
                     buildJson(rs, builder);
                 } else {
                     T obj = buildObject(rs, type);
-                    if (topObj == null) {
-                        topObj = obj;
-                    } else {
-                        lastObj.setNext(obj);
-                    }
-                    lastObj = obj;
-                    count++; // Add count
-                    if (count > WebUtil.ROWS_LIMIT) {
+                    result.add(obj);
+                    if (result.size() > WebUtil.ROWS_LIMIT) {
                         LogUtil.println(TAG, "ROWS > " +  WebUtil.ROWS_LIMIT);
                         break;
                     }
@@ -132,12 +122,6 @@ public class DataManager {
             if (builder != null) {
                 builder.setLength(builder.length() - 2);
                 builder.append("\n]\n");
-            } else if (count > 0) {
-                result = (T[]) Array.newInstance(type, count);
-                for (int i = 0; i < count; i++) {
-                    result[i] = topObj;
-                    topObj = topObj.getNext();
-                }
             }
         } catch (Exception e) {
             //e.printStackTrace();

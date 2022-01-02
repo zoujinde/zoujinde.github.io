@@ -16,7 +16,7 @@ import com.jinde.web.util.WebUtil;
 @SuppressWarnings("serial")
 @WebServlet(urlPatterns = "/student")
 public class StudentServlet extends HttpServlet {
-    private static final String TAG = "StudentServlet";
+    private static final String TAG = StudentServlet.class.getSimpleName();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)

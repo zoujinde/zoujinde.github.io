@@ -10,7 +10,7 @@ import com.jinde.web.util.WebUtil;
 
 public class UserController {
 
-    private static final String TAG = "UserController";
+    private static final String TAG = UserController.class.getSimpleName();
 
     // Single instance
     private static final UserController INSTANCE = new UserController();

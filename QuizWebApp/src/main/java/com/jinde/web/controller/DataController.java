@@ -11,7 +11,7 @@ import com.jinde.web.util.WebUtil;
 
 public class DataController {
 
-    private static final String TAG = "UserController";
+    private static final String TAG = DataController.class.getSimpleName();
     private static final String UNKNOWN_TYPE = "Unknown type : ";
 
     // Single instance

@@ -17,7 +17,7 @@ import com.jinde.web.util.WebUtil;
 @WebServlet(urlPatterns = "/user")
 public class UserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final String TAG = "UserServlet";
+    private static final String TAG = UserServlet.class.getSimpleName();
 
     // Only define doPost
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
