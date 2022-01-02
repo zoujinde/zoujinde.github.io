@@ -52,7 +52,7 @@
   }
 
   select[id="url"]{
-    margin: 1px 3px;
+    margin: 6px 3px;
     width: 200px;
     height: 50px
     vertical-align: top;
@@ -148,6 +148,11 @@
       //data is OK
     } else {
       result_data.innerText = 'Invalid Data';
+      return;
+    }
+    // Confirm the request
+    var msg = "Would you submit below data to server?\n\n" + data;
+    if (!confirm(msg)) {
       return;
     }
     initHttp();
