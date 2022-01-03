@@ -1,5 +1,8 @@
 package com.jinde.web.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -208,5 +211,29 @@ public class WebUtil {
         }
         return value;
     } 
+
+    // Copy file
+    public static String copyFile(File src, File dst) {
+        String error = null;
+        try {
+            byte[] buf = new byte[8192];
+            FileInputStream fis = new FileInputStream(src);
+            FileOutputStream fos = new FileOutputStream(dst);
+            int n = 0;
+            while (true) {
+                n = fis.read(buf);
+                if (n <= 0) {
+                    break;
+                }
+                fos.write(buf, 0, n);
+            }
+            fis.close();
+            fos.close();
+        } catch (IOException e) {
+            error = "copyFile : " + e;
+            LogUtil.println(TAG, error);
+        }
+        return error;
+    }
 
 }
