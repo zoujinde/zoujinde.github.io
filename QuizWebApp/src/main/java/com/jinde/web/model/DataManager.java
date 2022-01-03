@@ -36,9 +36,14 @@ public class DataManager {
 
     // Private constructor
     private DataManager() {
-        //String url = "jdbc:mysql://localhost:3306/quzi?useSSL=false&characterEncoding=utf8";
-        String host = WebUtil.getValue("db_host");
-        String url  = "jdbc:mysql://" + host + ":3306/quzi";
+        //String url = "jdbc:mysql://localhost:3306/quiz?useSSL=false&characterEncoding=utf8";
+        //String host = WebUtil.getValue("db_host"); // Can't work on AWS
+        String host = "localhost";
+        String res = DataManager.class.getResource("/") + "";
+        if (res.startsWith("file:/var/app/current/")) {
+            host = "aa15hi0df0cyue7.ck2q6584r1ek.us-east-2.rds.amazonaws.com";
+        }
+        String url  = "jdbc:mysql://" + host + ":3306/quiz";
         LogUtil.println(TAG, url);
         /* Use Tomcat DBCP instead of HikariCP
         HikariConfig config = new HikariConfig();
@@ -76,6 +81,9 @@ public class DataManager {
           "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
         mDataSource = new DataSource();
         mDataSource.setPoolProperties(p);
+        if (!url.contains("/quiz")) {
+            initQuizDB();
+        }
     }
 
     // Run SQL select -> Return JSON string
@@ -459,6 +467,72 @@ public class DataManager {
             ps.setObject(i + 1, values[i]);
         }
         return ps;
+    }
+
+    private static final String QUIZ_SQL
+    ="CREATE DATABASE quiz;"
+    +"USE quiz;"
+    +"CREATE TABLE user ("
+    +"  user_id     INT AUTO_INCREMENT NOT NULL,"
+    +"  user_name   VARCHAR(30) NOT NULL,"
+    +"  password    VARCHAR(20) NOT NULL,"
+    +"  email       VARCHAR(30) NOT NULL,"
+    +"  phone       VARCHAR(20) NOT NULL,"
+    +"  address     VARCHAR(50) NOT NULL,"
+    +"  token       VARCHAR(50) NOT NULL,"
+    +"  create_time DATETIME    NOT NULL,"
+    +"  PRIMARY KEY(user_id),"
+    +"  UNIQUE KEY user_name_uniq(user_name)"
+    +") Engine=INNODB DEFAULT CHARSET=UTF8MB4;"
+    +"CREATE TABLE quiz ("
+    +"  quiz_id     INT AUTO_INCREMENT NOT NULL,"
+    +"  quiz_name   VARCHAR(50) NOT NULL,"
+    +"  create_time DATETIME    NOT NULL,"
+    +"  PRIMARY KEY(quiz_id),"
+    +"  UNIQUE KEY quiz_name_uniq(quiz_name)"
+    +") Engine=INNODB DEFAULT CHARSET=UTF8MB4;"
+    +"CREATE TABLE quiz_item ("
+    +"  quiz_id      INT     NOT NULL,"
+    +"  item_id      TINYINT NOT NULL,"
+    +"  item_content VARCHAR(300) NOT NULL,"
+    +"  item_answer  VARCHAR(300) NOT NULL,"
+    +"  multi_select BIT          NOT NULL,"
+    +"  PRIMARY KEY(quiz_id, item_id),"
+    +"  CONSTRAINT fk_quiz_item FOREIGN KEY (quiz_id) REFERENCES quiz(quiz_id)"
+    +") Engine=INNODB DEFAULT CHARSET=UTF8MB4;"
+    +"CREATE TABLE quiz_result ("
+    +"  quiz_id      INT     NOT NULL,"
+    +"  item_id      TINYINT NOT NULL,"
+    +"  user_id      INT     NOT NULL,"
+    +"  answer       VARCHAR(10) NOT NULL,"
+    +"  answer_time  DATETIME    NOT NULL,"
+    +"  PRIMARY KEY(quiz_id, item_id, user_id),"
+    +"  CONSTRAINT fk_quiz_result FOREIGN KEY (quiz_id, item_id) REFERENCES quiz_item(quiz_id, item_id),"
+    +"  CONSTRAINT fk_quiz_result_user FOREIGN KEY (user_id) REFERENCES user(user_id)"
+    +") Engine=INNODB DEFAULT CHARSET=UTF8MB4;"
+    +"insert into user values(1, 'Admin', 'pass', '', '', '', '', '2022-01-01');"
+    +"insert into quiz values(1, 'Quiz 2022', '2022-01-01');"
+    +"insert into quiz_item values(1, 1, 'Question 1?', '(a) Yes (b) No', 0);"
+    +"insert into quiz_result values(1, 1, 1, '0', '2022-01-01');";
+
+    // Initiate quiz DB
+    private void initQuizDB() {
+        Connection cn = null;
+        PreparedStatement ps = null;
+        try {
+            cn = mDataSource.getConnection();
+            String[] sql = QUIZ_SQL.split(";");
+            for (String s : sql) {
+                LogUtil.println(TAG, s);
+                ps = cn.prepareStatement(s);
+                ps.execute();
+            }
+        } catch (Exception e) {
+            LogUtil.println(TAG, e.toString());
+        } finally {
+            close(ps);
+            close(cn);
+        }
     }
 
 }

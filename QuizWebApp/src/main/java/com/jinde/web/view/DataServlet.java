@@ -26,8 +26,10 @@ public class DataServlet extends HttpServlet {
         String tab = req.getParameter("tab");
         String act = JsonUtil.getString(body, WebUtil.ACT);
         if (tab == null || act == null) {
-            result = "tab or act is null";
-            LogUtil.println(TAG, "tab=" + tab + " act=" + act);
+            String path = req.getServletContext().getRealPath("/");
+            String res = getClass().getResource("/") + "";
+            result = "tab or act is null " + path + " # " + res;
+            LogUtil.println(TAG, result);
         } else if (act.equals(WebUtil.ACT_SELECT)) {
             result = DataController.instance().select(body, tab);
         } else if (act.equals(WebUtil.ACT_INSERT)) {

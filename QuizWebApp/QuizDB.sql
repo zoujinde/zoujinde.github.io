@@ -1,6 +1,6 @@
--- DROP DATABASE IF EXISTS quzi;
-CREATE DATABASE quzi;
-USE quzi;
+-- DROP DATABASE IF EXISTS quiz;
+CREATE DATABASE quiz;
+USE quiz;
 
 -- User table
 CREATE TABLE user (
@@ -50,3 +50,8 @@ CREATE TABLE quiz_result (
   CONSTRAINT fk_quiz_result_user FOREIGN KEY (user_id) REFERENCES user(user_id)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
 
+-- Insert test data
+insert into user values(1, 'Admin', 'pass', '', '', '', '', '2022-01-01');
+insert into quiz values(1, 'Quiz 2022', '2022-01-01');
+insert into quiz_item values(1, 1, 'Question 1?', '(a) Yes (b) No', 0);
+insert into quiz_result values(1, 1, 1, '0', '2022-01-01');

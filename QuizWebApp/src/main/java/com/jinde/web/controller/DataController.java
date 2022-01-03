@@ -43,6 +43,9 @@ public class DataController {
                 String idName = obj.getPrimaryKey()[0];
                 String sql = "select * from " + tabName + " where " + idName + " between ? and ?";
                 result = DataManager.instance().select(sql, id);
+                if (result.equals("[\n]\n")) {
+                    result = "No Result";
+                }
             }
         }
         return result;
