@@ -1,6 +1,7 @@
 package com.jinde.web.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.stream.Collectors;
@@ -20,6 +21,8 @@ public class WebUtil {
     public static final String DATA = "data";
     public static final String OK = "OK";
     public static final int ROWS_LIMIT = 500;
+
+    private static String[] sConfig = null;
 
     // SYS_TIME for table time
     private static final Timestamp SYS_TIME = new Timestamp(System.currentTimeMillis());
@@ -175,5 +178,35 @@ public class WebUtil {
         }
         return error;
     }
+
+    // Get value from config.ini
+    public static String getValue(String key) {
+        String value = null;
+        if (sConfig == null) {
+            byte[] buf = new byte[512];
+            try {
+                InputStream is = WebUtil.class.getResourceAsStream("config.ini");
+                int size = is.read(buf);
+                is.close();
+                if (size > 0) {
+                    sConfig = new String(buf, 0, size).split("\n");
+                }
+            } catch (IOException e) {
+                LogUtil.println(TAG, "getValue : " + e);
+            }
+        }
+        String line;
+        for (int i = 0; sConfig != null && i < sConfig.length; i++) {
+            line = sConfig[i].trim();
+            if (line.startsWith(key)) {
+                int p = line.indexOf("=");
+                if (p > 0) {
+                    value = line.substring(p + 1).trim();
+                    break;
+                }
+            }
+        }
+        return value;
+    } 
 
 }

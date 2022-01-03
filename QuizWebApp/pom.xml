@@ -52,8 +52,8 @@
             <artifactId>mysql-connector-java</artifactId>
             <!-- Thought 5.x can support 8.x, but recommended to use 8.x --> 
             <version>8.0.27</version>
-            <!-- Use provided insetead of runtime -->
-            <scope>provided</scope>
+            <!-- Use runtime to add mysql to app jar -->
+            <scope>runtime</scope>
         </dependency>
 
     </dependencies>

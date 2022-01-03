@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="D:/data/web/apache-tomcat-9.0.56/lib/ecj-4.20.jar"/>
-	<classpathentry kind="lib" path="D:/data/web/apache-tomcat-9.0.56/lib/mysql-connector-java-8.0.27.jar"/>
+	<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar"/>
 	<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/9.0.56/tomcat-embed-core-9.0.56.jar"/>
 	<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/9.0.56/tomcat-embed-el-9.0.56.jar"/>
 	<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/org/apache/tomcat/embed/tomcat-embed-jasper/9.0.56/tomcat-embed-jasper-9.0.56.jar"/>
