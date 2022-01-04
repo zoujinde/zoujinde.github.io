@@ -24,6 +24,7 @@ public class DataManager {
     // volatile ensures the memory synchronized safely
     private static volatile DataManager sInstance = null;
     private DataSource mDataSource = null;
+    private String mUrl = "";
 
     // Single instance
     public static DataManager instance() {
@@ -40,13 +41,13 @@ public class DataManager {
     // Private constructor
     private DataManager() {
         //Download MySql jar
-        WebUtil.downloadMySql();
+        //WebUtil.downloadMySql();
         //jdbc:mysql://localhost:3306/quiz?useSSL=false&characterEncoding=utf8
         String url  = "jdbc:mysql://localhost:3306/";
         String home = System.getProperty("catalina.home");
         if (home.startsWith("/usr/")) { // AWS
             String host = WebUtil.getValue("jdbc_host");
-            url.replace("localhost", host);
+            url = url.replace("localhost", host);
         }
         String user = WebUtil.getValue("jdbc_user");
         String pass = WebUtil.getValue("jdbc_pass");
@@ -63,7 +64,8 @@ public class DataManager {
         sDataSource = new HikariDataSource(config);
         */
         PoolProperties p = new PoolProperties();
-        p.setUrl(url + "quiz"); // Set quiz DB
+        mUrl = url + "quiz";
+        p.setUrl(mUrl); // Set quiz DB
         p.setDriverClassName(JDBC_MYSQL);
         p.setUsername(user);
         p.setPassword(pass);
@@ -91,19 +93,13 @@ public class DataManager {
 
     // Run SQL select -> Return JSON string
     public String select(String sql, Object[] values) {
-        StringBuilder builder = new StringBuilder();
-        select(sql, values, null, builder);
-        return builder.toString();
+        return select(sql, values, null, null);
     }
 
-    // Run SQL select -> Return T[] array
-    public <T extends DataObject> ArrayList<T> select(String sql, Object[] values, Class<T> type) {
-        return select(sql, values, type, null);
-    }
-
-    // Run SQL select -> Return T[] array
-    private <T extends DataObject> ArrayList<T> select(String sql, Object[] values, Class<T> type, StringBuilder builder) {
-        ArrayList<T> result = new ArrayList<T>();
+    // Run SQL select -> Return result
+    public <T extends DataObject> String select(String sql, Object[] values, Class<T> type, ArrayList<T> list) {
+        String result = WebUtil.OK;
+        StringBuilder builder = null;
         Connection cn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -116,8 +112,8 @@ public class DataManager {
             }
             rs = ps.executeQuery();
             // Start the JSON string
-            if (builder != null) {
-                builder.append("[ \n"); // Must add 1 space
+            if (type == null) {
+                builder = new StringBuilder("[ \n");//Must add 1 space
             }
             // Read lines
             int count = 0;
@@ -125,7 +121,7 @@ public class DataManager {
                 if (builder != null) {
                     buildJson(rs, builder);
                 } else {
-                    result.add(buildObject(rs, type));
+                    list.add(buildObject(rs, type));
                 }
                 count++;
                 if (count > WebUtil.ROWS_LIMIT) {
@@ -137,13 +133,11 @@ public class DataManager {
             if (builder != null) {
                 builder.setLength(builder.length() - 2);
                 builder.append("\n]\n");
+                result = builder.toString();
             }
         } catch (Exception e) {
-            //e.printStackTrace();
-            result = null;
-            builder.setLength(0);
-            builder.append(e);
-            LogUtil.println(TAG, "select : " + e);
+            result = "select : " + mUrl + " " + e;
+            LogUtil.println(TAG, result);
         } finally {
             close(rs);
             close(ps);

@@ -28,9 +28,10 @@ public class StudentController {
         Object[] values = new Object[]{100};
         DataManager dm = DataManager.instance();
         String jsonStr = dm.select(sql, values);
-        ArrayList<Student> list = dm.select(sql, values, Student.class);
-        if (list == null) {
-            jsonStr += "\n Student list is null";
+        ArrayList<Student> list = new ArrayList<Student>();
+        String result = dm.select(sql, values, Student.class, list);
+        if (list.isEmpty()) {
+            jsonStr += result;
         } else {
             for (Student student : list) {
                 jsonStr += student.name + "\n";
