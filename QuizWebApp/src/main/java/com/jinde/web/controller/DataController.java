@@ -6,6 +6,7 @@ import com.jinde.web.model.SqlAction;
 import com.jinde.web.model.User;
 import com.jinde.web.util.JsonUtil;
 import com.jinde.web.util.LogUtil;
+import com.jinde.web.util.WebException;
 import com.jinde.web.util.WebUtil;
 
 
@@ -42,9 +43,13 @@ public class DataController {
                 String tabName = obj.getTableName();
                 String idName = obj.getPrimaryKey()[0];
                 String sql = "select * from " + tabName + " where " + idName + " between ? and ?";
-                result = DataManager.instance().select(sql, id);
-                if (result.equals("[\n]\n")) {
-                    result = "No Result";
+                try {
+                    result = DataManager.instance().select(sql, id);
+                    if (result.equals("[\n]\n")) {
+                        result = "No Result";
+                    }
+                } catch (WebException e) {
+                    result = e.getMessage();
                 }
             }
         }

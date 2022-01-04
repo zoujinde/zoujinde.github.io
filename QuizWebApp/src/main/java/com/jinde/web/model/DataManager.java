@@ -13,6 +13,7 @@ import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
 import com.jinde.web.util.LogUtil;
+import com.jinde.web.util.WebException;
 import com.jinde.web.util.WebUtil;
 
 public class DataManager {
@@ -92,13 +93,20 @@ public class DataManager {
     }
 
     // Run SQL select -> Return JSON string
-    public String select(String sql, Object[] values) {
+    public String select(String sql, Object[] values) throws WebException {
         return select(sql, values, null, null);
     }
 
     // Run SQL select -> Return result
-    public <T extends DataObject> String select(String sql, Object[] values, Class<T> type, ArrayList<T> list) {
-        String result = WebUtil.OK;
+    public <T extends DataObject> ArrayList<T> select(String sql, Object[] values, Class<T> type) throws WebException {
+        ArrayList<T> list = new ArrayList<T>();
+        select(sql, values, type, list);
+        return list;
+    }
+
+    // Run SQL select -> Return result
+    private <T extends DataObject> String select(String sql, Object[] values, Class<T> type, ArrayList<T> list) throws WebException {
+        String result = null;
         StringBuilder builder = null;
         Connection cn = null;
         PreparedStatement ps = null;
@@ -136,8 +144,7 @@ public class DataManager {
                 result = builder.toString();
             }
         } catch (Exception e) {
-            result = "select : " + mUrl + " " + e;
-            LogUtil.println(TAG, result);
+            throw new WebException("select : " + mUrl + " " + e);
         } finally {
             close(rs);
             close(ps);
@@ -186,7 +193,7 @@ public class DataManager {
             result = WebUtil.OK;
         } catch (Exception e) {
             //e.printStackTrace();
-            result = "return : " + e.getMessage();
+            result = e.getMessage();
             LogUtil.println(TAG, result);
             try {
                 if (cn != null) cn.rollback();

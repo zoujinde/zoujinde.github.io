@@ -171,7 +171,7 @@ public class WebUtil {
             Integer id2 = Integer.parseInt(range[1].trim());
             //LogUtil.println(TAG, id1 + " - " + id2);
             if (id1 > id2 || id1 < 0) {
-                error = "Invalid user_id_range";
+                error = "Invalid id_range";
             } else if (id2 - id1 > ROWS_LIMIT) {
                 error = "Invalid id_range > " + ROWS_LIMIT;
             } else {

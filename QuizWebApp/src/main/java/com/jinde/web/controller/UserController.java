@@ -5,6 +5,7 @@ import com.jinde.web.model.SqlAction;
 import com.jinde.web.model.User;
 import com.jinde.web.util.JsonUtil;
 import com.jinde.web.util.LogUtil;
+import com.jinde.web.util.WebException;
 import com.jinde.web.util.WebUtil;
 
 
@@ -33,7 +34,11 @@ public class UserController {
             result = error;
         } else {
             String sql = "select * from user where user_id between ? and ?";
-            result = DataManager.instance().select(sql, id);
+            try {
+                result = DataManager.instance().select(sql, id);
+            } catch (WebException e) {
+                result = e.getMessage();
+            }
         }
         return result;
     }

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.jinde.web.model.DataManager;
 import com.jinde.web.model.SqlAction;
 import com.jinde.web.model.Student;
+import com.jinde.web.util.WebException;
 import com.jinde.web.util.WebUtil;
 
 public class StudentController {
@@ -27,15 +28,15 @@ public class StudentController {
         String sql = "select * from students where id < ?";
         Object[] values = new Object[]{100};
         DataManager dm = DataManager.instance();
-        String jsonStr = dm.select(sql, values);
-        ArrayList<Student> list = new ArrayList<Student>();
-        String result = dm.select(sql, values, Student.class, list);
-        if (list.isEmpty()) {
-            jsonStr += result;
-        } else {
+        String jsonStr = "";
+        try {
+            jsonStr = dm.select(sql, values);
+            ArrayList<Student> list = dm.select(sql, values, Student.class);
             for (Student student : list) {
                 jsonStr += student.name + "\n";
             }
+        } catch (WebException e) {
+            jsonStr += e;
         }
         return jsonStr;
     }
