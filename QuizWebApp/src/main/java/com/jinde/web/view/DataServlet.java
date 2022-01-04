@@ -61,15 +61,11 @@ public class DataServlet extends HttpServlet {
         //String path = req.getServletContext().getRealPath("/");
         //String path = getClass().getResource("/").getPath();
         //Check below AWS tomcat path
-        String path = "/usr/share/tomcat";
-        builder.append(path).append(",\n");
-        //buildFiles(builder, new File(path));
-        builder.append(copyJar() + ""); // Copy jar to LIB
+        buildFiles(builder, new File(home));
         return builder.toString();
     }
 
     // build files
-    @SuppressWarnings("unused")
     private void buildFiles(StringBuilder builder, File file) {
         File[] files = file.listFiles();
         if (files != null) {
@@ -82,34 +78,6 @@ public class DataServlet extends HttpServlet {
                 }
             }
         }
-    }
-
-    //Cp mysql jar to AWS tomcat lib
-    private String copyJar() {
-        String error = null;
-        String src = "/usr/share/tomcat/webapps/ROOT/WEB-INF/lib/";
-        String dst = "/usr/share/tomcat/lib/";
-        //There are 2 jars in lib
-        //mysql-connector-java-8.0.27.jar,
-        //protobuf-java-3.11.4.jar
-        //Copy these jars to /usr/share/tomcat/lib/
-        //Then we don't need upload the big jars to AWS
-        File[] srcPath = new File(src).listFiles();
-        if (srcPath != null) {
-            for (File f : srcPath) {
-                File newJar = new File(dst + f.getName());
-                if (newJar.exists()) {
-                    LogUtil.println(TAG, newJar + " exists");
-                } else {
-                    LogUtil.println(TAG, newJar + " copied");
-                    error = WebUtil.copyFile(f, newJar);
-                    if (error != null) {
-                        break;
-                    }
-                }
-            }
-        }
-        return error;
     }
 
 }

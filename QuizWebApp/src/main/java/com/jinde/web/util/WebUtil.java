@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.util.stream.Collectors;
 
@@ -262,4 +265,54 @@ public class WebUtil {
         return result;
     }
 
+    // Download mysql driver
+    public static void downloadMySql() {
+        String web = WebUtil.getWebInfPath();
+        if (web.endsWith("/src/main/webapp/WEB-INF/")) {
+            LogUtil.println(TAG, "Eclipse Web");
+        } else {
+            File lib = new File(web + "lib");
+            lib.mkdir();
+            String my = "/mysql-connector-java-8.0.27.jar";
+            File jar = new File(lib.getAbsoluteFile() + my);
+            if (jar.exists()) {
+                LogUtil.println(TAG, "mysql jar exists");
+            } else {
+                LogUtil.println(TAG, "mysql jar down..");
+                String url = "https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27" + my;
+                download(url, jar);
+            }
+        }
+    }
+
+    public static void download(String httpUrl, File file) {
+        try {
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
+            URL url = new URL(httpUrl);
+            HttpURLConnection cn = (HttpURLConnection) url.openConnection();
+            cn.setRequestMethod("GET");
+            cn.setRequestProperty("Content-Type", "application/octet-stream");
+            cn.setDoInput(true);
+            cn.setDoOutput(true);
+            cn.setRequestProperty("Connection", "Keep-Alive");
+            cn.connect();
+            //int len = cn.getContentLength();
+            InputStream is = cn.getInputStream();
+            byte[] buf = new byte[8192];
+            int n = 0;
+            while (true) {
+                n = is.read(buf);
+                if (n <= 0) {
+                    break;
+                }
+                fos.write(buf, 0, n);
+            }
+            is.close();
+            fos.close();
+            cn.disconnect();
+        } catch (IOException e) {
+            LogUtil.println(TAG, "download : " + e);
+        }
+    }
 }

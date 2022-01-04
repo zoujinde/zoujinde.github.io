@@ -39,10 +39,12 @@ public class DataManager {
 
     // Private constructor
     private DataManager() {
+        //Download MySql jar
+        WebUtil.downloadMySql();
         //jdbc:mysql://localhost:3306/quiz?useSSL=false&characterEncoding=utf8
         String url  = "jdbc:mysql://localhost:3306/";
-        String res = DataManager.class.getResource("/").getPath();
-        if (res.startsWith("/var/app/current/")) { // AWS
+        String home = System.getProperty("catalina.home");
+        if (home.startsWith("/usr/")) { // AWS
             String host = WebUtil.getValue("jdbc_host");
             url.replace("localhost", host);
         }
