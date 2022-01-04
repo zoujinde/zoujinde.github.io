@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.stream.Collectors;
@@ -182,24 +181,28 @@ public class WebUtil {
         return error;
     }
 
+    // Get WebInf path
+    public static String getWebInfPath() {
+        String path = WebUtil.class.getResource("/").getPath();
+        if (path.endsWith("/bin/")) { // Eclipse bin
+            path = path.substring(0,  path.length() - 5);
+            path += "/src/main/webapp/WEB-INF/";
+        } else { // webapps/xxx/WEB-INF/classes/
+            path = path.substring(0, path.length() - 8);
+        }
+        return path;
+    }
+
     // Get value from config.ini
     public static String getValue(String key) {
         String value = null;
         if (sConfig == null) {
-            byte[] buf = new byte[512];
-            try {
-                InputStream is = WebUtil.class.getResourceAsStream("config.ini");
-                int size = is.read(buf);
-                is.close();
-                if (size > 0) {
-                    sConfig = new String(buf, 0, size).split("\n");
-                }
-            } catch (IOException e) {
-                LogUtil.println(TAG, "getValue : " + e);
-            }
+            String file = getWebInfPath() + "config.ini";
+            LogUtil.println(TAG, "ini=" + file);
+            sConfig = readFile(file).split("\n");
         }
         String line;
-        for (int i = 0; sConfig != null && i < sConfig.length; i++) {
+        for (int i = 0; i < sConfig.length; i++) {
             line = sConfig[i].trim();
             if (line.startsWith(key)) {
                 int p = line.indexOf("=");
@@ -234,6 +237,29 @@ public class WebUtil {
             LogUtil.println(TAG, error);
         }
         return error;
+    }
+
+    // Read file
+    public static String readFile(String file) {
+        String result = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            byte[] buf = new byte[8192];
+            FileInputStream fis = new FileInputStream(file);
+            int n = 0;
+            while (true) {
+                n = fis.read(buf);
+                if (n <= 0) {
+                    break;
+                }
+                builder.append(new String(buf, 0, n));
+            }
+            fis.close();
+            result = builder.toString();
+        } catch (IOException e) {
+            LogUtil.println(TAG, "readFile : " + e);
+        }
+        return result;
     }
 
 }

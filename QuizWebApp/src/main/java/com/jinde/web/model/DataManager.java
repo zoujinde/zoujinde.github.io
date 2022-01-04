@@ -2,6 +2,7 @@ package com.jinde.web.model;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -17,6 +18,8 @@ import com.jinde.web.util.WebUtil;
 public class DataManager {
 
     private static final String TAG = DataManager.class.getSimpleName();
+    //The old driver is com.mysql.jdbc.Driver
+    private static final String JDBC_MYSQL = "com.mysql.cj.jdbc.Driver";
 
     // volatile ensures the memory synchronized safely
     private static volatile DataManager sInstance = null;
@@ -36,15 +39,16 @@ public class DataManager {
 
     // Private constructor
     private DataManager() {
-        //String url = "jdbc:mysql://localhost:3306/quiz?useSSL=false&characterEncoding=utf8";
-        //String host = WebUtil.getValue("db_host"); // Can't work on AWS
-        String host = "localhost";
-        String res = DataManager.class.getResource("/") + "";
-        if (res.startsWith("file:/var/app/current/")) {
-            host = "aa15hi0df0cyue7.ck2q6584r1ek.us-east-2.rds.amazonaws.com";
+        //jdbc:mysql://localhost:3306/quiz?useSSL=false&characterEncoding=utf8
+        String url  = "jdbc:mysql://localhost:3306/";
+        String res = DataManager.class.getResource("/").getPath();
+        if (res.startsWith("/var/app/current/")) { // AWS
+            String host = WebUtil.getValue("jdbc_host");
+            url.replace("localhost", host);
         }
-        String url  = "jdbc:mysql://" + host + ":3306/quiz";
-        LogUtil.println(TAG, url);
+        String user = WebUtil.getValue("jdbc_user");
+        String pass = WebUtil.getValue("jdbc_pass");
+        initQuizDB(url, user, pass);
         /* Use Tomcat DBCP instead of HikariCP
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
@@ -57,10 +61,10 @@ public class DataManager {
         sDataSource = new HikariDataSource(config);
         */
         PoolProperties p = new PoolProperties();
-        p.setUrl(url);
-        p.setDriverClassName("com.mysql.jdbc.Driver");
-        p.setUsername("root");
-        p.setPassword("rootpass");
+        p.setUrl(url + "quiz"); // Set quiz DB
+        p.setDriverClassName(JDBC_MYSQL);
+        p.setUsername(user);
+        p.setPassword(pass);
         p.setJmxEnabled(true);
         p.setTestWhileIdle(false);
         p.setTestOnBorrow(true);
@@ -81,9 +85,6 @@ public class DataManager {
           "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
         mDataSource = new DataSource();
         mDataSource.setPoolProperties(p);
-        if (!url.contains("/quiz")) {
-            initQuizDB();
-        }
     }
 
     // Run SQL select -> Return JSON string
@@ -469,63 +470,33 @@ public class DataManager {
         return ps;
     }
 
-    private static final String QUIZ_SQL
-    ="CREATE DATABASE quiz;"
-    +"USE quiz;"
-    +"CREATE TABLE user ("
-    +"  user_id     INT AUTO_INCREMENT NOT NULL,"
-    +"  user_name   VARCHAR(30) NOT NULL,"
-    +"  password    VARCHAR(20) NOT NULL,"
-    +"  email       VARCHAR(30) NOT NULL,"
-    +"  phone       VARCHAR(20) NOT NULL,"
-    +"  address     VARCHAR(50) NOT NULL,"
-    +"  token       VARCHAR(50) NOT NULL,"
-    +"  create_time DATETIME    NOT NULL,"
-    +"  PRIMARY KEY(user_id),"
-    +"  UNIQUE KEY user_name_uniq(user_name)"
-    +") Engine=INNODB DEFAULT CHARSET=UTF8MB4;"
-    +"CREATE TABLE quiz ("
-    +"  quiz_id     INT AUTO_INCREMENT NOT NULL,"
-    +"  quiz_name   VARCHAR(50) NOT NULL,"
-    +"  create_time DATETIME    NOT NULL,"
-    +"  PRIMARY KEY(quiz_id),"
-    +"  UNIQUE KEY quiz_name_uniq(quiz_name)"
-    +") Engine=INNODB DEFAULT CHARSET=UTF8MB4;"
-    +"CREATE TABLE quiz_item ("
-    +"  quiz_id      INT     NOT NULL,"
-    +"  item_id      TINYINT NOT NULL,"
-    +"  item_content VARCHAR(300) NOT NULL,"
-    +"  item_answer  VARCHAR(300) NOT NULL,"
-    +"  multi_select BIT          NOT NULL,"
-    +"  PRIMARY KEY(quiz_id, item_id),"
-    +"  CONSTRAINT fk_quiz_item FOREIGN KEY (quiz_id) REFERENCES quiz(quiz_id)"
-    +") Engine=INNODB DEFAULT CHARSET=UTF8MB4;"
-    +"CREATE TABLE quiz_result ("
-    +"  quiz_id      INT     NOT NULL,"
-    +"  item_id      TINYINT NOT NULL,"
-    +"  user_id      INT     NOT NULL,"
-    +"  answer       VARCHAR(10) NOT NULL,"
-    +"  answer_time  DATETIME    NOT NULL,"
-    +"  PRIMARY KEY(quiz_id, item_id, user_id),"
-    +"  CONSTRAINT fk_quiz_result FOREIGN KEY (quiz_id, item_id) REFERENCES quiz_item(quiz_id, item_id),"
-    +"  CONSTRAINT fk_quiz_result_user FOREIGN KEY (user_id) REFERENCES user(user_id)"
-    +") Engine=INNODB DEFAULT CHARSET=UTF8MB4;"
-    +"insert into user values(1, 'Admin', 'pass', '', '', '', '', '2022-01-01');"
-    +"insert into quiz values(1, 'Quiz 2022', '2022-01-01');"
-    +"insert into quiz_item values(1, 1, 'Question 1?', '(a) Yes (b) No', 0);"
-    +"insert into quiz_result values(1, 1, 1, '0', '2022-01-01');";
-
     // Initiate quiz DB
-    private void initQuizDB() {
+    private void initQuizDB(String url, String user, String pass) {
         Connection cn = null;
         PreparedStatement ps = null;
         try {
-            cn = mDataSource.getConnection();
-            String[] sql = QUIZ_SQL.split(";");
-            for (String s : sql) {
-                LogUtil.println(TAG, s);
-                ps = cn.prepareStatement(s);
-                ps.execute();
+            String path = WebUtil.getWebInfPath();
+            String script = path + "QuizDB.sql";
+            LogUtil.println(TAG, script);
+            String file = WebUtil.readFile(script);
+            String[] array = file.split("\n");
+            // Can't use mDataSource, URL is different
+            Class.forName(JDBC_MYSQL);
+            cn = DriverManager.getConnection(url, user, pass);
+            StringBuilder builder = new StringBuilder();
+            for (String line : array) {
+                line = line.trim();
+                if (line.length() <= 0 || line.startsWith("-- ")) {
+                    continue;
+                }
+                builder.append(line);
+                if (line.endsWith(";")) {
+                    line = builder.toString();
+                    builder.setLength(0);
+                    LogUtil.println(TAG, line);
+                    ps = cn.prepareStatement(line);
+                    ps.execute();
+                }
             }
         } catch (Exception e) {
             LogUtil.println(TAG, e.toString());
