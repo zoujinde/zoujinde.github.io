@@ -3,23 +3,21 @@ package com.jinde.web.controller;
 import com.jinde.web.model.DataManager;
 import com.jinde.web.model.DataObject;
 import com.jinde.web.model.SqlAction;
-import com.jinde.web.model.User;
 import com.jinde.web.util.JsonUtil;
 import com.jinde.web.util.LogUtil;
-import com.jinde.web.util.WebException;
 import com.jinde.web.util.WebUtil;
 
 
 public class DataController {
 
     private static final String TAG = DataController.class.getSimpleName();
-    private static final String UNKNOWN_TYPE = "Unknown type : ";
 
     // Single instance
     private static final DataController INSTANCE = new DataController();
 
     // Private constructor
     private DataController() {
+        LogUtil.println(TAG, "private constructor");
     }
 
     // Single instance
@@ -35,22 +33,18 @@ public class DataController {
         if (error != null) {
             result = error;
         } else {
-            Class<?> type = getType(tab);
-            if (type == null) {
-                result = UNKNOWN_TYPE + tab;
-            } else {
+            try {
+                Class<?> type = getType(tab);
                 DataObject obj = (DataObject) WebUtil.buildObject(type);
                 String tabName = obj.getTableName();
                 String idName = obj.getPrimaryKey()[0];
                 String sql = "select * from " + tabName + " where " + idName + " between ? and ?";
-                try {
-                    result = DataManager.instance().select(sql, id);
-                    if (result.equals("[\n]\n")) {
-                        result = "No Result";
-                    }
-                } catch (WebException e) {
-                    result = e.getMessage();
+                result = DataManager.instance().select(sql, id);
+                if (result.equals("[\n]\n")) {
+                    result = "No Result";
                 }
+            } catch (Exception e) {
+                result = e.toString();
             }
         }
         return result;
@@ -64,16 +58,16 @@ public class DataController {
         if (error != null) {
             result = error;
         } else {
-            Class<?> type = getType(tab);
-            if (type == null) {
-                result = UNKNOWN_TYPE + tab;
-            } else {
+            try {
+                Class<?> type = getType(tab);
                 DataObject obj = (DataObject) WebUtil.buildObject(type);
                 String tabName = obj.getTableName();
                 String idName = obj.getPrimaryKey()[0];
                 String sql = "delete from " + tabName + " where " + idName + " between ? and ?";
                 SqlAction[] actions = new SqlAction[]{new SqlAction(sql, id)};
                 result = DataManager.instance().runSql(actions);
+            } catch (Exception e) {
+                result = e.toString();
             }
         }
         return result;
@@ -86,10 +80,8 @@ public class DataController {
         if (data == null) {
             result = "No data";
         } else {
-            Class<?> type = getType(tab);
-            if (type == null) {
-                result = UNKNOWN_TYPE + tab;
-            } else {
+            try {
+                Class<?> type = getType(tab);
                 SqlAction[] act = new SqlAction[data.length];
                 DataObject obj = null;
                 for (int i = 0; i < data.length; i++) {
@@ -97,6 +89,8 @@ public class DataController {
                     act[i] = new SqlAction(obj, WebUtil.ACT_INSERT);
                 }
                 result = DataManager.instance().runSql(act);
+            } catch (Exception e) {
+                result = e.toString();
             }
         }
         return result;
@@ -109,10 +103,8 @@ public class DataController {
         if (data == null) {
             result = "No data";
         } else {
-            Class<?> type = getType(tab);
-            if (type == null) {
-                result = UNKNOWN_TYPE + tab;
-            } else {
+            try {
+                Class<?> type = getType(tab);
                 SqlAction[] act = new SqlAction[data.length];
                 DataObject obj = null;
                 for (int i = 0; i < data.length; i++) {
@@ -120,20 +112,17 @@ public class DataController {
                     act[i] = new SqlAction(obj, WebUtil.ACT_UPDATE);
                 }
                 result = DataManager.instance().runSql(act);
+            } catch (Exception e) {
+                result = e.toString();
             }
         }
         return result;
     }
 
     // Get DataObject class type
-    private Class<?> getType(String tab) {
-        Class<?> type = null;
-        if (tab.equals("user")) {
-            type = User.class;
-        } else {
-            LogUtil.println(TAG, UNKNOWN_TYPE + tab);
-        }
-        return type;
+    private Class<?> getType(String tab) throws ClassNotFoundException {
+        String name = "com.jinde.web.model." + tab.substring(0, 1).toUpperCase() + tab.substring(1);
+        return Class.forName(name);
     }
 
 }

@@ -238,8 +238,10 @@ public class DataManager {
             type = data.getColumnType(c);
             name = data.getColumnName(c);
             builder.append("\"").append(name).append("\":");
-            if (type == java.sql.Types.BIGINT || type == java.sql.Types.INTEGER) {
+            if (type == java.sql.Types.BIGINT) {
                 builder.append(rs.getLong(c));
+            } else if (type == java.sql.Types.TINYINT || type == java.sql.Types.INTEGER) {
+                builder.append(rs.getInt(c));
             } else if (type == java.sql.Types.BOOLEAN || type == java.sql.Types.BIT) {
                 builder.append(rs.getBoolean(c));
             } else if (type == java.sql.Types.VARCHAR) {
@@ -247,7 +249,7 @@ public class DataManager {
             } else if (type == java.sql.Types.TIMESTAMP) {
                 builder.append("\"").append(getYMD(rs,c)).append("\"");
             } else {
-                builder.append("unknown");
+                throw new SQLException("Unknown type : " + type);
             }
             if (c < count) {
                 builder.append(", ");//Must a space

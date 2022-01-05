@@ -65,12 +65,43 @@ public class JsonUtil {
         if (p2 < 0) return null;
 
         // The array like [ {...}, {...}, {...} ]
-        // We must remove the last }
-        // Otherwise spilt("}") will get more one
-        p2 = jsonStr.lastIndexOf("}", p2);
-        if (p2 < 0) return null;
-        String s = jsonStr.substring(p1 + 1, p2);
-        return s.split("}");
+        String str = jsonStr.substring(p1 + 1, p2);
+        // We can't use split("}"), which will remove the }
+        // The array memory is better than ArrayList
+        // So we need to get the item count for array
+        int count = count(str, '{');
+        String[] array = new String[count];
+        int len = str.length();
+        count = 0;
+        p1 = -1;
+        p2 = -1;
+        for (int i = 0; i < len; i++) {
+            if (str.charAt(i) == '{') {
+                p1 = i;
+            } else if (str.charAt(i) == '}') {
+                p2 = i;
+            }
+            if (p1 >= 0 && p2 > p1) {
+                array[count] = str.substring(p1, p2 + 1);
+                //LogUtil.println(TAG, array[count]);
+                count++;
+                p1 = -1;
+                p2 = -1;
+            }
+        }
+        return array;
+    }
+
+    // Get the count in string
+    public static int count(String str, char ch) {
+        int len = str.length();
+        int count = 0;
+        for (int i = 0; i < len; i++) {
+            if (str.charAt(i) == ch) {
+                count++;
+            }
+        }
+        return count;
     }
 
     // Get the Boolean by the key from the JSON string
@@ -91,6 +122,7 @@ public class JsonUtil {
             if (p2 < 0) return null;
         }
         String tmp = jsonStr.substring(p1 + 1, p2);
+        // LogUtil.println(TAG, "getBoolean : " + tmp);
         // Don't catch the runtime exception, let caller know it.
         return Boolean.parseBoolean(tmp.trim());
     }

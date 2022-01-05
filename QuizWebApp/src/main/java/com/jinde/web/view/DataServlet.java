@@ -22,7 +22,7 @@ public class DataServlet extends HttpServlet {
 
     // Only define doPost
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String result = null;
+        String result = "UnknownAct";
         String body = WebUtil.getPostBody(req);
         String tab = req.getParameter("tab");
         String act = JsonUtil.getString(body, WebUtil.ACT);
@@ -39,8 +39,6 @@ public class DataServlet extends HttpServlet {
             result = DataController.instance().delete(body, tab);
         } else if (act.equals("show_path")) {
             result = showPath(req);
-        } else {
-            result = "Unknown";
         }
 
         // Write response

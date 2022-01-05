@@ -140,8 +140,7 @@ public class WebUtil {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            LogUtil.println(TAG, name + " build " + e);
+            LogUtil.println(TAG, " build " + e + ", name=" + name);
             object = null;
         }
         return object;
