@@ -19,8 +19,6 @@ import com.jinde.web.util.WebUtil;
 public class DataManager {
 
     private static final String TAG = DataManager.class.getSimpleName();
-    //The old driver is com.mysql.jdbc.Driver
-    private static final String JDBC_MYSQL = "com.mysql.cj.jdbc.Driver";
 
     // volatile ensures the memory synchronized safely
     private static volatile DataManager sInstance = null;
@@ -41,6 +39,7 @@ public class DataManager {
 
     // Private constructor
     private DataManager() {
+        WebUtil.startTimer();
         WebUtil.downloadMySql();
         //jdbc:mysql://localhost:3306/quiz?useSSL=false&characterEncoding=utf8
         String url  = "jdbc:mysql://localhost:3306/";
@@ -66,7 +65,7 @@ public class DataManager {
         PoolProperties p = new PoolProperties();
         mUrl = url + "quiz";
         p.setUrl(mUrl); // Set quiz DB
-        p.setDriverClassName(JDBC_MYSQL);
+        p.setDriverClassName(WebUtil.JDBC_MYSQL);
         p.setUsername(user);
         p.setPassword(pass);
         p.setJmxEnabled(true);
@@ -209,21 +208,7 @@ public class DataManager {
 
     // Close method
     private void close(AutoCloseable obj) {
-        if (obj != null) {
-            if (obj instanceof Connection) {
-                try {
-                    Connection cn = (Connection) obj;
-                    cn.setAutoCommit(true); // Set AutoCommit
-                } catch (Exception e) {
-                    LogUtil.println(TAG, "cn.set : " + e);
-                }
-            }
-            try {
-                obj.close();
-            } catch (Exception e) {
-                LogUtil.println(TAG, "close : " + e);
-            }
-        }
+        WebUtil.close(obj);
     }
 
     // Build a new object
@@ -477,13 +462,12 @@ public class DataManager {
         Connection cn = null;
         PreparedStatement ps = null;
         try {
-            String path = WebUtil.getWebInfPath();
-            String script = path + "QuizDB.sql";
+            String script = WebUtil.getWebInfPath() + "QuizDB.sql";
             LogUtil.println(TAG, script);
             String file = WebUtil.readFile(script);
             String[] array = file.split("\n");
             // Can't use mDataSource, URL is different
-            Class.forName(JDBC_MYSQL);
+            Class.forName(WebUtil.JDBC_MYSQL);
             cn = DriverManager.getConnection(url, user, pass);
             StringBuilder builder = new StringBuilder();
             for (String line : array) {
@@ -498,6 +482,7 @@ public class DataManager {
                     LogUtil.println(TAG, line);
                     ps = cn.prepareStatement(line);
                     ps.execute();
+                    ps.close();
                 }
             }
         } catch (Exception e) {

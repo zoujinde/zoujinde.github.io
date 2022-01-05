@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,8 @@ public class WebUtil {
     public static final String DATA = "data";
     public static final String OK = "OK";
     public static final int ROWS_LIMIT = 500;
+    //The old driver is com.mysql.jdbc.Driver
+    public static final String JDBC_MYSQL = "com.mysql.cj.jdbc.Driver";
 
     private static String[] sConfig = null;
 
@@ -33,22 +36,28 @@ public class WebUtil {
     private static final Timestamp SYS_TIME = new Timestamp(System.currentTimeMillis());
 
     // Update SYS_TIME per minute and do other task
-    static {
-       new Thread() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        LogUtil.println(TAG, "SYS " + SYS_TIME);
-                        Thread.sleep(60000);
-                        SYS_TIME.setTime(System.currentTimeMillis());
-                    } catch (Exception e) {
-                        LogUtil.println(TAG, "SYS " + e);
-                        break;
+    private static Thread sThread = null;
+
+    // Must synchronized to avoid multiple threads
+    public static synchronized void startTimer() {
+        if (sThread == null) {
+            sThread = new Thread() {
+                @Override
+                public void run() {
+                    while (true) {
+                        try {
+                            LogUtil.println(TAG, "SYS " + SYS_TIME);
+                            Thread.sleep(60000);
+                            SYS_TIME.setTime(System.currentTimeMillis());
+                        } catch (Exception e) {
+                            LogUtil.println(TAG, "SYS " + e);
+                            break;
+                        }
                     }
                 }
-            }
-        }.start();
+            };
+            sThread.start();
+        }
     }
 
     // Private Constructor
@@ -315,4 +324,24 @@ public class WebUtil {
             LogUtil.println(TAG, "download : " + e);
         }
     }
+
+    // Close method
+    public static void close(AutoCloseable obj) {
+        if (obj != null) {
+            if (obj instanceof Connection) {
+                try {
+                    Connection cn = (Connection) obj;
+                    cn.setAutoCommit(true); // Set AutoCommit
+                } catch (Exception e) {
+                    LogUtil.println(TAG, "cn.set : " + e);
+                }
+            }
+            try {
+                obj.close();
+            } catch (Exception e) {
+                LogUtil.println(TAG, "close : " + e);
+            }
+        }
+    }
+
 }
