@@ -1,0 +1,2 @@
+1. Auto download the mysql jar to the lib folder
+2. Restart tomcat which will auto-load mysql jar

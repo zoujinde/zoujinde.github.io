@@ -41,8 +41,7 @@ public class DataManager {
 
     // Private constructor
     private DataManager() {
-        //Download MySql jar
-        //WebUtil.downloadMySql();
+        WebUtil.downloadMySql();
         //jdbc:mysql://localhost:3306/quiz?useSSL=false&characterEncoding=utf8
         String url  = "jdbc:mysql://localhost:3306/";
         String home = System.getProperty("catalina.home");
