@@ -70,6 +70,9 @@ public class JsonUtil {
         // The array memory is better than ArrayList
         // So we need to get the item count for array
         int count = count(str, '{');
+        if (count <= 0) {
+            return null;
+        }
         String[] array = new String[count];
         int len = str.length();
         count = 0;
@@ -88,6 +91,10 @@ public class JsonUtil {
                 p1 = -1;
                 p2 = -1;
             }
+        }
+        if (array[array.length - 1] == null) {
+            LogUtil.println(TAG, "Invalid json format");
+            array = null;
         }
         return array;
     }

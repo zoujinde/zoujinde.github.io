@@ -192,6 +192,9 @@ public class DataManager {
         } catch (Exception e) {
             //e.printStackTrace();
             result = e.getMessage();
+            if (result == null || result.length() < 10) {
+                result = e.toString();
+            }
             LogUtil.println(TAG, result);
             try {
                 if (cn != null) cn.rollback();

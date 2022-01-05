@@ -107,13 +107,12 @@ public class WebUtil {
 
     // Build object from the JSON map {...} string
     public static <T> T buildObject(String json, Class<T> T){
-        //LogUtil.println(TAG, "build " + json);
         T object = null;
-        String name = null;
         try {
             object = T.newInstance();
             Field[] array = T.getFields();
             Class<?> type = null;
+            String name = null;
             for (Field f : array) {
                 name = f.getName();
                 type = f.getType();
@@ -140,7 +139,7 @@ public class WebUtil {
                 }
             }
         } catch (Exception e) {
-            LogUtil.println(TAG, " build " + e + ", name=" + name);
+            LogUtil.println(TAG, "build " + e + ", json=" + json);
             object = null;
         }
         return object;

@@ -122,10 +122,12 @@
 
   // On URL change
   function onUrlChange(obj) {
-    var index = obj.selectedIndex;
-    var val = obj.options[index].value;
-    var txt = obj.options[index].text;
-    //result_query.innerText = ''
+    //Must clear data, otherwise submit wrong data.
+    while(result_query.options.length > 0) {
+      result_query.options.remove(0);
+    }
+    text_data.value = '';
+    result_data.innerText = '*';
   }
 
   // Initiate http
