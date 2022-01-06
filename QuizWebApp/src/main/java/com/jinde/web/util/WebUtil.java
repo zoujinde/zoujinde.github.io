@@ -329,7 +329,9 @@ public class WebUtil {
             if (obj instanceof Connection) {
                 Connection cn = (Connection) obj;
                 try {
-                    cn.rollback(); // RollBack
+                    if (!cn.getAutoCommit()) {
+                        cn.rollback(); // RollBack
+                    }
                 } catch (Exception e) {
                     LogUtil.println(TAG, "cn.rollback : " + e);
                 }

@@ -15,7 +15,7 @@
     <textarea rows="2" cols="80" id="text_query" style="resize:none;">{"act":"select", "id_range":"1-500"}</textarea>
     <input type="button" onclick="queryData()" value="Query Data">
     <label id="state"> * </label><br>
-    <select id="result_query" size="20" style="width:1500;height=500">
+    <select id="result_query" size="20" style="width:1500;height=500" onchange="updateData()">
     </select>
   </div>
   <div style="width:99%; background:#EEE">
