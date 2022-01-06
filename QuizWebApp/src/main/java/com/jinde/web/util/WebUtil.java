@@ -327,11 +327,16 @@ public class WebUtil {
     public static void close(AutoCloseable obj) {
         if (obj != null) {
             if (obj instanceof Connection) {
+                Connection cn = (Connection) obj;
                 try {
-                    Connection cn = (Connection) obj;
+                    cn.rollback(); // RollBack
+                } catch (Exception e) {
+                    LogUtil.println(TAG, "cn.rollback : " + e);
+                }
+                try {
                     cn.setAutoCommit(true); // Set AutoCommit
                 } catch (Exception e) {
-                    LogUtil.println(TAG, "cn.set : " + e);
+                    LogUtil.println(TAG, "cn.setAutoC : " + e);
                 }
             }
             try {

@@ -1,7 +1,6 @@
 package com.jinde.web.model;
 
 import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -49,8 +48,10 @@ public class DataFactory {
                 String type = null;
                 String key  = null;
                 String auto = null;
+                String cName = tab.substring(0,1).toUpperCase() + tab.substring(1);
                 builder.setLength(0);
-                buildHeader(builder, tab);
+                builder.append("package ").append(PACKAGE).append(";\n\n");
+                builder.append("public class ").append(cName).append(" extends DataObject {\n\n");
                 while (rs.next()) {
                     name = rs.getString(1);
                     type = rs.getString(2);
@@ -70,7 +71,9 @@ public class DataFactory {
                 ps.close();
                 System.out.println("tab=" + tab + " key=" + key + " auto=" + auto);
                 buildFooter(builder, tab, key, auto);
-                saveFile(builder.toString(), tab);
+                FileWriter fw = new FileWriter(TMP_PATH + cName + ".java");
+                fw.write(builder.toString());
+                fw.close();
             }
         } catch (Exception e) {
             LogUtil.println(TAG, e.toString());
@@ -99,17 +102,6 @@ public class DataFactory {
             throw new RuntimeException("Unknown type : " + type);
         }
         return name;
-    }
-
-    // Build the class file header like below:
-    /*
-    package com.jinde.web.model;
-    public class User extends DataObject {
-     */
-    private static void buildHeader(StringBuilder builder, String tab) {
-        builder.append("package ").append(PACKAGE).append(";\n\n");
-        builder.append("public class ").append(tab.substring(0,1).toUpperCase());
-        builder.append(tab.substring(1)).append(" extends DataObject {\n\n");
     }
 
     // Build the class file footer like below
@@ -146,14 +138,6 @@ public class DataFactory {
         }
         builder.append("    }\n\n");
         builder.append("}\n");
-    }
-
-    // Save to file
-    private static void saveFile(String content, String tab) throws IOException {
-        String file = tab.substring(0,1).toUpperCase() + tab.substring(1);
-        FileWriter fw = new FileWriter(TMP_PATH + file + ".java");
-        fw.write(content);
-        fw.close();
     }
 
 }

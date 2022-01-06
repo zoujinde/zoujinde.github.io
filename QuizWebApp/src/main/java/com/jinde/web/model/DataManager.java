@@ -144,9 +144,9 @@ public class DataManager {
         } catch (Exception e) {
             throw new WebException("select : " + mUrl + " " + e);
         } finally {
-            close(rs);
-            close(ps);
-            close(cn);
+            WebUtil.close(rs);
+            WebUtil.close(ps);
+            WebUtil.close(cn);
         }
         return result;
     }
@@ -196,22 +196,12 @@ public class DataManager {
                 result = e.toString();
             }
             LogUtil.println(TAG, result);
-            try {
-                if (cn != null) cn.rollback();
-            } catch (Exception ex) {
-                LogUtil.println(TAG, "runSql rollback : " + ex);
-            }
         } finally {
-            close(rs);
-            close(ps);
-            close(cn); // Set AutoCommit
+            WebUtil.close(rs);
+            WebUtil.close(ps);
+            WebUtil.close(cn); // Set AutoCommit
         }
         return result;
-    }
-
-    // Close method
-    private void close(AutoCloseable obj) {
-        WebUtil.close(obj);
     }
 
     // Build a new object
@@ -493,8 +483,8 @@ public class DataManager {
         } catch (Exception e) {
             LogUtil.println(TAG, e.toString());
         } finally {
-            close(ps);
-            close(cn);
+            WebUtil.close(ps);
+            WebUtil.close(cn);
         }
     }
 
