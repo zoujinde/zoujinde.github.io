@@ -294,8 +294,6 @@ public class WebUtil {
 
     public static void download(String httpUrl, File file) {
         try {
-            file.createNewFile();
-            FileOutputStream fos = new FileOutputStream(file);
             URL url = new URL(httpUrl);
             HttpURLConnection cn = (HttpURLConnection) url.openConnection();
             cn.setRequestMethod("GET");
@@ -306,6 +304,8 @@ public class WebUtil {
             cn.connect();
             //int len = cn.getContentLength();
             InputStream is = cn.getInputStream();
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
             byte[] buf = new byte[8192];
             int n = 0;
             while (true) {
@@ -320,6 +320,12 @@ public class WebUtil {
             cn.disconnect();
         } catch (IOException e) {
             LogUtil.println(TAG, "download : " + e);
+        } finally {
+            if (file.length() <= 0) {
+                LogUtil.println(TAG, "download failed : " + file);
+                // If file download failed in GM VPN, must delete
+                file.delete();//Otherwise WebApp can't be started
+            }
         }
     }
 
