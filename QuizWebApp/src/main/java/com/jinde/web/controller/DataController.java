@@ -119,6 +119,37 @@ public class DataController {
         return result;
     }
 
+    // Set data : insert/update/delete
+    public String setData(String body, String tab) {
+        String result = null;
+        String[] data = JsonUtil.getArray(body);
+        if (data == null) {
+            result = "No data";
+        } else {
+            try {
+                Class<?> type = getType(tab);
+                SqlAction[] act = new SqlAction[data.length];
+                DataObject obj = null;
+                String action = null;
+                for (int i = 0; i < data.length; i++) {
+                    action = JsonUtil.getString(data[i], WebUtil.ACT);
+                    if (action == null) {
+                        result = "Invalid data : act is null";
+                        break;
+                    }
+                    obj = (DataObject) WebUtil.buildObject(data[i], type);
+                    act[i] = new SqlAction(obj, action);
+                }
+                if (result == null) {
+                    result = DataManager.instance().runSql(act);
+                }
+            } catch (Exception e) {
+                result = e.toString();
+            }
+        }
+        return result;
+    }
+
     // Get DataObject class type
     private Class<?> getType(String tab) throws ClassNotFoundException {
         String name = "com.jinde.web.model." + tab.substring(0, 1).toUpperCase() + tab.substring(1);

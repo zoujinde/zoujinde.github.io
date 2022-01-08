@@ -66,7 +66,13 @@ public class JsonUtil {
 
         // The array like [ {...}, {...}, {...} ]
         String str = jsonStr.substring(p1 + 1, p2);
-        // We can't use split("}"), which will remove the }
+        return getArray(str);
+    }
+
+    // Get the array from the JSON string
+    public static String[] getArray(String str) {
+        // The str array like [ {...}, {...}, {...} ]
+        // We can' t use split("}"), which will remove the }
         // The array memory is better than ArrayList
         // So we need to get the item count for array
         int count = count(str, '{');
@@ -76,8 +82,8 @@ public class JsonUtil {
         String[] array = new String[count];
         int len = str.length();
         count = 0;
-        p1 = -1;
-        p2 = -1;
+        int p1 = -1;
+        int p2 = -1;
         for (int i = 0; i < len; i++) {
             if (str.charAt(i) == '{') {
                 p1 = i;

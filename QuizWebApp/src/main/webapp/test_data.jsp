@@ -79,7 +79,7 @@
     if (result_query.options.length > 0) {
       var text = result_query.options[0].text;
       // Can't use innerHTML or innerText, which can't work on the 2nd time
-      text_data.value = '[\n{"act":"insert", ' + text + '},\n]';
+      text_data.value = '{"act":"insert", "data":[\n  ' + text + ',\n]}';
     } else {
       text_data.value = 'Can not add data, please query data firstly.';
     }
@@ -90,7 +90,7 @@
     var index = result_query.selectedIndex;
     if (index >= 0) {
       var text = result_query.options[index].text;
-      text_data.value = '[\n{"act":"update", ' + text + '},\n]';
+      text_data.value = '{"act":"update", "data":[\n  ' + text + ',\n]}';
     } else {
       text_data.value = 'Can not modify data, please select data row to update.';
     }
@@ -101,8 +101,17 @@
     var index = result_query.selectedIndex;
     if (index >= 0) {
       var text = result_query.options[index].text;
-      if (text != null) {
-        text_data.value = '[\n{"act":"delete", ' + text + '},\n]';
+      // Get the id value, for example {"xxx_id":1,}
+      var id_val = null;
+      var p1 = text.indexOf(':');
+      if (p1 > 0) {
+        var p2 = text.indexOf(',', p1);
+        if (p2 > 0) {
+          id_val = text.substring(p1 + 1, p2)
+        }
+      }
+      if (id_val != null) {
+        text_data.value = '{"act":"delete", "id_range":"' + id_val + '-' + id_val + '"}';
       } else {
         text_data.value = 'Can not get the ID value';
       }
@@ -138,9 +147,7 @@
     // Check the data
     var data = text_data.value.trim();
     if (data.startsWith('{') && data.endsWith('}')) {
-      // {...} is OK
-    } else if (data.startsWith('[') && data.endsWith(']')) {
-      // [...] is OK
+      //data is OK
     } else {
       // The result_data is a label, the result_data.value = 'xxx' can't work
       result_data.innerText = 'Invalid Data';
@@ -204,11 +211,7 @@
         for (var i = 0; i < array.length; i++) {
           var option = document.createElement("OPTION");
           option.value = i;
-          var text = array[i].trim();
-          if (text.startsWith('{')) {
-            text = text.substring(1, text.length - 1); // Remove {}
-          }
-          option.text  = text;
+          option.text  = array[i];
           result_query.options.add(option);
         }
         result_query.size = 20;
