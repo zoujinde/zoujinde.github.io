@@ -1,13 +1,10 @@
 package com.jinde.web.controller;
 
-import java.util.ArrayList;
-
 import javax.servlet.http.HttpServletRequest;
 
 import com.jinde.web.model.DataManager;
 import com.jinde.web.model.SqlAction;
 import com.jinde.web.model.Student;
-import com.jinde.web.util.WebException;
 import com.jinde.web.util.WebUtil;
 
 public class StudentController {
@@ -31,12 +28,8 @@ public class StudentController {
         String jsonStr = "";
         try {
             jsonStr = dm.select(sql, values);
-            ArrayList<Student> list = dm.select(sql, values, Student.class);
-            for (Student student : list) {
-                jsonStr += student.name + "\n";
-            }
-        } catch (WebException e) {
-            jsonStr += e;
+        } catch (Exception e) {
+            jsonStr = e.toString();
         }
         return jsonStr;
     }

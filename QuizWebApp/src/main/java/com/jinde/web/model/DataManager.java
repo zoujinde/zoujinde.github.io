@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -92,20 +91,7 @@ public class DataManager {
 
     // Run SQL select -> Return JSON string
     public String select(String sql, Object[] values) throws WebException {
-        return select(sql, values, null, null);
-    }
-
-    // Run SQL select -> Return result
-    public <T extends DataObject> ArrayList<T> select(String sql, Object[] values, Class<T> type) throws WebException {
-        ArrayList<T> list = new ArrayList<T>();
-        select(sql, values, type, list);
-        return list;
-    }
-
-    // Run SQL select -> Return result
-    private <T extends DataObject> String select(String sql, Object[] values, Class<T> type, ArrayList<T> list) throws WebException {
-        String result = null;
-        StringBuilder builder = null;
+        StringBuilder builder = new StringBuilder("[ \n");//Must add 1 space;
         Connection cn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -117,30 +103,18 @@ public class DataManager {
                 ps.setObject(i + 1, values[i]); // setObject(i + 1, xxx)
             }
             rs = ps.executeQuery();
-            // Start the JSON string
-            if (type == null) {
-                builder = new StringBuilder("[ \n");//Must add 1 space
-            }
             // Read lines
             int count = 0;
             while (rs.next()) {
-                if (builder != null) {
-                    buildJson(rs, builder);
-                } else {
-                    list.add(buildObject(rs, type));
-                }
+                buildJson(rs, builder);
                 count++;
                 if (count > WebUtil.ROWS_LIMIT) {
                     LogUtil.println(TAG, "break on ROWS > " +  WebUtil.ROWS_LIMIT);
                     break;
                 }
             }
-            // End the JSON string
-            if (builder != null) {
-                builder.setLength(builder.length() - 2);
-                builder.append("\n]\n");
-                result = builder.toString();
-            }
+            builder.setLength(builder.length() - 2);
+            builder.append("\n]\n");
         } catch (Exception e) {
             throw new WebException("select : " + mUrl + " " + e);
         } finally {
@@ -148,7 +122,7 @@ public class DataManager {
             WebUtil.close(ps);
             WebUtil.close(cn);
         }
-        return result;
+        return builder.toString();
     }
 
     // Run SqlActions one by one
@@ -202,22 +176,6 @@ public class DataManager {
             WebUtil.close(cn); // Set AutoCommit
         }
         return result;
-    }
-
-    // Build a new object
-    private <T> T buildObject(ResultSet rs, Class<T> type)
-            throws InstantiationException, IllegalAccessException,
-            SQLException, NoSuchFieldException, SecurityException {
-        ResultSetMetaData data = rs.getMetaData();
-        int count = data.getColumnCount();
-        String name = null;
-        T obj = type.newInstance();
-        for (int c = 1; c <= count; c++) {
-            name = data.getColumnName(c);
-            Field f = type.getField(name);
-            f.set(obj, rs.getObject(c));
-        }
-        return obj;
     }
 
     // Build the JSON String

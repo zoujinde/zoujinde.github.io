@@ -145,17 +145,6 @@ public class WebUtil {
         return object;
     }
 
-    // Get DataObject by table name
-    public static Object buildObject(Class<?> type) {
-        Object obj = null;
-        try {
-            obj = type.newInstance();
-        } catch (Exception e) {
-            LogUtil.println(TAG, type + " build " + e);
-        }
-        return obj;
-    }
-
     // Get the post body
     public static String getPostBody(HttpServletRequest req) {
         String body = null;

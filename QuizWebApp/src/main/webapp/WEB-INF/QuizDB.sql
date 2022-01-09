@@ -41,11 +41,11 @@ CREATE TABLE quiz_item (
 -- Quiz result table
 CREATE TABLE quiz_result (
   quiz_id      INT     NOT NULL,
-  item_id      TINYINT NOT NULL,
   user_id      INT     NOT NULL,
+  item_id      TINYINT NOT NULL,
   answer       VARCHAR(10) NOT NULL,
   answer_time  DATETIME    NOT NULL,
-  PRIMARY KEY(quiz_id, item_id, user_id),
+  PRIMARY KEY(quiz_id, user_id, item_id),
   CONSTRAINT fk_quiz_result FOREIGN KEY (quiz_id, item_id) REFERENCES quiz_item(quiz_id, item_id),
   CONSTRAINT fk_quiz_result_user FOREIGN KEY (user_id) REFERENCES user(user_id)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4;

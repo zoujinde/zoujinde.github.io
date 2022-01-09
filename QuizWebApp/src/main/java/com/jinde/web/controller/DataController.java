@@ -43,7 +43,7 @@ public class DataController {
         } else {
             try {
                 Class<?> type = getType(tab);
-                DataObject obj = (DataObject) WebUtil.buildObject(type);
+                DataObject obj = (DataObject) type.newInstance();
                 String tabName = obj.getTableName();
                 String idName = obj.getPrimaryKey()[0];
                 String sql = "select * from " + tabName + " where " + idName + " between ? and ?";
@@ -68,7 +68,7 @@ public class DataController {
         } else {
             try {
                 Class<?> type = getType(tab);
-                DataObject obj = (DataObject) WebUtil.buildObject(type);
+                DataObject obj = (DataObject) type.newInstance();
                 String tabName = obj.getTableName();
                 String idName = obj.getPrimaryKey()[0];
                 String sql = "delete from " + tabName + " where " + idName + " between ? and ?";
