@@ -27,6 +27,14 @@ public class DataController {
 
     // Select user data
     public String select(String body, String tab) {
+        if (tab.equals("quiz_result")) {
+            Integer quiz_id = JsonUtil.getInt(body, "quiz_id");
+            Integer user_id = JsonUtil.getInt(body, "user_id");
+            //LogUtil.println(TAG, "select : " + quiz_id + " " + user_id);
+            if (quiz_id != null && user_id != null) {
+                return getQuizResult(quiz_id, user_id);
+            }
+        }
         String result = null;
         Integer[] id = new Integer[]{0,0};
         String error = WebUtil.getIdRange(body, id);
@@ -154,6 +162,23 @@ public class DataController {
     private Class<?> getType(String tab) throws ClassNotFoundException {
         String name = "com.jinde.web.model." + tab.substring(0, 1).toUpperCase() + tab.substring(1);
         return Class.forName(name);
+    }
+
+    // Get quiz_result by quiz_id and user_id
+    public String getQuizResult(int quiz_id, int user_id) {
+        String result = null;
+        String sql = "select a.quiz_id, a.item_id, a.item_content, a.item_answer,"
+                + " a.multi_select, b.user_id, b.answer"
+                + " from (select * from quiz_item where quiz_id=?) a"
+                + " left join (select * from quiz_result where quiz_id=? and user_id=?) b"
+                + " on a.quiz_id = b.quiz_id and a.item_id = b.item_id"
+                + " order by a.quiz_id, a.item_id";
+        try {
+            result = DataManager.instance().select(sql, new Object[]{quiz_id, quiz_id, user_id});
+        } catch (Exception e) {
+            result = "getQuizResult : " + e;
+        }
+        return result;
     }
 
 }

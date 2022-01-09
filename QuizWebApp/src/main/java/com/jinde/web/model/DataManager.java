@@ -226,6 +226,7 @@ public class DataManager {
         int count = data.getColumnCount();
         int type = 0;
         String name = null;
+        String tmp = null;
         builder.append("{");
         for (int c = 1; c <= count; c++) {
             type = data.getColumnType(c);
@@ -238,7 +239,9 @@ public class DataManager {
             } else if (type == java.sql.Types.BOOLEAN || type == java.sql.Types.BIT) {
                 builder.append(rs.getBoolean(c));
             } else if (type == java.sql.Types.VARCHAR) {
-                builder.append("\"").append(rs.getString(c)).append("\"");
+                tmp = rs.getString(c);
+                tmp = tmp == null ? "" : tmp;
+                builder.append("\"").append(tmp).append("\"");
             } else if (type == java.sql.Types.TIMESTAMP) {
                 builder.append("\"").append(getYMD(rs,c)).append("\"");
             } else {
