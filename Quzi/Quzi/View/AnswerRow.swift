@@ -17,7 +17,7 @@ struct AnswerRow: View {
 
     var body: some View {
         HStack {
-            Text(MyUtil.trim(quizItem.array[row]))
+            Text(MyUtil.trim(quizItem.array![row]))
 
             Spacer()
 

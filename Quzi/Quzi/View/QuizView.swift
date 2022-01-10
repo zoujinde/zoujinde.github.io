@@ -18,7 +18,7 @@ struct QuizView: View {
     //For value type(struct, enum etc), use @State or @Binding for binding
     //For object type, use @StateObject, @ObservedObject, @EnvironmentObject
     @State private var index = 0
-    @State private var quiz_list = QuizList().quiz_list
+    @State private var quiz_list = QuizData.getQuizList(quiz_id: 2, user_id: 1)
     @State private var btn_submit_disabled = false
     //@State private var btn_prev_disabled = false
     //@State private var btn_next_disabled = false
@@ -42,7 +42,7 @@ struct QuizView: View {
             Divider()
 
             //ForEach(0 ..< quiz_list[index].array.count, id: \.self) { row in
-            ForEach(quiz_list[index].array.indices, id: \.self) { row in
+            ForEach(quiz_list[index].array!.indices, id: \.self) { row in
                 Button(action: {self.onClickRow(row)}, label: {self.newAnswerRow(row)})
             }
             .frame(width: width, alignment: .leading)

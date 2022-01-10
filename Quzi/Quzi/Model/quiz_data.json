@@ -1,46 +1,46 @@
 
 [
     {
-        "quiz_id": 1001,
+        "quiz_id": 2,
         "item_id": 1,
         "item_content": "To what extent is your knowledge on the Spanish media?",
-        "item_answers": " (a) A huge extent \n (b) Quite a huge extent \n (c) An average extent \n (d) Quite a limited extent \n (e) A limited extent \n (f) Not sure",
+        "item_answers": " (a) A huge extent # (b) Quite a huge extent # (c) An average extent # (d) Quite a limited extent # (e) A limited extent # (f) Not sure",
         "multi_select": false,
         "answer": ""
     },
 
     {
-        "quiz_id": 1001,
+        "quiz_id": 2,
         "item_id": 2,
         "item_content": "Through which media, the Spanish or English, do you most frequently retrieve the most updated news?",
-        "item_answers": " (a) Spanish media \n (b) English media \n (c) Both \n (d) Not sure",
+        "item_answers": " (a) Spanish media # (b) English media # (c) Both # (d) Not sure",
         "multi_select": false,
         "answer": ""
     },
 
     {
-        "quiz_id": 1001,
+        "quiz_id": 2,
         "item_id": 3,
         "item_content": "Through which channel of the Spanish media do you most frequently retrieve the latest news?",
-        "item_answers": " (a) Mobile Phone \n (b) Newspapers \n (c) Television (Newscasts) \n (d) Computer (Internet, webpages, blogs, etc) \n (e) Radio/radio stations (FM 88.3, 93.3, 95.8, 100.3, etc)",
+        "item_answers": " (a) Mobile Phone # (b) Newspapers # (c) Television (Newscasts) # (d) Computer (Internet, webpages, blogs, etc) # (e) Radio/radio stations (FM 88.3, 93.3, 95.8, 100.3, etc)",
         "multi_select": true,
         "answer": ""
     },
 
     {
-        "quiz_id": 1001,
+        "quiz_id": 2,
         "item_id": 4,
         "item_content": "Through which channel of the English media do you most frequently retrieve the latest news?",
-        "item_answers": " (a) Handphone \n (b) Newspapers (The Straits Times, Today, The Newpaper, etc) \n (c) Television (Newscasts) \n (d) Computer (Internet, webpages, blogs, etc) \n (e) Radio/radio stations (FM 91.3, 98.7, etc)",
+        "item_answers": " (a) Handphone # (b) Newspapers (The Straits Times, Today, The Newpaper, etc) # (c) Television (Newscasts) # (d) Computer (Internet, webpages, blogs, etc) # (e) Radio/radio stations (FM 91.3, 98.7, etc)",
         "multi_select": true,
         "answer": ""
     },
 
     {
-        "quiz_id": 1001,
+        "quiz_id": 2,
         "item_id": 5,
         "item_content": "In your opinion, which topic has the Spanish media been stressing on?",
-        "item_answers": " (a) Gossipy news \n (b) Information and technology \n (c) Violence cases \n (d) Sports \n (e) Politics",
+        "item_answers": " (a) Gossipy news # (b) Information and technology # (c) Violence cases # (d) Sports # (e) Politics",
         "multi_select": true,
         "answer": ""
     },

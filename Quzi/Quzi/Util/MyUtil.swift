@@ -18,6 +18,8 @@ extension String {
 
 final class MyUtil {
 
+    static let HTTP_URL = "http://192.168.31.217:8080/hello"
+
     // Set the rootWindow in SceneDelegate
     static var rootWindow: UIWindow?
 
@@ -76,6 +78,29 @@ final class MyUtil {
         let data = try? jsonEncoder.encode(object)
         let str = String(data: data!, encoding: String.Encoding.utf8)
         return str!
+    }
+
+    // http post
+    static func httpPost(urlStr: String, body: String) -> Data {
+        var result: Data?
+        let url = URL(string: urlStr)
+        //var req: URLRequest! = URLRequest.init(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 15)
+        var req = URLRequest(url: url!)
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = body.data(using: .utf8)
+        //try! NSURLConnection.sendSynchronousRequest(req, returning: &response) // Old method
+        let session = URLSession.shared
+        let ds = DispatchSemaphore(value: 0)
+        let task = session.dataTask(with: req, completionHandler: {data, response, error -> Void in
+            result = data
+            // unblock main thread
+            ds.signal()
+        })
+        task.resume()
+        // block thread until semaphore is signaled
+        ds.wait()
+        return result!
     }
 
 }
