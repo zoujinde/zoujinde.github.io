@@ -79,7 +79,7 @@
     if (result_query.options.length > 0) {
       var text = result_query.options[0].text;
       // Can't use innerHTML or innerText, which can't work on the 2nd time
-      text_data.value = '[\n{"act":"insert", ' + text + '},\n]';
+      text_data.value = '[\n{"act":"insert", ' + wrap(text) + '},\n]';
     } else {
       text_data.value = 'Can not add data, please query data firstly.';
     }
@@ -90,7 +90,7 @@
     var index = result_query.selectedIndex;
     if (index >= 0) {
       var text = result_query.options[index].text;
-      text_data.value = '[\n{"act":"update", ' + text + '},\n]';
+      text_data.value = '[\n{"act":"update", ' + wrap(text) + '},\n]';
     } else {
       text_data.value = 'Can not modify data, please select data row to update.';
     }
@@ -101,14 +101,25 @@
     var index = result_query.selectedIndex;
     if (index >= 0) {
       var text = result_query.options[index].text;
-      if (text != null) {
-        text_data.value = '[\n{"act":"delete", ' + text + '},\n]';
-      } else {
-        text_data.value = 'Can not get the ID value';
-      }
+      text_data.value = '[\n{"act":"delete", ' + wrap(text) + '},\n]';
     } else {
       text_data.value = 'Can not delete data, please select data row to delete.';
     }
+  }
+
+  // Wrap text
+  function wrap(text) {
+    if (text.length > 200) {
+      var p = text.indexOf('", "', 80);
+      if (p > 0) {
+        text = text.substring(0, p+2) + '\n' + text.substring(p+2);
+        p = text.indexOf('", "', p+80)
+        if (p > 0) {
+          text = text.substring(0, p+2) + '\n' + text.substring(p+2);
+        }
+      }
+    }
+    return text;
   }
 
   // On URL change
