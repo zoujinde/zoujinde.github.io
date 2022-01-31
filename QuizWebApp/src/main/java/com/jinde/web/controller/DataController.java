@@ -130,7 +130,7 @@ public class DataController {
     // Set data : insert/update/delete
     public String setData(String body, String tab) {
         String result = null;
-        String[] data = JsonUtil.getArray(body);
+        String[] data = JsonUtil.getArray(body, null);
         if (data == null) {
             result = "No data";
         } else {

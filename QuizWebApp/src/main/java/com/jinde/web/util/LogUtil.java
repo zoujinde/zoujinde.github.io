@@ -11,4 +11,9 @@ public class LogUtil {
         System.out.println(tag + " : " + log);
     }
 
+    // print line
+    public static void log(String log) {
+        System.out.println(log);
+    }
+
 }
