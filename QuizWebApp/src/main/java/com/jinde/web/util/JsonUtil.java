@@ -56,14 +56,17 @@ public class JsonUtil {
             }
             sBuilder.append(SPACE[level]).append("\"").append(name).append("\":");
             Object value = f.get(object);
-            Class<?> type = f.getType();
-            if (type == List.class) {
+            String type = f.getType().getName();
+            if (type.equals("java.util.List")) {
                 if (value != null) {
                     sBuilder.append("[\n");
                     List<?> list = (List<?>) value;
                     for (Object item : list) {
-                        if (item instanceof String) {
+                        type = item.getClass().getName();
+                        if (type.equals("java.lang.String")) {
                             sBuilder.append(SPACE[level + 1]).append("\"").append(item).append("\",\n");
+                        } else if (type.startsWith("java.lang.")) { // Long, Boolean etc.
+                            sBuilder.append(SPACE[level + 1]).append(item).append(",\n");
                         } else {
                             sBuilder.append(SPACE[level + 1]).append("{\n");
                             build(item, level + 2);
@@ -76,15 +79,15 @@ public class JsonUtil {
                 } else {
                     sBuilder.append("[],\n");
                 }
-            } else if (type == Boolean.class || type == Integer.class || type == Long.class) {
-                sBuilder.append(value).append(",\n");
-
-            } else if (type == String.class) {
+            } else if (type.equals("java.lang.String")) {
                 if (value == null) {
                     sBuilder.append("null,\n");
                 } else {
                     sBuilder.append("\"").append(value).append("\",\n");
                 }
+            } else if (type.startsWith("java.lang.")) { // Long, Double, Boolean etc.
+                sBuilder.append(value).append(",\n");
+
             } else { // Other object
                 if (value != null) {
                     sBuilder.append("{\n");
@@ -124,6 +127,12 @@ public class JsonUtil {
             } else if (type == Integer.class) {
                 value = getInt(jsonStr, name);
 
+            } else if (type == Float.class) {
+                value = getFloat(jsonStr, name);
+
+            } else if (type == Double.class) {
+                value = getDouble(jsonStr, name);
+
             } else if (type == Boolean.class) {
                 value = getBoolean(jsonStr, name);
 
@@ -139,12 +148,12 @@ public class JsonUtil {
                     Class<?> arg = Class.forName(args[0].getTypeName());
                     ArrayList<Object> list = new ArrayList<>(len);
                     for (int i = 0; i < len; i++) {
-                        if (arg == String.class && ja[i] != null) {
-                            list.add(ja[i]);
-                        } else if (ja[i] != null) {
+                        if (ja[i].startsWith("{")) {
                             item = arg.newInstance(); // New object
                             build(item, ja[i], level + 1);
                             list.add(item);
+                        } else { // String, long, boolean etc.
+                            list.add(ja[i].trim());
                         }
                     }
                     value = list;
@@ -153,8 +162,10 @@ public class JsonUtil {
                 }
             } else {
                 String jo = getString(jsonStr, name);
-                value = type.newInstance(); // New object
-                build(value, jo, level + 1);
+                if (jo != null &&  jo.startsWith("{")) {
+                    value = type.newInstance(); // New object
+                    build(value, jo, level + 1);
+                }
             }
             // Set object value
             // GMUtil.log("build:" + SPACE[level] + objName + "." + name + "=" + value);
