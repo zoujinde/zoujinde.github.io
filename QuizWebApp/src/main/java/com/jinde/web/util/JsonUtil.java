@@ -167,10 +167,7 @@ public class JsonUtil {
     // Get Array from JSON
     public static String[] getArray(String json, String key) {
         String[] array = null;
-        String s = json.trim();
-        if (key != null) {
-            s = getString(json, key);
-        }
+        String s = (key != null ? getString(json, key) : json.trim());
         if (s != null && s.startsWith("[") && s.endsWith("]")) {
             s = s.substring(1, s.length() - 1).trim();
             if (s.length() > 0) {
