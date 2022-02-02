@@ -163,6 +163,9 @@ public class JsonUtil {
                 } else {
                     value = null;
                 }
+            } else if (!type.getName().contains(".")) { // long, boolean etc.
+                throw new RuntimeException("build : can't support type : " + type);
+
             } else {
                 String jo = getString(jsonStr, name);
                 if (jo != null && jo.startsWith("{") && jo.length() > 10) {
