@@ -88,6 +88,9 @@ public class JsonUtil {
             } else if (type.startsWith("java.lang.")) { // Long, Double, Boolean etc.
                 sBuilder.append(value).append(",\n");
 
+            } else if (!type.contains(".")) { // long, double, boolean etc.
+                sBuilder.append(value).append(",\n");
+
             } else { // Other object
                 if (value != null) {
                     sBuilder.append("{\n");
@@ -162,7 +165,7 @@ public class JsonUtil {
                 }
             } else {
                 String jo = getString(jsonStr, name);
-                if (jo != null &&  jo.startsWith("{")) {
+                if (jo != null && jo.startsWith("{") && jo.length() > 10) {
                     value = type.newInstance(); // New object
                     build(value, jo, level + 1);
                 }
@@ -278,6 +281,9 @@ public class JsonUtil {
                         value = json.substring(p1 + 1, end - 1);
                     } else {
                         value = json.substring(p1, end).trim();
+                        if (value.equals("null")) {
+                            value = null;
+                        }
                     }
                 }
             }
