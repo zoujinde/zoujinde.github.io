@@ -160,8 +160,6 @@ public class JsonUtil {
                         }
                     }
                     value = list;
-                } else {
-                    value = null;
                 }
             } else {
                 String jo = getString(jsonStr, name);
