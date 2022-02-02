@@ -124,19 +124,19 @@ public class JsonUtil {
             String name = f.getName();
             Object value = null;
             // Check long to avoid integer exception
-            if (type == Long.class) {
+            if (type == Long.class || type == long.class) {
                 value = getLong(jsonStr, name);
 
-            } else if (type == Integer.class) {
+            } else if (type == Integer.class || type == int.class) {
                 value = getInt(jsonStr, name);
 
-            } else if (type == Float.class) {
+            } else if (type == Float.class || type == float.class) {
                 value = getFloat(jsonStr, name);
 
-            } else if (type == Double.class) {
+            } else if (type == Double.class || type == double.class) {
                 value = getDouble(jsonStr, name);
 
-            } else if (type == Boolean.class) {
+            } else if (type == Boolean.class || type == boolean.class) {
                 value = getBoolean(jsonStr, name);
 
             } else if (type == String.class) {
@@ -163,9 +163,6 @@ public class JsonUtil {
                 } else {
                     value = null;
                 }
-            } else if (!type.getName().contains(".")) { // long, boolean etc.
-                throw new RuntimeException("build : can't support type : " + type);
-
             } else {
                 String jo = getString(jsonStr, name);
                 if (jo != null && jo.startsWith("{") && jo.length() > 10) {
