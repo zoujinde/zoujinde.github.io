@@ -39,7 +39,6 @@ public class DataManager {
     // Private constructor
     private DataManager() {
         WebUtil.startTimer();
-        WebUtil.downloadMySql();
         //jdbc:mysql://localhost:3306/quiz?useSSL=false&characterEncoding=utf8
         String url  = "jdbc:mysql://localhost:3306/";
         String home = System.getProperty("catalina.home");
@@ -415,6 +414,14 @@ public class DataManager {
 
     // Initiate quiz DB
     private void initQuizDB(String url, String user, String pass) {
+        try {
+            // We can put mysql jar to tomcat/lib
+            Class.forName(WebUtil.JDBC_MYSQL);
+            LogUtil.println(TAG, "mysql class is OK");
+        } catch (ClassNotFoundException e) {
+            LogUtil.println(TAG, "mysql class not found then download");
+            WebUtil.downloadMySql();
+        }
         Connection cn = null;
         PreparedStatement ps = null;
         try {
@@ -423,7 +430,6 @@ public class DataManager {
             String file = WebUtil.readFile(script);
             String[] array = file.split("\n");
             // Can't use mDataSource, URL is different
-            Class.forName(WebUtil.JDBC_MYSQL);
             cn = DriverManager.getConnection(url, user, pass);
             StringBuilder builder = new StringBuilder();
             for (String line : array) {
