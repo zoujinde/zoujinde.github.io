@@ -1,4 +1,4 @@
-package com.jinde.web.model;
+package com.quiz.web.model;
 
 public class Quiz_item extends DataObject {
 

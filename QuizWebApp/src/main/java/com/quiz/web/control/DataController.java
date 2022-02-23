@@ -1,11 +1,11 @@
-package com.jinde.web.controller;
+package com.quiz.web.control;
 
-import com.jinde.web.model.DataManager;
-import com.jinde.web.model.DataObject;
-import com.jinde.web.model.SqlAction;
-import com.jinde.web.util.JsonUtil;
-import com.jinde.web.util.LogUtil;
-import com.jinde.web.util.WebUtil;
+import com.quiz.web.model.DataManager;
+import com.quiz.web.model.DataObject;
+import com.quiz.web.model.SqlAction;
+import com.quiz.web.util.JsonUtil;
+import com.quiz.web.util.LogUtil;
+import com.quiz.web.util.WebUtil;
 
 
 public class DataController {
@@ -160,7 +160,7 @@ public class DataController {
 
     // Get DataObject class type
     private Class<?> getType(String tab) throws ClassNotFoundException {
-        String name = "com.jinde.web.model." + tab.substring(0, 1).toUpperCase() + tab.substring(1);
+        String name = "com.quiz.web.model." + tab.substring(0, 1).toUpperCase() + tab.substring(1);
         return Class.forName(name);
     }
 

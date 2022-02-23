@@ -1,4 +1,4 @@
-package com.jinde.web.model;
+package com.quiz.web.model;
 
 import java.io.FileWriter;
 import java.sql.Connection;
@@ -6,14 +6,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import com.jinde.web.util.LogUtil;
-import com.jinde.web.util.WebUtil;
+import com.quiz.web.util.LogUtil;
+import com.quiz.web.util.WebUtil;
 
 public class DataFactory {
 
     private static final String TAG = DataFactory.class.getSimpleName();
     private static final String TMP_PATH = "D:/tmp_data/";
-    private static final String PACKAGE = "com.jinde.web.model";
+    private static final String PACKAGE = "com.quiz.web.model";
 
     // Main method to create DataObject files from DB
     public static void main(String[] args) throws Exception {

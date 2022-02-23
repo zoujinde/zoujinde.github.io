@@ -1,4 +1,4 @@
-package com.jinde.web.view;
+package com.quiz.web.view;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,10 +10,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.jinde.web.controller.DataController;
-import com.jinde.web.util.JsonUtil;
-import com.jinde.web.util.LogUtil;
-import com.jinde.web.util.WebUtil;
+import com.quiz.web.control.DataController;
+import com.quiz.web.util.JsonUtil;
+import com.quiz.web.util.LogUtil;
+import com.quiz.web.util.WebUtil;
 
 @WebServlet(urlPatterns = "/data")
 public class DataServlet extends HttpServlet {
