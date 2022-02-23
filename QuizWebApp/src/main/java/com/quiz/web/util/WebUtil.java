@@ -274,9 +274,15 @@ public class WebUtil {
             if (jar.exists()) {
                 LogUtil.println(TAG, "mysql jar exists");
             } else {
-                LogUtil.println(TAG, "mysql jar down..");
-                String url = "https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27" + my;
-                download(url, jar);
+                try {
+                    // We can put mysql jar to tomcat/lib
+                    Class.forName(WebUtil.JDBC_MYSQL);
+                    LogUtil.println(TAG, "mysql class is OK");
+                } catch (ClassNotFoundException e) {
+                    LogUtil.println(TAG, "mysql class not found then download");
+                    String url = "https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27" + my;
+                    download(url, jar);
+                }
             }
         }
     }
