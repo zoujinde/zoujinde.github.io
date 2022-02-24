@@ -76,7 +76,7 @@ public class DataFactory {
                 fw.close();
             }
         } catch (Exception e) {
-            LogUtil.println(TAG, e.toString());
+            LogUtil.log(TAG, e.toString());
         } finally {
             WebUtil.close(rs);
             WebUtil.close(ps);

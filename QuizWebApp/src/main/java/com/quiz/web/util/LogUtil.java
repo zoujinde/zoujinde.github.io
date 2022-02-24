@@ -7,13 +7,8 @@ public class LogUtil {
     }
 
     // print line
-    public static void println(String tag, String log) {
+    public static void log(String tag, String log) {
         System.out.println(tag + " : " + log);
-    }
-
-    // print line
-    public static void log(String log) {
-        System.out.println(log);
     }
 
 }

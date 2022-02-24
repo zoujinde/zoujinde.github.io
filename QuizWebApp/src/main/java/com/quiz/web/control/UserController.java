@@ -65,7 +65,7 @@ public class UserController {
         String result = null;
         if (data == null) {
             result = "No data";
-            LogUtil.println(TAG, result);
+            LogUtil.log(TAG, result);
         } else {
             SqlAction[] act = new SqlAction[data.length];
             User user = null;

@@ -17,7 +17,7 @@ public class DataController {
 
     // Private constructor
     private DataController() {
-        LogUtil.println(TAG, "private constructor");
+        LogUtil.log(TAG, "private constructor");
     }
 
     // Single instance

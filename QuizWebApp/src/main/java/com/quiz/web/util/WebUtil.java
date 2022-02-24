@@ -46,11 +46,11 @@ public class WebUtil {
                 public void run() {
                     while (true) {
                         try {
-                            LogUtil.println(TAG, "SYS " + SYS_TIME);
+                            LogUtil.log(TAG, "SYS " + SYS_TIME);
                             Thread.sleep(60000);
                             SYS_TIME.setTime(System.currentTimeMillis());
                         } catch (Exception e) {
-                            LogUtil.println(TAG, "SYS " + e);
+                            LogUtil.log(TAG, "SYS " + e);
                             break;
                         }
                     }
@@ -100,7 +100,7 @@ public class WebUtil {
                 }
             }
         } catch (Exception e) {
-            LogUtil.println(TAG, name + " build " + e);
+            LogUtil.log(TAG, name + " build " + e);
         }
         return object;
     }
@@ -139,7 +139,7 @@ public class WebUtil {
                 }
             }
         } catch (Exception e) {
-            LogUtil.println(TAG, "build " + e + ", json=" + json);
+            LogUtil.log(TAG, "build " + e + ", json=" + json);
             object = null;
         }
         return object;
@@ -152,7 +152,7 @@ public class WebUtil {
             req.setCharacterEncoding(UTF8);
             body = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
         } catch (IOException e) {
-            LogUtil.println(TAG, "getPostBody : " + e);
+            LogUtil.log(TAG, "getPostBody : " + e);
         }
         return body;
     }
@@ -197,7 +197,7 @@ public class WebUtil {
         String value = null;
         if (sConfig == null) {
             String file = getWebInfPath() + "config.ini";
-            LogUtil.println(TAG, "ini=" + file);
+            LogUtil.log(TAG, "ini=" + file);
             sConfig = readFile(file).split("\n");
         }
         String line;
@@ -233,7 +233,7 @@ public class WebUtil {
             fos.close();
         } catch (IOException e) {
             error = "copyFile : " + e;
-            LogUtil.println(TAG, error);
+            LogUtil.log(TAG, error);
         }
         return error;
     }
@@ -256,7 +256,7 @@ public class WebUtil {
             fis.close();
             result = builder.toString();
         } catch (IOException e) {
-            LogUtil.println(TAG, "readFile : " + e);
+            LogUtil.log(TAG, "readFile : " + e);
         }
         return result;
     }
@@ -265,14 +265,14 @@ public class WebUtil {
     public static void downloadMySql() {
         String web = WebUtil.getWebInfPath();
         if (web.endsWith("/src/main/webapp/WEB-INF/")) {
-            LogUtil.println(TAG, "Eclipse Web");
+            LogUtil.log(TAG, "Eclipse Web");
         } else {
             File lib = new File(web + "lib");
             lib.mkdir();
             String my = "/mysql-connector-java-8.0.27.jar";
             File jar = new File(lib.getAbsoluteFile() + my);
             if (jar.exists()) {
-                LogUtil.println(TAG, "mysql jar exists");
+                LogUtil.log(TAG, "mysql jar exists");
             } else {
                 String url = "https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27" + my;
                 download(url, jar);
@@ -307,10 +307,10 @@ public class WebUtil {
             fos.close();
             cn.disconnect();
         } catch (IOException e) {
-            LogUtil.println(TAG, "download : " + e);
+            LogUtil.log(TAG, "download : " + e);
         } finally {
             if (file.length() <= 0) {
-                LogUtil.println(TAG, "download failed : " + file);
+                LogUtil.log(TAG, "download failed : " + file);
                 // If file download failed in GM VPN, must delete
                 file.delete();//Otherwise WebApp can't be started
             }
@@ -327,18 +327,18 @@ public class WebUtil {
                         cn.rollback(); // RollBack
                     }
                 } catch (Exception e) {
-                    LogUtil.println(TAG, "cn.rollback : " + e);
+                    LogUtil.log(TAG, "cn.rollback : " + e);
                 }
                 try {
                     cn.setAutoCommit(true); // Set AutoCommit
                 } catch (Exception e) {
-                    LogUtil.println(TAG, "cn.setAutoC : " + e);
+                    LogUtil.log(TAG, "cn.setAutoC : " + e);
                 }
             }
             try {
                 obj.close();
             } catch (Exception e) {
-                LogUtil.println(TAG, "close : " + e);
+                LogUtil.log(TAG, "close : " + e);
             }
         }
     }

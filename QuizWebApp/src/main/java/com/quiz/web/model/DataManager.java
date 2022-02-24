@@ -108,7 +108,7 @@ public class DataManager {
                 buildJson(rs, builder);
                 count++;
                 if (count > WebUtil.ROWS_LIMIT) {
-                    LogUtil.println(TAG, "break on ROWS > " +  WebUtil.ROWS_LIMIT);
+                    LogUtil.log(TAG, "break on ROWS > " +  WebUtil.ROWS_LIMIT);
                     break;
                 }
             }
@@ -168,7 +168,7 @@ public class DataManager {
             if (result == null || result.length() < 10) {
                 result = e.toString();
             }
-            LogUtil.println(TAG, result);
+            LogUtil.log(TAG, result);
         } finally {
             WebUtil.close(rs);
             WebUtil.close(ps);
@@ -417,16 +417,16 @@ public class DataManager {
         try {
             // We can put mysql jar to tomcat/lib
             Class.forName(WebUtil.JDBC_MYSQL);
-            LogUtil.println(TAG, "mysql class is OK");
+            LogUtil.log(TAG, "mysql class is OK");
         } catch (ClassNotFoundException e) {
-            LogUtil.println(TAG, "mysql class not found then download");
+            LogUtil.log(TAG, "mysql class not found then download");
             WebUtil.downloadMySql();
         }
         Connection cn = null;
         PreparedStatement ps = null;
         try {
             String script = WebUtil.getWebInfPath() + "QuizDB.sql";
-            LogUtil.println(TAG, script);
+            LogUtil.log(TAG, script);
             String file = WebUtil.readFile(script);
             String[] array = file.split("\n");
             // Can't use mDataSource, URL is different
@@ -441,14 +441,14 @@ public class DataManager {
                 if (line.endsWith(";")) {
                     line = builder.toString();
                     builder.setLength(0);
-                    LogUtil.println(TAG, line);
+                    LogUtil.log(TAG, line);
                     ps = cn.prepareStatement(line);
                     ps.execute();
                     ps.close();
                 }
             }
         } catch (Exception e) {
-            LogUtil.println(TAG, e.toString());
+            LogUtil.log(TAG, e.toString());
         } finally {
             WebUtil.close(ps);
             WebUtil.close(cn);
