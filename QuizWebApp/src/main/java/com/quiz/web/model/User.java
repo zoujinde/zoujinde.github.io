@@ -3,13 +3,19 @@ package com.quiz.web.model;
 public class User extends DataObject {
 
     public int user_id;
+    public int parent_id;
+    public int user_type;
     public String user_name;
     public String password;
+    public String nickname;
+    public java.sql.Timestamp birthday;
+    public int gender;
+    public String address;
     public String email;
     public String phone;
-    public String address;
     public String token;
     public java.sql.Timestamp create_time;
+    public java.sql.Timestamp signin_time;
 
     @Override
     public String getTableName() {

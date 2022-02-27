@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.quiz.web.control.DataController;
 import com.quiz.web.control.UserController;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.WebUtil;
@@ -27,10 +26,10 @@ public class UserServlet extends HttpServlet {
         //LogUtil.println(TAG, "act=" + act);
         if (act == null) {
             result = "act is null";
-        } else if (act.equals(WebUtil.ACT_SELECT)) {
-            result = UserController.instance().select(body);
-        } else {
-            result = DataController.instance().setData(body, "user");
+        } else if (act.equals("signIn")) {
+            result = UserController.instance().signIn(body);
+        } else if (act.equals("signUp")) {
+            result = UserController.instance().signUp(body);
         }
 
         // Write response

@@ -4,11 +4,14 @@
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
   <H1> &nbsp &nbsp &nbsp Quiz Web App</H1>
   <hr>
-  <label>User name</label><input id="text_user"/><br>
-  <label>Password </label><input type="password" id="text_pass"/><br>
+  <label>User name</label><input id="text_user"/>
+  <br>
+  <label>Password </label><input type="password" id="text_pass"/>
+  <br>
   <input type="button" onclick="signUp()" value="Sign Up"/>
   <input type="button" onclick="signIn()" value="Sign In"/>
   <hr>
+  <label id="result" style="width:600px;font-size:30px;"/>
 </div>
 </HTML>
 
@@ -48,11 +51,12 @@
   var httpRequest = null;
   var text_user = document.getElementById("text_user");
   var text_pass = document.getElementById("text_pass");
+  var result = document.getElementById("result");
 
   // Initiate http
   function initHttp() {
     if (httpRequest != null) {
-      //state.innerText = "reuse http object"
+      result.innerText = "*"; // reuse http object
     } else if (window.XMLHttpRequest) { //IE6 above and other browser
       httpRequest = new XMLHttpRequest()
     } else if(window.ActiveXObject) { //IE6 and lower
@@ -61,24 +65,36 @@
   }
 
   // Sign in
-  function singIn() {
+  function signIn() {
+    var user = text_user.value.trim();
+    var pass = text_pass.value.trim();
+    if (user.length < 3) {
+      alert("Please input the user name. (length>=3)");
+      return;
+    }
+    if (pass.length < 6) {
+      alert("Please input the password. (length>=6)");
+      return;
+    }
+    var json = {"act":"signIn", "user_name":user, "password":pass};
+    json = JSON.stringify(json);
     initHttp();
     // Post URL is Servlet, the sync is true
-    httpRequest.open("POST", url.value, true);
+    httpRequest.open("POST", "/user", true);
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // Set callback
     httpRequest.onreadystatechange = signInResult;
-    httpRequest.send(text_user.value);
+    httpRequest.send(json);
   }
 
   // Sign in result
   function signInResult() {
     if(httpRequest.readyState==4) {
       if(httpRequest.status==200) { // 200 OK
-        result_add.innerText = httpRequest.responseText;
+        result.innerText = httpRequest.responseText;
       } else {
-        result_add.innerText = httpRequest.status
+        result.innerText = httpRequest.status
       }
     }
   }

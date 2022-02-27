@@ -3,15 +3,24 @@ CREATE DATABASE quiz;
 USE quiz;
 
 -- User table
+-- user_type : 0 Admin, 1 Volunteer, 2 Parents, 3 Participant
+-- birthday  : Only for participant
+-- gender    : Only for participant (1 Male, 0 Female)
 CREATE TABLE user (
   user_id     INT AUTO_INCREMENT NOT NULL,
+  parent_id   INT         NOT NULL,
+  user_type   INT         NOT NULL,
   user_name   VARCHAR(30) NOT NULL,
   password    VARCHAR(20) NOT NULL,
+  nickname    VARCHAR(20) NOT NULL,
+  birthday    DATETIME    NOT NULL,
+  gender      INT         NOT NULL,
+  address     VARCHAR(50) NOT NULL,
   email       VARCHAR(30) NOT NULL,
   phone       VARCHAR(20) NOT NULL,
-  address     VARCHAR(50) NOT NULL,
   token       VARCHAR(50) NOT NULL,
   create_time DATETIME    NOT NULL,
+  signin_time DATETIME    NOT NULL,
   PRIMARY KEY(user_id),
   UNIQUE KEY user_name_uniq(user_name)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
@@ -51,7 +60,7 @@ CREATE TABLE quiz_result (
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
 
 -- Insert test data
-insert into user values(1, 'Admin', 'pass', '', '', '', '', '2022-01-01');
+insert into user values(1, 0, 0, 'Admin', 'password', 'admin', '2001-01-01', 1, '', '', '', '', '2022-01-01', '2022-01-01');
 insert into quiz values(1, 'Quiz 2022', '2022-01-01');
 insert into quiz_item values(1, 1, 'Question 1 : Are you in US?', '(a) Yes # (b) No', 0);
 insert into quiz_result values(1, 1, 1, '0', '2022-01-01');
