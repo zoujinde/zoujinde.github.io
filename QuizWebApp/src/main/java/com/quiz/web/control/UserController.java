@@ -3,12 +3,13 @@ package com.quiz.web.control;
 import com.quiz.web.model.DataManager;
 import com.quiz.web.model.User;
 import com.quiz.web.util.JsonUtil;
+import com.quiz.web.util.LogUtil;
 import com.quiz.web.util.WebUtil;
 
 
 public class UserController {
 
-    //private static final String TAG = UserController.class.getSimpleName();
+    private static final String TAG = UserController.class.getSimpleName();
 
     // Single instance
     private static final UserController INSTANCE = new UserController();
@@ -41,7 +42,8 @@ public class UserController {
                 result = "Invalid user name or password";
             }
         } catch (Exception e) {
-            result = e.getMessage();
+            result = "signIn : " + e.getMessage();
+            LogUtil.log(TAG, result);
         }
         return result;
     }

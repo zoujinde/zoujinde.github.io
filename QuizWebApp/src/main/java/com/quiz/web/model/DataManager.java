@@ -183,7 +183,7 @@ public class DataManager {
             result = WebUtil.OK;
         } catch (Exception e) {
             //e.printStackTrace();
-            result = "runSql : " + e;
+            result = "runSql : " + e.getMessage();
             LogUtil.log(TAG, result);
         } finally {
             WebUtil.close(rs);
@@ -216,7 +216,7 @@ public class DataManager {
                 tmp = tmp == null ? "" : tmp;
                 builder.append("\"").append(tmp).append("\"");
             } else if (type == java.sql.Types.TIMESTAMP) {
-                builder.append("\"").append(getYMD(rs,c)).append("\"");
+                builder.append("\"").append(rs.getTimestamp(c)).append("\"");
             } else {
                 throw new SQLException("Unknown type : " + type);
             }
@@ -228,10 +228,10 @@ public class DataManager {
         return builder.toString();
     }
 
-    // Get YYYY-MM-DD
+    /* Get YYYY-MM-DD
     private String getYMD(ResultSet rs, int col) throws SQLException {
         return rs.getTimestamp(col).toString().substring(0,10);
-    }
+    }*/
 
     // Check SQL select
     private void checkSqlSelect(String sql, Object[] values) throws SQLException {
@@ -356,7 +356,7 @@ public class DataManager {
         for (Field f : array) {
             name = f.getName();
             if (!contains(pks, name)) {
-                LogUtil.log(TAG, name + "=" + f.get(T));
+                //LogUtil.log(TAG, name + "=" + f.get(T));
                 ps.setObject(i, f.get(T));
                 i++;
             }

@@ -147,6 +147,9 @@ public class JsonUtil {
             } else if (type == String.class) {
                 value = getString(jsonStr, name);
 
+            } else if (type == java.sql.Timestamp.class) {
+                value = getTimestamp(jsonStr, name);
+
             } else if (type == List.class) {
                 //JSONArray ja = (JSONArray) value;
                 String[] ja = getArray(jsonStr, name);
@@ -187,7 +190,7 @@ public class JsonUtil {
                 }
             }
             // Set object value
-            // GMUtil.log("build:" + SPACE[level] + objName + "." + name + "=" + value);
+            // LogUtil.log(TAG, SPACE[level] + objName + "." + name + "=" + value);
             if (value != null) {
                 f.set(object, value);
             }
@@ -447,6 +450,21 @@ public class JsonUtil {
         }
         return value;
     }
+
+    // Get Timestamp from JSON
+    public static java.sql.Timestamp getTimestamp(String json, String key) {
+        java.sql.Timestamp value = null;
+        String s = getString(json, key);
+        if (s != null && !s.equals("null")) {
+            try {
+                value = java.sql.Timestamp.valueOf(s);
+            } catch (RuntimeException e) {
+                System.err.println("json.get : " + e);
+            }
+        }
+        return value;
+    }
+
     // End : JSON methods ///////////////////////////////////////////
 
 }
