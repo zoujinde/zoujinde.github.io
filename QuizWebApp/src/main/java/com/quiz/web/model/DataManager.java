@@ -106,17 +106,14 @@ public class DataManager {
             rs = ps.executeQuery();
             // Read lines
             int count = 0;
-            T obj = null;
-            T last = null;
+            T obj = type.newInstance();
             while (rs.next()) {
-                obj = buildObject(rs, type);
-                obj.setLast(last);
+                obj = buildObject(rs, obj);
                 count++;
                 if (count > WebUtil.ROWS_LIMIT) {
                     LogUtil.log(TAG, "break on ROWS > " +  WebUtil.ROWS_LIMIT);
                     break;
                 }
-                last = obj;
             }
             if (count > 0) {
                 result = (T[])Array.newInstance(type, count);
@@ -259,15 +256,18 @@ public class DataManager {
     }
 
     // Build the object
-    private <T> T buildObject(ResultSet rs, Class<T> objType) throws Exception {
-        T result = objType.newInstance();
-        Field[] fields = objType.getFields();
+    private <T extends DataObject> T buildObject(ResultSet rs, T last) throws Exception {
+        @SuppressWarnings("unchecked")
+        Class<T> type = (Class<T>) last.getClass();
+        T result = type.newInstance();
+        result.setLast(last);
+        Field[] fields = type.getFields();
         String name = null;
-        Class<?> type = null;
+        Class<?> t = null;
         for (Field f : fields) {
             name = f.getName();
-            type = f.getType();
-            if (type == java.sql.Timestamp.class) {
+            t = f.getType();
+            if (t == java.sql.Timestamp.class) {
                 f.set(result, rs.getTimestamp(name));
             } else {
                 f.set(result, rs.getObject(name));
