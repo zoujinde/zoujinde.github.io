@@ -8,11 +8,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
-import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
 import com.quiz.web.util.WebException;
 import com.quiz.web.util.WebUtil;
@@ -93,16 +93,48 @@ public class DataManager {
     // Run SQL select -> Return JSON string
     @SuppressWarnings("unchecked")
     public <T> T[] select(String sql, Object[] values, Class<T> type) throws Exception {
-        String json = this.select(sql, values);
-        //LogUtil.log(TAG, "select : " + json);
-        String[] array = JsonUtil.getArray(json, null);
         T[] result = null;
-        if (array != null && array.length > 0) {
-            result = (T[])Array.newInstance(type, array.length);
-            for (int i = 0; i < array.length; i++) {
-                result[i] = type.newInstance();
-                JsonUtil.toObject(array[i], result[i]);
+        Connection cn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            checkSqlSelect(sql, values);
+            cn = mDataSource.getConnection();
+            ps = cn.prepareStatement(sql);
+            for (int i = 0; i < values.length; i++) {
+                ps.setObject(i + 1, values[i]); // setObject(i + 1, xxx)
             }
+            rs = ps.executeQuery();
+            // Read lines
+            int count = 0;
+            ArrayList<T> list = null;
+            while (rs.next()) {
+                if (list == null) {
+                    list = new ArrayList<T>();
+                }
+                list.add(buildObject(rs, type));
+                count++;
+                if (count > WebUtil.ROWS_LIMIT) {
+                    LogUtil.log(TAG, "break on ROWS > " +  WebUtil.ROWS_LIMIT);
+                    break;
+                }
+            }
+            if (list != null) {
+                int size = list.size();
+                result = (T[])Array.newInstance(type, size);
+                for (int i = 0; i < size; i++) {
+                    result[i] = list.get(i);
+                }
+                list.clear();
+                list = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new WebException("select : " + e);
+        } finally {
+            WebUtil.close(rs);
+            WebUtil.close(ps);
+            WebUtil.close(cn);
         }
         return result;
     }
@@ -134,7 +166,7 @@ public class DataManager {
             builder.setLength(builder.length() - 2);
             builder.append("\n]\n");
         } catch (Exception e) {
-            throw new WebException("select : " + mUrl + " " + e);
+            throw new WebException("select : " + e);
         } finally {
             WebUtil.close(rs);
             WebUtil.close(ps);
@@ -226,6 +258,24 @@ public class DataManager {
         }
         builder.append("},\n");
         return builder.toString();
+    }
+
+    // Build the object
+    private <T> T buildObject(ResultSet rs, Class<T> objType) throws Exception {
+        T result = objType.newInstance();
+        Field[] fields = objType.getFields();
+        String name = null;
+        Class<?> type = null;
+        for (Field f : fields) {
+            name = f.getName();
+            type = f.getType();
+            if (type == java.sql.Timestamp.class) {
+                f.set(result, rs.getTimestamp(name));
+            } else {
+                f.set(result, rs.getObject(name));
+            }
+        }
+        return result;
     }
 
     /* Get YYYY-MM-DD

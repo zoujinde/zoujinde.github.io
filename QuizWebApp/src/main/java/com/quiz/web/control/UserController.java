@@ -34,14 +34,16 @@ public class UserController {
             User[] users = DataManager.instance().select(sql, values, User.class);
             if (users != null && users.length == 1) {
                 // Update the sign in time and token
-                users[0].setAction(WebUtil.ACT_UPDATE);
-                users[0].signin_time = WebUtil.getTime();
-                users[0].token = "123";
+                User u = users[0];
+                u.setAction(WebUtil.ACT_UPDATE);
+                u.signin_time = WebUtil.getTime();
+                u.token = "test";
                 result = DataManager.instance().runSql(users);
             } else {
                 result = "Invalid user name or password";
             }
         } catch (Exception e) {
+            //e.printStackTrace();
             result = "signIn : " + e.getMessage();
             LogUtil.log(TAG, result);
         }

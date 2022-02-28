@@ -91,6 +91,9 @@ public class JsonUtil {
             } else if (!type.contains(".")) { // long, double, boolean etc.
                 sBuilder.append(value).append(",\n");
 
+            } else if (type.equals("java.sql.Timestamp")) {
+                sBuilder.append(value).append(",\n");
+
             } else { // Other object
                 if (value != null) {
                     sBuilder.append("{\n");
