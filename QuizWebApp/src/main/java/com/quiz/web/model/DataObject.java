@@ -4,9 +4,20 @@ public class DataObject {
 
     private String mSqlAction = null;
     private Object[] mSqlValues = null;
+    private DataObject mLast = null;
 
     // Constructor
     public DataObject() {
+    }
+
+    // Get last
+    public DataObject getLast() {
+        return mLast;
+    }
+
+    // Set last
+    public void setLast(DataObject obj) {
+        mLast = obj;
     }
 
     // Constructor for SQL with the values

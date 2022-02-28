@@ -23,7 +23,7 @@ CREATE TABLE user (
   signin_time DATETIME    NOT NULL,
   PRIMARY KEY(user_id),
   UNIQUE KEY user_name_uniq(user_name)
-) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
+) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
 -- Quiz main table
 CREATE TABLE quiz (
@@ -32,7 +32,7 @@ CREATE TABLE quiz (
   create_time DATETIME    NOT NULL,
   PRIMARY KEY(quiz_id),
   UNIQUE KEY quiz_name_uniq(quiz_name)
-) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
+) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
 -- Quiz item table
 -- We can get the last_insert_id() for current session as below:
@@ -45,7 +45,7 @@ CREATE TABLE quiz_item (
   multi_select BIT          NOT NULL,
   PRIMARY KEY(quiz_id, item_id),
   CONSTRAINT fk_quiz_item FOREIGN KEY (quiz_id) REFERENCES quiz(quiz_id)
-) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
+) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
 -- Quiz result table
 CREATE TABLE quiz_result (
@@ -57,7 +57,7 @@ CREATE TABLE quiz_result (
   PRIMARY KEY(quiz_id, user_id, item_id),
   CONSTRAINT fk_quiz_result FOREIGN KEY (quiz_id, item_id) REFERENCES quiz_item(quiz_id, item_id),
   CONSTRAINT fk_quiz_result_user FOREIGN KEY (user_id) REFERENCES user(user_id)
-) Engine=INNODB DEFAULT CHARSET=UTF8MB4;
+) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
 -- Insert test data
 insert into user values(1, 0, 0, 'Admin', 'password', 'admin', '2001-01-01', 1, '', '', '', '', '2022-01-01', '2022-01-01');

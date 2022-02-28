@@ -24,7 +24,7 @@ public class UserController {
     }
 
     // SignIn
-    public String signIn(String body) {
+    public String signIn(String body, String token) {
         String result = null;
         String user = JsonUtil.getString(body, "user_name");
         String pass = JsonUtil.getString(body, "password");
@@ -34,10 +34,11 @@ public class UserController {
             User[] users = DataManager.instance().select(sql, values, User.class);
             if (users != null && users.length == 1) {
                 // Update the sign in time and token
-                User u = users[0];
-                u.setAction(WebUtil.ACT_UPDATE);
-                u.signin_time = WebUtil.getTime();
-                u.token = "test";
+                for (User u : users) {
+                    u.setAction(WebUtil.ACT_UPDATE);
+                    u.signin_time = WebUtil.getTime();
+                    u.token = token;
+                }
                 result = DataManager.instance().runSql(users);
             } else {
                 result = "Invalid user name or password";

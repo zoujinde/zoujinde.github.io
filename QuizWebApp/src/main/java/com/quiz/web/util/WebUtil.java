@@ -31,6 +31,7 @@ public class WebUtil {
     public static final String JDBC_MYSQL = "com.mysql.cj.jdbc.Driver";
 
     private static String[] sConfig = null;
+    private static StringBuilder sBuilder = new StringBuilder();
 
     // SYS_TIME for table time
     private static final Timestamp SYS_TIME = new Timestamp(System.currentTimeMillis());
@@ -244,10 +245,10 @@ public class WebUtil {
     }
 
     // Read file
-    public static String readFile(String file) {
+    public synchronized static String readFile(String file) {
         String result = null;
         try {
-            StringBuilder builder = new StringBuilder();
+            sBuilder.setLength(0);
             byte[] buf = new byte[8192];
             FileInputStream fis = new FileInputStream(file);
             int n = 0;
@@ -256,10 +257,10 @@ public class WebUtil {
                 if (n <= 0) {
                     break;
                 }
-                builder.append(new String(buf, 0, n));
+                sBuilder.append(new String(buf, 0, n));
             }
             fis.close();
-            result = builder.toString();
+            result = sBuilder.toString();
         } catch (IOException e) {
             LogUtil.log(TAG, "readFile : " + e);
         }
@@ -346,6 +347,16 @@ public class WebUtil {
                 LogUtil.log(TAG, "close : " + e);
             }
         }
+    }
+
+    // Get request info
+    public synchronized static String getToken(HttpServletRequest req) {
+        sBuilder.setLength(0);
+        //sBuilder.append(req.getRemoteAddr());
+        sBuilder.append("#").append(req.getRemoteHost());
+        sBuilder.append("#").append(req.getRemotePort());
+        //sBuilder.append("#").append(req.getRemoteUser());
+        return sBuilder.toString();
     }
 
 }

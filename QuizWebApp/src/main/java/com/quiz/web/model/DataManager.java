@@ -8,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -92,7 +91,7 @@ public class DataManager {
 
     // Run SQL select -> Return JSON string
     @SuppressWarnings("unchecked")
-    public <T> T[] select(String sql, Object[] values, Class<T> type) throws Exception {
+    public <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type) throws Exception {
         T[] result = null;
         Connection cn = null;
         PreparedStatement ps = null;
@@ -107,29 +106,28 @@ public class DataManager {
             rs = ps.executeQuery();
             // Read lines
             int count = 0;
-            ArrayList<T> list = null;
+            T obj = null;
+            T last = null;
             while (rs.next()) {
-                if (list == null) {
-                    list = new ArrayList<T>();
-                }
-                list.add(buildObject(rs, type));
+                obj = buildObject(rs, type);
+                obj.setLast(last);
                 count++;
                 if (count > WebUtil.ROWS_LIMIT) {
                     LogUtil.log(TAG, "break on ROWS > " +  WebUtil.ROWS_LIMIT);
                     break;
                 }
+                last = obj;
             }
-            if (list != null) {
-                int size = list.size();
-                result = (T[])Array.newInstance(type, size);
-                for (int i = 0; i < size; i++) {
-                    result[i] = list.get(i);
+            if (count > 0) {
+                result = (T[])Array.newInstance(type, count);
+                for (int i = count - 1; i >= 0; i--) {
+                    result[i] = obj;
+                    obj = (T) obj.getLast();
+                    result[i].setLast(null); // For GC
                 }
-                list.clear();
-                list = null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new WebException("select : " + e);
         } finally {
             WebUtil.close(rs);
