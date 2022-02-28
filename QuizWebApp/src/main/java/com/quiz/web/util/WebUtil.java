@@ -38,6 +38,11 @@ public class WebUtil {
     // Update SYS_TIME per minute and do other task
     private static Thread sThread = null;
 
+    // Get time
+    public static Timestamp getTime() {
+        return SYS_TIME;
+    }
+
     // Must synchronized to avoid multiple threads
     public static synchronized void startTimer() {
         if (sThread == null) {

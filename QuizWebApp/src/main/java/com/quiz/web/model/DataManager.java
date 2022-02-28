@@ -1,5 +1,6 @@
 package com.quiz.web.model;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
+import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
 import com.quiz.web.util.WebException;
 import com.quiz.web.util.WebUtil;
@@ -89,6 +91,23 @@ public class DataManager {
     }
 
     // Run SQL select -> Return JSON string
+    @SuppressWarnings("unchecked")
+    public <T> T[] select(String sql, Object[] values, Class<T> type) throws Exception {
+        String json = this.select(sql, values);
+        //LogUtil.log(TAG, "select : " + json);
+        String[] array = JsonUtil.getArray(json, null);
+        T[] result = null;
+        if (array != null && array.length > 0) {
+            result = (T[])Array.newInstance(type, array.length);
+            for (int i = 0; i < array.length; i++) {
+                result[i] = type.newInstance();
+                JsonUtil.toObject(array[i], result[i]);
+            }
+        }
+        return result;
+    }
+
+    // Run SQL select -> Return JSON string
     public String select(String sql, Object[] values) throws WebException {
         StringBuilder builder = new StringBuilder("[ \n");//Must add 1 space;
         Connection cn = null;
@@ -126,7 +145,7 @@ public class DataManager {
 
     // Run SqlActions one by one
     // Return : result
-    public String runSql(SqlAction[] actions) {
+    public String runSql(DataObject[] actions) {
         String result = null;
         Connection cn = null;
         PreparedStatement ps = null;
@@ -137,9 +156,9 @@ public class DataManager {
             cn.setAutoCommit(false); // Begin Transaction
             StringBuilder builder = new StringBuilder();
             // Run the sqlAct one by one
-            for (SqlAction a : actions) {
-                DataObject obj = a.dataObj;
-                String act = a.action;
+            for (DataObject a : actions) {
+                DataObject obj = a;
+                String act = a.getAction();
                 if (act.equals(WebUtil.ACT_INSERT)) {
                     ps = buildInsertSql(cn, obj, builder, autoId);
                     ps.executeUpdate();
@@ -164,10 +183,7 @@ public class DataManager {
             result = WebUtil.OK;
         } catch (Exception e) {
             //e.printStackTrace();
-            result = e.getMessage();
-            if (result == null || result.length() < 10) {
-                result = e.toString();
-            }
+            result = "runSql : " + e;
             LogUtil.log(TAG, result);
         } finally {
             WebUtil.close(rs);
@@ -332,7 +348,7 @@ public class DataManager {
         }
         builder.setLength(builder.length() - 5);//Remove and
         String sql = builder.toString();
-        //LogUtil.println(TAG, "build : " + sql);
+        //LogUtil.log(TAG, "build : " + sql);
         PreparedStatement ps = cn.prepareStatement(sql);
 
         // Set values
@@ -340,6 +356,7 @@ public class DataManager {
         for (Field f : array) {
             name = f.getName();
             if (!contains(pks, name)) {
+                LogUtil.log(TAG, name + "=" + f.get(T));
                 ps.setObject(i, f.get(T));
                 i++;
             }
@@ -401,11 +418,12 @@ public class DataManager {
     }
 
     // Build SQL statement
-    private PreparedStatement buildSql(Connection cn, SqlAction sqlObj)
+    private PreparedStatement buildSql(Connection cn, DataObject sqlObj)
             throws SQLException {
-        Object[] values = sqlObj.values;
-        checkSqlDml(sqlObj.sql, values);
-        PreparedStatement ps = cn.prepareStatement(sqlObj.sql);
+        String sql = sqlObj.getAction();
+        Object[] values = sqlObj.getValues();
+        checkSqlDml(sql, values);
+        PreparedStatement ps = cn.prepareStatement(sql);
         for (int i = 0; i < values.length; i++) {
             ps.setObject(i + 1, values[i]);
         }

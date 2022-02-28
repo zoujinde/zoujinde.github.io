@@ -1,8 +1,8 @@
 package com.quiz.web.control;
 
 import com.quiz.web.model.DataManager;
+import com.quiz.web.model.User;
 import com.quiz.web.util.JsonUtil;
-import com.quiz.web.util.WebException;
 import com.quiz.web.util.WebUtil;
 
 
@@ -27,13 +27,20 @@ public class UserController {
         String result = null;
         String user = JsonUtil.getString(body, "user_name");
         String pass = JsonUtil.getString(body, "password");
-        String sql = "select user_name from user where user_name=? and password=?";
+        String[] values = new String[]{user, pass};
+        String sql = "select * from user where user_name=? and password=?";
         try {
-            result = DataManager.instance().select(sql, new String[]{user, pass});
-            if (result.contains(user)) {
-                result = WebUtil.OK;
+            User[] users = DataManager.instance().select(sql, values, User.class);
+            if (users != null && users.length == 1) {
+                // Update the sign in time and token
+                users[0].setAction(WebUtil.ACT_UPDATE);
+                users[0].signin_time = WebUtil.getTime();
+                users[0].token = "123";
+                result = DataManager.instance().runSql(users);
+            } else {
+                result = "Invalid user name or password";
             }
-        } catch (WebException e) {
+        } catch (Exception e) {
             result = e.getMessage();
         }
         return result;

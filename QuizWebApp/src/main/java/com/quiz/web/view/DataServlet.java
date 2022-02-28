@@ -33,10 +33,6 @@ public class DataServlet extends HttpServlet {
             result = DataController.instance().setData(body, tab);
         } else if (act.equals(WebUtil.ACT_SELECT)) {
             result = DataController.instance().select(body, tab);
-        } else if (act.equals(WebUtil.ACT_INSERT)) {
-            result = DataController.instance().insert(body, tab);
-        } else if (act.equals(WebUtil.ACT_UPDATE)) {
-            result = DataController.instance().update(body, tab);
         } else if (act.equals(WebUtil.ACT_DELETE)) {
             result = DataController.instance().delete(body, tab);
         } else if (act.equals("show_path")) {

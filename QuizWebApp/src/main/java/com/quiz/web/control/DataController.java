@@ -2,7 +2,6 @@ package com.quiz.web.control;
 
 import com.quiz.web.model.DataManager;
 import com.quiz.web.model.DataObject;
-import com.quiz.web.model.SqlAction;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
 import com.quiz.web.util.WebUtil;
@@ -72,54 +71,8 @@ public class DataController {
                 String tabName = obj.getTableName();
                 String idName = obj.getPrimaryKey()[0];
                 String sql = "delete from " + tabName + " where " + idName + " between ? and ?";
-                SqlAction[] actions = new SqlAction[]{new SqlAction(sql, id)};
+                DataObject[] actions = new DataObject[]{new DataObject(sql, id)};
                 result = DataManager.instance().runSql(actions);
-            } catch (Exception e) {
-                result = e.toString();
-            }
-        }
-        return result;
-    }
-
-    // Insert user data
-    public String insert(String body, String tab) {
-        String result = null;
-        String[] data = JsonUtil.getArray(body, WebUtil.DATA);
-        if (data == null) {
-            result = "No data";
-        } else {
-            try {
-                Class<?> type = getType(tab);
-                SqlAction[] act = new SqlAction[data.length];
-                DataObject obj = null;
-                for (int i = 0; i < data.length; i++) {
-                    obj = (DataObject) WebUtil.buildObject(data[i], type);
-                    act[i] = new SqlAction(obj, WebUtil.ACT_INSERT);
-                }
-                result = DataManager.instance().runSql(act);
-            } catch (Exception e) {
-                result = e.toString();
-            }
-        }
-        return result;
-    }
-
-    // Update user data
-    public String update(String body, String tab) {
-        String result = null;
-        String[] data = JsonUtil.getArray(body, WebUtil.DATA);
-        if (data == null) {
-            result = "No data";
-        } else {
-            try {
-                Class<?> type = getType(tab);
-                SqlAction[] act = new SqlAction[data.length];
-                DataObject obj = null;
-                for (int i = 0; i < data.length; i++) {
-                    obj = (DataObject) WebUtil.buildObject(data[i], type);
-                    act[i] = new SqlAction(obj, WebUtil.ACT_UPDATE);
-                }
-                result = DataManager.instance().runSql(act);
             } catch (Exception e) {
                 result = e.toString();
             }
@@ -136,8 +89,7 @@ public class DataController {
         } else {
             try {
                 Class<?> type = getType(tab);
-                SqlAction[] act = new SqlAction[data.length];
-                DataObject obj = null;
+                DataObject[] act = new DataObject[data.length];
                 String action = null;
                 for (int i = 0; i < data.length; i++) {
                     action = JsonUtil.getString(data[i], WebUtil.ACT);
@@ -145,8 +97,8 @@ public class DataController {
                         result = "Invalid data : act is null";
                         break;
                     }
-                    obj = (DataObject) WebUtil.buildObject(data[i], type);
-                    act[i] = new SqlAction(obj, action);
+                    act[i] = (DataObject) WebUtil.buildObject(data[i], type);
+                    act[i].setAction(action);
                 }
                 if (result == null) {
                     result = DataManager.instance().runSql(act);
