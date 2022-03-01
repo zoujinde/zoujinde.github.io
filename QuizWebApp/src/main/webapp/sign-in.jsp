@@ -1,14 +1,14 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <HTML>
 <title>Sign In</title>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
-  <H1> &nbsp &nbsp &nbsp Quiz Web App</H1>
+  <H1> &nbsp &nbsp &nbsp Sign In</H1>
   <hr>
   <label>User name</label><input id="text_user"/>
   <br>
   <label>Password </label><input type="password" id="text_pass"/>
   <br>
-  <input type="button" onclick="signUp()" value="Sign Up"/>
+  <input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"/>
   <input type="button" onclick="signIn()" value="Sign In"/>
   <hr>
   <label id="result" style="width:600px;font-size:30px;"/>
