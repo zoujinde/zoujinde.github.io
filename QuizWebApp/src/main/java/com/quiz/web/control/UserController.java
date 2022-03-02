@@ -68,7 +68,7 @@ public class UserController {
             } else if (user.user_type == WebUtil.USER_PARTICIPANT) {
                 if (user.parent_id <= 0) {
                     result = "Invalud parent id for participant";
-                } else if (user.birth_year < 1900 && user.birth_year > 2100) {
+                } else if (user.birth_year < 1900 || user.birth_year > 2100) {
                     result = "Invalid birth year for participant";
                 }
             } else { 
