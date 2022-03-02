@@ -4,13 +4,27 @@
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
   <H1> &nbsp &nbsp &nbsp Sign Up</H1>
   <hr>
-  <label>User name</label><input id="text_user"/>
-  <br>
-  <label>Password </label><input type="password" id="text_pass"/>
-  <br>
-  <input type="button" onclick="save()" value="Save"/>
+  <label>User type</label>
+  <select id="user_type">
+    <option value="1">Volunteer</option>
+    <option value="2">Parents</option>
+    <option value="3">Participant</option>
+  </select><br>
+  <label>User name </label><input id="user_name"/><br>
+  <label>Password  </label><input type="password" id="password"/><br>
+  <label>Nickname  </label><input id="nickname"/><br>
+  <label>Birth year</label><input id="birth_year"/><br>
+  <label>Gender    </label>
+  <select id="gender">
+    <option value="1">Male</option>
+    <option value="0">Female</option>
+  </select><br>
+  <label>Address  </label><input id="address"/><br>
+  <label>Email    </label><input id="email"/><br>
+  <label>Phone    </label><input id="phone"/><br>
+  <input type="button" onclick="save()" value="Save" style="width:900px;margin:20px 30px;"/>
   <hr>
-  <label id="result" style="width:600px;font-size:30px;"/>
+  <label id="result" style="width:1000px;font-size:30px;"/>
 </div>
 </HTML>
 
@@ -19,7 +33,7 @@
     border-style:solid;
     border-width:1px;
     border-color:#999999;
-    font-size:30px;
+    font-size:36px;
   }
 
   label{
@@ -27,32 +41,23 @@
     display: inline-block;
     margin: 10px 10px;
     padding: 1px;
-    width: 300px;
-    font-size:30px;
+    width: 220px;
+    font-size:50px;
     text-align: left;
     vertical-align: top;
   }
 
   input{
     margin: 10px 10px;
-    width: 500px;
-    font-size:30px;
+    width: 680px;
+    font-size:50px;
     vertical-align: top;
   }
 
-  input[type="button"]{
-    width: 300px;
-  }
-
-  select[id="user_type"]{
+  select{
     margin: 10px 10px;
-    width: 200px;
-    height: 30px
-    vertical-align: top;
-  }
-
-  textarea{
-    margin: 10px 10px;
+    width: 670px;
+    font-size:50px;
     vertical-align: top;
   }
 
@@ -60,19 +65,14 @@
 
 <script type="text/javascript">
   var httpRequest = null;
-  var select_url = document.getElementById("url");
-  var text_query = document.getElementById("text_query");
-  var text_data = document.getElementById("text_data");
-  var result_query = document.getElementById("result_query");
-  var result_state = document.getElementById("state");
-  var result_data = document.getElementById("result_data");
+  var result    = document.getElementById("result");
 
   // Initiate http
   function initHttp() {
     if (httpRequest != null) {
-      result_state.innerText = "reuse http object"
+      result.innerText = "*";
     } else if (window.XMLHttpRequest) { //IE6 above and other browser
-      httpRequest = new XMLHttpRequest()
+      httpRequest = new XMLHttpRequest();
     } else if(window.ActiveXObject) { //IE6 and lower
       httpRequest = new ActiveXObject();
     }
@@ -80,30 +80,49 @@
 
   // Save data
   function save() {
-    result_data.innerText = '*';
     // Check the data
-    var data = text_data.value.trim();
-    if (data.startsWith('{') && data.endsWith('}')) {
-      //data is OK
-    } else {
-      // The result_data is a label, the result_data.value = 'xxx' can't work
-      result_data.innerText = 'Invalid Data';
+    var user_type = document.getElementById("user_type").value.trim();
+    var user_name = document.getElementById("user_name").value.trim();
+    if (user_name.length < 3) {
+      alert("Please input the user name. (length>=3)");
       return;
     }
+    var password  = document.getElementById("password").value.trim();
+    if (password.length < 3) {
+      alert("Please input the password. (length>=3)");
+      return;
+    }
+    var nickname  = document.getElementById("nickname").value.trim();
+    if (nickname.length < 3) {
+      alert("Please input the nickname. (length>=3)");
+      return;
+    }
+    var birth_year  = document.getElementById("birth_year").value.trim();
+    if (user_type == 3 && birth_year.length < 4) {
+      alert("Please input the birth year. (length>=4)");
+      return;
+    }
+    var gender    = document.getElementById("gender").value.trim();
+    var address   = document.getElementById("address").value.trim();
+    var email     = document.getElementById("email").value.trim();
+    var phone     = document.getElementById("phone").value.trim();
     // Confirm the request
-    var path = getPath() + select_url.value;
-    var msg = "Would you submit to " + path + "\n\n" + data;
+    var json = {'act':'signUp', 'user_type':user_type, 'user_name':user_name,
+      'password':password, 'nickname':nickname, 'birth_year':birth_year,
+      'gender':gender, 'address':address, 'email':email, 'phone':phone};
+    json = JSON.stringify(json);
+    var msg = "Would you sign up the new user as below : \n\n" + json;
     if (!confirm(msg)) {
       return;
     }
     initHttp();
     // Post URL is Servlet, the sync is true
-    httpRequest.open("POST", path, true);
+    httpRequest.open("POST", "/user", true);
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // Set callback
-    httpRequest.onreadystatechange = submitResult;
-    httpRequest.send(data);
+    httpRequest.onreadystatechange = saveResult;
+    httpRequest.send(json);
   }
 
   // Save Callback
@@ -111,9 +130,9 @@
     // Check 4 : data received
     if(httpRequest.readyState==4) {
       if(httpRequest.status==200) { // 200 OK
-        result_data.innerText = httpRequest.responseText;
+        result.innerText = httpRequest.responseText;
       } else {
-        result_data.innerText = httpRequest.status;
+        result.innerText = httpRequest.status;
       }
     }
   }

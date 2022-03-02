@@ -11,7 +11,7 @@
   <input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"/>
   <input type="button" onclick="signIn()" value="Sign In"/>
   <hr>
-  <label id="result" style="width:600px;font-size:30px;"/>
+  <label id="result" style="width:1000px;font-size:30px;"/>
 </div>
 </HTML>
 
@@ -49,8 +49,6 @@
 
 <script type="text/javascript">
   var httpRequest = null;
-  var text_user = document.getElementById("text_user");
-  var text_pass = document.getElementById("text_pass");
   var result = document.getElementById("result");
 
   // Initiate http
@@ -66,17 +64,17 @@
 
   // Sign in
   function signIn() {
-    var user = text_user.value.trim();
-    var pass = text_pass.value.trim();
+    var user = document.getElementById("text_user").value.trim();
+    var pass = document.getElementById("text_pass").value.trim();
     if (user.length < 3) {
       alert("Please input the user name. (length>=3)");
       return;
     }
-    if (pass.length < 6) {
-      alert("Please input the password. (length>=6)");
+    if (pass.length < 3) {
+      alert("Please input the password. (length>=3)");
       return;
     }
-    var json = {"act":"signIn", "user_name":user, "password":pass};
+    var json = {'act':'signIn', 'user_name':user, 'password':pass};
     json = JSON.stringify(json);
     initHttp();
     // Post URL is Servlet, the sync is true

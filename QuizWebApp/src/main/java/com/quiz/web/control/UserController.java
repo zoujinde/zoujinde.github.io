@@ -53,7 +53,33 @@ public class UserController {
 
     // SignUp
     public String signUp(String body) {
-        String result = null;
+        String result = WebUtil.OK;
+        User user = new User();
+        try {
+            JsonUtil.toObject(body, user);
+            user.setAction(WebUtil.ACT_INSERT);
+            user.create_time = WebUtil.getTime();
+            user.signin_time = WebUtil.getTime();
+            user.token = "";
+            if (user.user_type >= WebUtil.USER_ADMIN && user.user_type <= WebUtil.USER_PARENTS) {
+                if (user.parent_id != 0) {
+                    result = "Invalid parent id for normal user";
+                }
+            } else if (user.user_type == WebUtil.USER_PARTICIPANT) {
+                if (user.parent_id <= 0) {
+                    result = "Invalud parent id for participant";
+                } else if (user.birth_year < 1900 && user.birth_year > 2100) {
+                    result = "Invalid birth year for participant";
+                }
+            } else { 
+                result = "Invalid user type";
+            }
+            if (result.equals(WebUtil.OK)) {
+                result = DataManager.instance().runSql(new User[]{user});
+            }
+        } catch (Exception e) {
+            result = "signUp : " + e;
+        }
         return result;
     }
 

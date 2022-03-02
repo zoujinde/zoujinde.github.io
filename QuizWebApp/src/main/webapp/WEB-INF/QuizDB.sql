@@ -3,9 +3,9 @@ CREATE DATABASE quiz;
 USE quiz;
 
 -- User table
--- user_type : 0 Admin, 1 Volunteer, 2 Parents, 3 Participant
--- birthday  : Only for participant
--- gender    : Only for participant (1 Male, 0 Female)
+-- user_type  : 0 Admin,  1 Volunteer, 2 Parents, 3 Participant
+-- birth_year : Only for participant
+-- gender     : Only for participant (1 Male, 0 Female)
 CREATE TABLE user (
   user_id     INT AUTO_INCREMENT NOT NULL,
   parent_id   INT         NOT NULL,
@@ -13,14 +13,14 @@ CREATE TABLE user (
   user_name   VARCHAR(30) NOT NULL,
   password    VARCHAR(20) NOT NULL,
   nickname    VARCHAR(20) NOT NULL,
-  birthday    DATETIME    NOT NULL,
+  birth_year  INT         NOT NULL,
   gender      INT         NOT NULL,
   address     VARCHAR(50) NOT NULL,
   email       VARCHAR(30) NOT NULL,
   phone       VARCHAR(20) NOT NULL,
   token       VARCHAR(50) NOT NULL,
-  create_time DATETIME    NOT NULL,
-  signin_time DATETIME    NOT NULL,
+  create_time TIMESTAMP   NOT NULL,
+  signin_time TIMESTAMP   NOT NULL,
   PRIMARY KEY(user_id),
   UNIQUE KEY user_name_uniq(user_name)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
@@ -29,7 +29,7 @@ CREATE TABLE user (
 CREATE TABLE quiz (
   quiz_id     INT AUTO_INCREMENT NOT NULL,
   quiz_name   VARCHAR(50) NOT NULL,
-  create_time DATETIME    NOT NULL,
+  create_time TIMESTAMP   NOT NULL,
   PRIMARY KEY(quiz_id),
   UNIQUE KEY quiz_name_uniq(quiz_name)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
@@ -53,14 +53,14 @@ CREATE TABLE quiz_result (
   user_id      INT     NOT NULL,
   item_id      TINYINT NOT NULL,
   answer       VARCHAR(10) NOT NULL,
-  answer_time  DATETIME    NOT NULL,
+  answer_time  TIMESTAMP   NOT NULL,
   PRIMARY KEY(quiz_id, user_id, item_id),
   CONSTRAINT fk_quiz_result FOREIGN KEY (quiz_id, item_id) REFERENCES quiz_item(quiz_id, item_id),
   CONSTRAINT fk_quiz_result_user FOREIGN KEY (user_id) REFERENCES user(user_id)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
 -- Insert test data
-insert into user values(1, 0, 0, 'Admin', 'password', 'admin', '2001-01-01', 1, '', '', '', '', '2022-01-01', '2022-01-01');
+insert into user values(1, 0, 0, 'Admin', 'pass', 'admin', 1980, 1, '', '', '', '', '2022-01-01', '2022-01-01');
 insert into quiz values(1, 'Quiz 2022', '2022-01-01');
 insert into quiz_item values(1, 1, 'Question 1 : Are you in US?', '(a) Yes # (b) No', 0);
 insert into quiz_result values(1, 1, 1, '0', '2022-01-01');

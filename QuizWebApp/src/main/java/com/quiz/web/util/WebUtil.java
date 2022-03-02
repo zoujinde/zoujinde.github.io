@@ -18,6 +18,12 @@ public class WebUtil {
     public static final String TAG = "WebUtil";
     public static final String UTF8 = "utf-8";
 
+    // user_type : 0 Admin,  1 Volunteer, 2 Parents, 3 Participant
+    public static final int USER_ADMIN = 0;
+    public static final int USER_VOLUNTEER = 1;
+    public static final int USER_PARENTS = 2;
+    public static final int USER_PARTICIPANT = 3;
+
     public static final String ACT = "act";
     public static final String ACT_SELECT = "select";
     public static final String ACT_INSERT = "insert";

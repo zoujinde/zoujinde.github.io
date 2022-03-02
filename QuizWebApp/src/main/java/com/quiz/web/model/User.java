@@ -8,7 +8,7 @@ public class User extends DataObject {
     public String user_name;
     public String password;
     public String nickname;
-    public java.sql.Timestamp birthday;
+    public int birth_year;
     public int gender;
     public String address;
     public String email;

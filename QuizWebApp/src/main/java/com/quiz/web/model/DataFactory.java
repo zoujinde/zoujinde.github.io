@@ -94,7 +94,7 @@ public class DataFactory {
             name = "int ";
         } else if (name.startsWith("tinyint")) {
             name = "int ";
-        } else if (name.startsWith("datetime")) {
+        } else if (name.startsWith("timestamp")) {
             name = "java.sql.Timestamp ";
         } else if (name.startsWith("bit")) {
             name = "boolean ";
