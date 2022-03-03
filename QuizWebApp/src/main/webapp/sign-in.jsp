@@ -2,7 +2,7 @@
 <HTML>
 <title>Sign In</title>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
-  <H1> &nbsp &nbsp &nbsp Sign In</H1>
+  <label> &nbsp &nbsp &nbsp Sign In</label>
   <hr>
   <label>User name</label><input id="text_user"/>
   <br>

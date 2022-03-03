@@ -1,7 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <HTML>
 <title>Sign Up</title>
-<form id="form" style="background:#AAA">
+<div style="width:100%; margin:auto; overflow:auto; background:#AAA">
+<form id="form">
   <label style="width: 500px;" > &nbsp &nbsp &nbsp &nbsp &nbsp Sign Up</label>
   <hr>
   <label>User type</label>
@@ -21,11 +22,12 @@
   </select><br>
   <label>Address  </label><input name="address"/><br>
   <label>Email    </label><input name="email"/><br>
-  <label>Phone    </label><input name="phone"/><br>
-  <input type="button" onclick="save()" value="Save" style="width:900px;margin:20px 30px;"/>
+  <label>Phone    </label><input name="phone"/>
   <hr>
+  <input type="button" onclick="save()" value="Save" style="width:900px;"/>
   <label id="result" style="width:900px;font-size:30px;"/>
 </form>
+</div>
 </HTML>
 
 <style>
@@ -39,7 +41,7 @@
   label{
     cursor: pointer;
     display: inline-block;
-    margin: 10px 10px;
+    margin: 5px 5px;
     padding: 1px;
     width: 220px;
     font-size:50px;
@@ -48,15 +50,15 @@
   }
 
   input{
-    margin: 10px 10px;
+    margin: 5px 10px;
     width: 680px;
     font-size:50px;
     vertical-align: top;
   }
 
   select{
-    margin: 10px 10px;
-    width: 670px;
+    margin: 5px 1px;
+    width: 675px;
     font-size:50px;
     vertical-align: top;
   }
@@ -121,10 +123,11 @@
   function saveResult() {
     // Check 4 : data received
     if(httpRequest.readyState==4) {
+      var result = document.getElementById("result");
       if(httpRequest.status==200) { // 200 OK
-        alert(httpRequest.responseText);
+        result.innerText = httpRequest.responseText;
       } else {
-        alert('http status : ' + httpRequest.status);
+        result.innerText = httpRequest.status;
       }
     }
   }
