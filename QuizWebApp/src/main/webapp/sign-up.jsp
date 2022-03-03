@@ -1,10 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <HTML>
 <title>Sign Up</title>
+<script type="text/javascript" src="head.jsp"></script>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
 <form id="form">
-  <label style="width: 500px;" > &nbsp &nbsp &nbsp &nbsp &nbsp Sign Up</label>
-  <hr>
   <label>User type</label>
   <select name="user_type">
     <option value="1">Volunteer</option>
@@ -101,9 +100,11 @@
       alert("Please input the password. (length>=3)");
       return;
     }
+    var page_user_id = document.getElementById('page_user_id').value;
     var data = new FormData(document.getElementById("form"));
     var json = getJson(data);
     json['act'] = 'signUp';
+    json['parent_id'] = page_user_id;
     json = JSON.stringify(json);
     var msg = "Would you sign up the new user as below : \n\n" + json;
     if (!confirm(msg)) {

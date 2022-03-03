@@ -1,9 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <HTML>
 <title>Sign In</title>
+<script type="text/javascript" src="head.jsp"></script>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
-  <label> &nbsp &nbsp &nbsp Sign In</label>
-  <hr>
   <label>User name</label><input id="text_user"/>
   <br>
   <label>Password </label><input type="password" id="text_pass"/>
