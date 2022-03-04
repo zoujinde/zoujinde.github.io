@@ -1,54 +1,20 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <HTML>
 <title>Sign In</title>
-<script type="text/javascript" src="head.jsp"></script>
+<%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
-  <label>User name</label><input id="text_user"/>
-  <br>
-  <label>Password </label><input type="password" id="text_pass"/>
-  <br>
-  <input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"/>
-  <input type="button" onclick="signIn()" value="Sign In"/>
+  <label>User name</label><input id="text_user"/><br>
+  <label>Password </label><input type="password" id="text_pass"/><br>
+  <input type="button" onclick="signIn()" value="Sign In" style="width:910px;"/>
   <hr>
-  <label id="result" style="width:1000px;font-size:30px;"/>
+  <label id="result" style="width:910px;font-size:30px;"/>
 </div>
 </HTML>
 
-<style>
-  div{
-    border-style:solid;
-    border-width:1px;
-    border-color:#999999;
-    font-size:50px;
-  }
-
-  label{
-    cursor: pointer;
-    display: inline-block;
-    margin: 10px 10px;
-    padding: 1px;
-    width: 300px;
-    font-size:50px;
-    text-align: left;
-    vertical-align: top;
-  }
-
-  input{
-    margin: 10px 10px;
-    width: 500px;
-    font-size:50px;
-    vertical-align: top;
-  }
-
-  input[type="button"]{
-    width: 300px;
-  }
-
-</style>
-
 <script type="text/javascript">
   var httpRequest = null;
-  var result = document.getElementById("result");
+  var title = document.getElementById("title");
+  title.innerText = 'Sign In';
 
   // Initiate http
   function initHttp() {
@@ -88,6 +54,7 @@
   // Sign in result
   function signInResult() {
     if(httpRequest.readyState==4) {
+      var result = document.getElementById("result");
       if(httpRequest.status==200) { // 200 OK
         result.innerText = httpRequest.responseText;
       } else {

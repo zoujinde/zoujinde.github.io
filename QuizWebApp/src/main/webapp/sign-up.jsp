@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <HTML>
 <title>Sign Up</title>
-<script type="text/javascript" src="head.jsp"></script>
+<%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
 <form id="form">
   <label>User type</label>
@@ -22,50 +22,16 @@
   <label>Address  </label><input name="address"/><br>
   <label>Email    </label><input name="email"/><br>
   <label>Phone    </label><input name="phone"/>
-  <hr>
-  <input type="button" onclick="save()" value="Save" style="width:900px;"/>
+  <input type="button" onclick="save()" value="Save" style="width:910px;"/>
   <label id="result" style="width:900px;font-size:30px;"/>
 </form>
 </div>
 </HTML>
 
-<style>
-  div{
-    border-style:solid;
-    border-width:1px;
-    border-color:#999999;
-    font-size:50px;
-  }
-
-  label{
-    cursor: pointer;
-    display: inline-block;
-    margin: 5px 5px;
-    padding: 1px;
-    width: 220px;
-    font-size:50px;
-    text-align: left;
-    vertical-align: top;
-  }
-
-  input{
-    margin: 5px 10px;
-    width: 680px;
-    font-size:50px;
-    vertical-align: top;
-  }
-
-  select{
-    margin: 5px 1px;
-    width: 675px;
-    font-size:50px;
-    vertical-align: top;
-  }
-
-</style>
-
 <script type="text/javascript">
   var httpRequest = null;
+  var title = document.getElementById("title");
+  title.innerText = 'Sign Up';
 
   // Initiate http
   function initHttp() {
