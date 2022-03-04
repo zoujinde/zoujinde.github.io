@@ -12,20 +12,9 @@
 </HTML>
 
 <script type="text/javascript">
-  var httpRequest = null;
+  var httpRequest = getHttpRequest();
   var title = document.getElementById("title");
   title.innerText = 'Sign In';
-
-  // Initiate http
-  function initHttp() {
-    if (httpRequest != null) {
-      result.innerText = "*"; // reuse http object
-    } else if (window.XMLHttpRequest) { //IE6 above and other browser
-      httpRequest = new XMLHttpRequest()
-    } else if(window.ActiveXObject) { //IE6 and lower
-      httpRequest = new ActiveXObject();
-    }
-  }
 
   // Sign in
   function signIn() {
@@ -41,7 +30,6 @@
     }
     var json = {'act':'signIn', 'user_name':user, 'password':pass};
     json = JSON.stringify(json);
-    initHttp();
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", "/user", true);
     // Only post method needs to set header
@@ -64,4 +52,3 @@
   }
 
 </script>
-

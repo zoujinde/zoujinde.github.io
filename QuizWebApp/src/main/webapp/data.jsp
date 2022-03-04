@@ -1,21 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <HTML>
 <title>Quzi Data Management</title>
-<label>Quzi Data Management &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
-       Please select the URL : </label>
-<select id="url" onchange="onUrlChange(this)">
-  <option value="/data?tab=user">user</option>
-  <option value="/data?tab=quiz">quiz</option>
-  <option value="/data?tab=quiz_item">quiz_item</option>
-  <option value="/data?tab=quiz_result">quiz_result</option>
-</select>
+<%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto;">
   <div style="width:99%; background:#EEE">
-    <label> Please input the query condition : </label>
-    <textarea rows="2" cols="80" id="text_query" style="resize:none;">{"act":"select", "id_range":"1-500"}</textarea>
+    <label style="width:110;font-size:20px;">Select Table:</label>
+    <select id="url" onchange="onUrlChange(this)" style="width:120;height=20;font-size:16px;">
+      <option value="/data?tab=user">user</option>
+      <option value="/data?tab=quiz">quiz</option>
+      <option value="/data?tab=quiz_item">quiz_item</option>
+      <option value="/data?tab=quiz_result">quiz_result</option>
+    </select>
+    <label style="width:150;font-size:20px;">Query condition:</label>
+    <textarea rows="1" cols="60" id="text_query" style="resize:none;font-size:16px;">{"act":"select", "id_range":"1-500"}</textarea>
     <input type="button" onclick="queryData()" value="Query Data">
-    <label id="state"> * </label><br>
-    <select id="result_query" size="20" style="width:1500;height=500" onchange="updateData()">
+    <label id="state" style="font-size:16px;"> * </label><br>
+    <select id="result_query" size="18" style="width:1500px;height=10px;font-size:15px;" onchange="updateData()">
     </select>
   </div>
   <div style="width:99%; background:#EEE">
@@ -23,50 +23,26 @@
     <input type="button" onclick="updateData()"  value="Modify Rows">
     <input type="button" onclick="deleteData()" value="Delete Rows">
     <input type="button" onclick="submitData()" value="Submit Data">
-    <label id="result_data" > * </label> <br>
-    <textarea rows="12" cols="200" id="text_data" ></textarea><br>
+    <label id="result_data" style="width:330;font-size:16px;" > * </label> <br>
+    <textarea rows="7" cols="200" id="text_data" style="width:1500px;height=10px;font-size:15px;"></textarea><br>
   </div>
 </div>
 </HTML>
 
 <style>
-  div{
-    border-style:solid;
-    border-width:1px;
-    border-color:#999999
-  }
-
-  label{
-    cursor: pointer;
-    display: inline-block;
-    margin: 6px 3px;
-    padding: 1px;
-    text-align: left;
-    vertical-align: top;
-  }
 
   input[type="button"]{
     margin: 6px 6px;
-    width: 120px;
-    vertical-align: top;
-  }
-
-  select[id="url"]{
-    margin: 6px 3px;
-    width: 200px;
-    height: 50px
-    vertical-align: top;
-  }
-
-  textarea{
-    margin: 1px 3px;
+    width: 150px;
+    height: 30px;
+    font-size:16px;
     vertical-align: top;
   }
 
 </style>
 
 <script type="text/javascript">
-  var httpRequest = null;
+  var httpRequest = getHttpRequest();
   var select_url = document.getElementById("url");
   var text_query = document.getElementById("text_query");
   var text_data = document.getElementById("text_data");
@@ -132,17 +108,6 @@
     result_data.innerText = '*';
   }
 
-  // Initiate http
-  function initHttp() {
-    if (httpRequest != null) {
-      result_state.innerText = "reuse http object"
-    } else if (window.XMLHttpRequest) { //IE6 above and other browser
-      httpRequest = new XMLHttpRequest()
-    } else if(window.ActiveXObject) { //IE6 and lower
-      httpRequest = new ActiveXObject();
-    }
-  }
-
   // Submit data
   function submitData() {
     result_data.innerText = '*';
@@ -163,7 +128,6 @@
     if (!confirm(msg)) {
       return;
     }
-    initHttp();
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", path, true);
     // Only post method needs to set header
@@ -187,7 +151,6 @@
 
   // Query data
   function queryData() {
-    initHttp();
     var path = getPath() + select_url.value;
     httpRequest.open("POST", path, true);
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -222,7 +185,7 @@
           option.text  = text;
           result_query.options.add(option);
         }
-        result_query.size = 20;
+        //result_query.size = 12;
       } else {
         result_state.innerText = httpRequest.status;
       }

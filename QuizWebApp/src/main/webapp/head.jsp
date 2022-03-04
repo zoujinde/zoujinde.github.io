@@ -3,9 +3,9 @@
 <input id='user_id' value='0' type='hidden' />
 <label id='user_name' style="width:230px;margin:1px 0px;">User</label>
 <input type="button" onclick="window.location.href='sign-in.jsp'" value="Sign In"
-       style="width:150px;font-size:35px;margin:10px 0px;"/>
+       style="width:150px;height:50px;font-size:35px;margin:5px 0px;"/>
 <input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"
-       style="width:160px;font-size:35px;margin:10px 0px;"/>
+       style="width:160px;height:50px;font-size:35px;margin:5px 0px;"/>
 </div>
 
 <style>
@@ -43,4 +43,29 @@
     vertical-align: top;
   }
 
+  textarea{
+    margin: 5px 1px;
+    padding: 5px;
+    font-size:50px;
+    vertical-align: top;
+  }
+
 </style>
+
+<script type="text/javascript">
+  // The member http object
+  var mHttpRequest = null;
+
+  // Get http request
+  function getHttpRequest() {
+    if (mHttpRequest != null) {
+      // reuse http object
+    } else if (window.XMLHttpRequest) { //IE6 above and other browser
+      mHttpRequest = new XMLHttpRequest()
+    } else if(window.ActiveXObject) { //IE6 and lower
+      mHttpRequest = new ActiveXObject();
+    }
+    return mHttpRequest;
+  }
+
+</script>

@@ -29,20 +29,9 @@
 </HTML>
 
 <script type="text/javascript">
-  var httpRequest = null;
+  var httpRequest = getHttpRequest();
   var title = document.getElementById("title");
   title.innerText = 'Sign Up';
-
-  // Initiate http
-  function initHttp() {
-    if (httpRequest != null) {
-      result.innerText = "*";
-    } else if (window.XMLHttpRequest) { //IE6 above and other browser
-      httpRequest = new XMLHttpRequest();
-    } else if(window.ActiveXObject) { //IE6 and lower
-      httpRequest = new ActiveXObject();
-    }
-  }
 
   // Get JSON from form data
   function getJson(data) {
@@ -76,7 +65,6 @@
     if (!confirm(msg)) {
       return;
     }
-    initHttp();
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", "/user", true);
     // Only post method needs to set header
@@ -100,4 +88,3 @@
   }
 
 </script>
-
