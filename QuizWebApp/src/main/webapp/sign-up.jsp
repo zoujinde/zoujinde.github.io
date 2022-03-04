@@ -66,11 +66,11 @@
       alert("Please input the password. (length>=3)");
       return;
     }
-    var page_user_id = document.getElementById('page_user_id').value;
+    var user_id = document.getElementById('user_id').value;
     var data = new FormData(document.getElementById("form"));
     var json = getJson(data);
     json['act'] = 'signUp';
-    json['parent_id'] = page_user_id;
+    json['parent_id'] = user_id;
     json = JSON.stringify(json);
     var msg = "Would you sign up the new user as below : \n\n" + json;
     if (!confirm(msg)) {

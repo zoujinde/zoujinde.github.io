@@ -26,11 +26,11 @@ public class UserController {
     // SignIn
     public String signIn(String body, String token) {
         String result = null;
-        String user = JsonUtil.getString(body, "user_name");
-        String pass = JsonUtil.getString(body, "password");
-        String[] values = new String[]{user, pass};
-        String sql = "select * from user where user_name=? and password=?";
         try {
+            String user = JsonUtil.getString(body, "user_name").toLowerCase();
+            String pass = JsonUtil.getString(body, "password");
+            String[] values = new String[]{user, pass};
+            String sql = "select * from user where user_name=? and password=?";
             User[] users = DataManager.instance().select(sql, values, User.class);
             if (users != null && users.length == 1) {
                 // Update the sign in time and token
@@ -75,6 +75,7 @@ public class UserController {
                 result = "Invalid user type";
             }
             if (result.equals(WebUtil.OK)) {
+                user.user_name = user.user_name.toLowerCase();
                 result = DataManager.instance().runSql(new User[]{user});
             }
         } catch (Exception e) {
