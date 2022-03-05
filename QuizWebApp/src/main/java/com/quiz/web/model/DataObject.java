@@ -56,4 +56,8 @@ public class DataObject {
         return null;
     }
 
+    // Set the AutoId
+    public void setAutoId(int autoId){
+    }
+
 }

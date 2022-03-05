@@ -32,4 +32,9 @@ public class User extends DataObject {
         return "user_id";
     }
 
+    @Override
+    public void setAutoId(int autoId) {
+        user_id = autoId;
+    }
+
 }

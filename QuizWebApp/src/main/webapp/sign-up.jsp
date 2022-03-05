@@ -30,8 +30,7 @@
 
 <script type="text/javascript">
   var httpRequest = getHttpRequest();
-  var title = document.getElementById("title");
-  title.innerText = 'Sign Up';
+  document.getElementById("title").innerText = 'Sign Up';
 
   // Get JSON from form data
   function getJson(data) {
@@ -55,11 +54,11 @@
       alert("Please input the password. (length>=3)");
       return;
     }
-    var user_id = document.getElementById('user_id').value;
+    var req_uid = document.getElementById('req_uid').value;
     var data = new FormData(document.getElementById("form"));
     var json = getJson(data);
     json['act'] = 'signUp';
-    json['parent_id'] = user_id;
+    json['parent_id'] = req_uid;
     json = JSON.stringify(json);
     var msg = "Would you sign up the new user as below : \n\n" + json;
     if (!confirm(msg)) {

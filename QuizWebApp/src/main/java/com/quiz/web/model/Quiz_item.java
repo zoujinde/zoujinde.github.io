@@ -23,4 +23,8 @@ public class Quiz_item extends DataObject {
         return null;
     }
 
+    @Override
+    public void setAutoId(int autoId) {
+    }
+
 }

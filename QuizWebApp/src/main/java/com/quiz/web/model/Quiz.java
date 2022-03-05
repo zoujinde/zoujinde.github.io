@@ -21,4 +21,9 @@ public class Quiz extends DataObject {
         return "quiz_id";
     }
 
+    @Override
+    public void setAutoId(int autoId) {
+        quiz_id = autoId;
+    }
+
 }

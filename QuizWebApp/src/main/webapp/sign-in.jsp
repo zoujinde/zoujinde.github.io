@@ -13,8 +13,7 @@
 
 <script type="text/javascript">
   var httpRequest = getHttpRequest();
-  var title = document.getElementById("title");
-  title.innerText = 'Sign In';
+  document.getElementById("title").innerText = 'Sign In';
 
   // Sign in
   function signIn() {
@@ -44,9 +43,14 @@
     if(httpRequest.readyState==4) {
       var result = document.getElementById("result");
       if(httpRequest.status==200) { // 200 OK
-        result.innerText = httpRequest.responseText;
+        var text = httpRequest.responseText.trim();
+        if (text.startsWith('<')) {
+          document.write(text);
+        } else {
+          result.innerText = text;
+        }
       } else {
-        result.innerText = httpRequest.status
+        result.innerText = httpRequest.status + httpRequest.responseText;
       }
     }
   }

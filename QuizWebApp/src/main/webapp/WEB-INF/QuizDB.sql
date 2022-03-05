@@ -60,7 +60,7 @@ CREATE TABLE quiz_result (
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
 -- Insert test data
-insert into user values(1, 0, 0, 'Admin', 'pass', 'admin', 1980, 1, '', '', '', '', '2022-01-01', '2022-01-01');
+insert into user values(1, 0, 0, 'admin', 'pass', 'admin', 1980, 1, '', '', '', '', '2022-01-01', '2022-01-01');
 insert into quiz values(1, 'Quiz 2022', '2022-01-01');
 insert into quiz_item values(1, 1, 'Question 1 : Are you in US?', '(a) Yes # (b) No', 0);
 insert into quiz_result values(1, 1, 1, '0', '2022-01-01');

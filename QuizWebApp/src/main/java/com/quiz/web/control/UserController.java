@@ -1,5 +1,7 @@
 package com.quiz.web.control;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.quiz.web.model.DataManager;
 import com.quiz.web.model.User;
 import com.quiz.web.util.JsonUtil;
@@ -24,7 +26,7 @@ public class UserController {
     }
 
     // SignIn
-    public String signIn(String body, String token) {
+    public String signIn(String body, HttpServletRequest req) {
         String result = null;
         try {
             String user = JsonUtil.getString(body, "user_name").toLowerCase();
@@ -37,9 +39,13 @@ public class UserController {
                 for (User u : users) {
                     u.setAction(WebUtil.ACT_UPDATE);
                     u.signin_time = WebUtil.getTime();
-                    u.token = token;
+                    u.token = WebUtil.getToken(req);
                 }
                 result = DataManager.instance().runSql(users);
+                if (WebUtil.OK.equals(result)) {
+                    req.setAttribute(WebUtil.REQ_UID, users[0].user_id);
+                    req.setAttribute(WebUtil.REQ_USER, users[0].user_name);
+                }
             } else {
                 result = "Invalid user name or password";
             }

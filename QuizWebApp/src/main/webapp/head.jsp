@@ -1,7 +1,7 @@
 <div class='head' style="margin:auto;background:#CCC">
 <label id='title' style="width:330px;margin:1px 5px;">Welcome</label>
-<input id='user_id' value='0' type='hidden' />
-<label id='user_name' style="width:230px;margin:1px 0px;">User</label>
+<input id='req_uid' value='<%=request.getAttribute("req_uid")%>' type='hidden'></input>
+<label id='req_user' style="width:230px;margin:1px 0px;"><%=request.getAttribute("req_user")%></label>
 <input type="button" onclick="window.location.href='sign-in.jsp'" value="Sign In"
        style="width:150px;height:50px;font-size:35px;margin:5px 0px;"/>
 <input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"
@@ -53,6 +53,11 @@
 </style>
 
 <script type="text/javascript">
+  var user_name = document.getElementById("req_user");
+  if (user_name.innerText == 'null') {
+    user_name.innerText = '';
+  }
+
   // The member http object
   var mHttpRequest = null;
 

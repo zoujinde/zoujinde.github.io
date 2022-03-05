@@ -193,6 +193,7 @@ public class DataManager {
                         rs = ps.getGeneratedKeys();
                         if (rs.next()) {autoId = rs.getInt(1);}
                         rs.close(); // Must close rs
+                        a.setAutoId(autoId); // Set auto ID
                     }
                 } else if (act.equals(WebUtil.ACT_UPDATE)) {
                     ps = buildUpdateSql(cn, obj, builder);

@@ -137,6 +137,12 @@ public class DataFactory {
             builder.append("        return \"").append(auto).append("\";\n");
         }
         builder.append("    }\n\n");
+        builder.append("    @Override\n");
+        builder.append("    public void setAutoId(int autoId) {\n");
+        if (auto != null) {
+            builder.append("        ").append(auto).append(" = autoId;\n");
+        }
+        builder.append("    }\n\n");
         builder.append("}\n");
     }
 

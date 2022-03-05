@@ -18,6 +18,10 @@ public class WebUtil {
     public static final String TAG = "WebUtil";
     public static final String UTF8 = "utf-8";
 
+    // Save the user name to request object
+    public static final String REQ_UID = "req_uid";
+    public static final String REQ_USER = "req_user";
+
     // user_type : 0 Admin,  1 Volunteer, 2 Parents, 3 Participant
     public static final int USER_ADMIN = 0;
     public static final int USER_VOLUNTEER = 1;
