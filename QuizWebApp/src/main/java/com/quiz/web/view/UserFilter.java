@@ -28,12 +28,10 @@ public class UserFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) r2;
         String uri = req.getRequestURI();
         LogUtil.log("UserFilter", uri);
-        if (uri.endsWith("/sign-in.jsp") || uri.endsWith("/sign-up.jsp") ||  
-            uri.endsWith("/favicon.ico") || uri.endsWith("/user")) {
+        //if (uri.endsWith("/sign-in.jsp") || uri.endsWith("/sign-up.jsp") ||
+        if (uri.endsWith(".jsp") || uri.endsWith("/favicon.ico") || uri.endsWith("/user")) {
             chain.doFilter(r1, r2);
-        } else if (req.getHeader(WebUtil.REQ_ID) != null){
-            chain.doFilter(r1, r2);
-        } else if (req.getAttribute(WebUtil.REQ_ID) != null){
+        } else if (WebUtil.getUserId(req) > 0){
             chain.doFilter(r1, r2);
         } else {
             resp.sendRedirect("sign-in.jsp");

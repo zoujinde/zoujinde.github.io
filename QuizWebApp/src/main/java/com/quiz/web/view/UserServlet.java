@@ -29,8 +29,7 @@ public class UserServlet extends HttpServlet {
         } else if (act.equals("signIn")) {
             result = UserController.instance().signIn(body, req);
             if (WebUtil.OK.equals(result)) {
-                String reqId = (String)req.getAttribute(WebUtil.REQ_ID);
-                int userType = WebUtil.getUserType(reqId);
+                int userType = WebUtil.getUserType(req);
                 if (userType == WebUtil.USER_ADMIN) {
                     req.getRequestDispatcher("data.jsp").forward(req, resp);
                 } else {

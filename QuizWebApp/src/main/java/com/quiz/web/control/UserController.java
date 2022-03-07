@@ -65,24 +65,22 @@ public class UserController {
         User user = new User();
         try {
             JsonUtil.toObject(body, user);
-            if (user.user_type >= WebUtil.USER_ADMIN && user.user_type <= WebUtil.USER_PARENTS) {
+            if (user.user_type == WebUtil.USER_VOLUNTEER || user.user_type == WebUtil.USER_PARENTS) {
                 if (user.parent_id != 0) {
-                    result = "Invalid parent id for user <= parents";
+                    result = "Invalid parent id for volunteer or parents";
                 }
             } else if (user.user_type == WebUtil.USER_PARTICIPANT) {
-                if (user.birth_year < 1900 || user.birth_year > 2100) {
+                int parentId = WebUtil.getUserId(req);
+                if (parentId <= 0) {
+                    result = "Invalid parent id for participant";
+                } else if (user.birth_year < 1900 || user.birth_year > 2100) {
                     result = "Invalid birth year for participant";
+                } else if (WebUtil.getUserType(req) != WebUtil.USER_PARENTS) {
+                    result = "Invalid parent type for participant";
                 } else {
-                    String reqId = req.getHeader(WebUtil.REQ_ID);
-                    int userId = WebUtil.getUserId(reqId);
-                    int userType = WebUtil.getUserType(reqId);
-                    if (userId > 0 && userType == WebUtil.USER_PARENTS) {
-                        user.parent_id = userId;
-                    } else {
-                        result = "Invalid parent id or type for participant";
-                    }
+                    user.parent_id = parentId;
                 }
-            } else { 
+            } else { // Can't add ADMIN by web page
                 result = "Invalid user type";
             }
             if (result.equals(WebUtil.OK)) {

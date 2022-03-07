@@ -360,8 +360,12 @@ public class WebUtil {
     }
 
     // Get user id from reqId like : user_id#user_type#host#port
-    public static int getUserId(String reqId) {
+    public static int getUserId(HttpServletRequest req) {
         int id = -1;
+        String reqId = req.getHeader(WebUtil.REQ_ID);
+        if (reqId == null) {
+            reqId = (String)req.getAttribute(WebUtil.REQ_ID);
+        }
         if (reqId != null) {
             int p = reqId.indexOf("#");
             if (p > 0) {
@@ -372,8 +376,12 @@ public class WebUtil {
     }
 
     // Get user type from reqId like : user_id#user_type#host#port
-    public static int getUserType(String reqId) {
+    public static int getUserType(HttpServletRequest req) {
         int type = -1;
+        String reqId = req.getHeader(WebUtil.REQ_ID);
+        if (reqId == null) {
+            reqId = (String)req.getAttribute(WebUtil.REQ_ID);
+        }
         if (reqId != null) {
             int p1 = reqId.indexOf("#") + 1;
             if (p1 > 1) {
