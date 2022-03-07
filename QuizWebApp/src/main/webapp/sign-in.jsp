@@ -13,7 +13,6 @@
 
 <script type="text/javascript">
   var httpRequest = getHttpRequest();
-  document.getElementById("title").innerText = 'Sign In';
 
   // Sign in
   function signIn() {
@@ -45,6 +44,7 @@
       if(httpRequest.status==200) { // 200 OK
         var text = httpRequest.responseText.trim();
         if (text.startsWith('<')) {
+          document.close();
           document.write(text);
         } else {
           result.innerText = text;

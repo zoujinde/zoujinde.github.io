@@ -31,7 +31,6 @@
 
 <script type="text/javascript">
   var httpRequest = getHttpRequest();
-  document.getElementById("title").innerText = 'Sign Up';
 
   // Get JSON from form data
   function getJson(data) {
@@ -59,10 +58,6 @@
     var json = getJson(data);
     json['act'] = 'signUp';
     json = JSON.stringify(json);
-    var msg = "Would you sign up the new user as below : \n\n" + json;
-    if (!confirm(msg)) {
-      return;
-    }
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", "/user", true);
     // Only post method needs to set header

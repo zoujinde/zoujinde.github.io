@@ -4,7 +4,7 @@
 <label id='req_user' style="width:530px;font-size:39px;margin:1px 10px;"><%=request.getAttribute("req_user")%></label>
 <input type="button" onclick="window.location.href='sign-in.jsp'" value="Sign In"
        style="width:180px;height:70px;font-size:39px;margin:5px 0px;"/>
-<input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"
+<input type="button" onclick="openSignUp()" value="Sign Up"
        style="width:180px;height:70px;font-size:39px;margin:5px 0px;"/>
 </div>
 
@@ -71,6 +71,39 @@
       mHttpRequest = new ActiveXObject();
     }
     return mHttpRequest;
+  }
+
+  // Open sign up page
+  function openSignUp() {
+    var req_user = document.getElementById("req_user").innerText.trim();
+    var json = {'act':'openSignUp', 'req_user':req_user};
+    json = JSON.stringify(json);
+    // alert(json);
+    // Post URL is Servlet, the sync is true
+    httpRequest.open("POST", "/user", true);
+    // Only post method needs to set header
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    httpRequest.setRequestHeader("req_id", document.getElementById("req_id").value);
+    httpRequest.onreadystatechange = openResult;
+    httpRequest.send(json);
+  }
+
+  // Open Callback
+  function openResult() {
+    // Check 4 : data received
+    if(httpRequest.readyState==4) {
+      if(httpRequest.status==200) { // 200 OK
+        var text = httpRequest.responseText;
+        if (text.startsWith('Invalid')) {
+          alert(text);
+        } else {
+          document.close();
+          document.write(text);
+        }
+      } else {
+        alert(httpRequest.status + httpRequest.responseText);
+      }
+    }
   }
 
 </script>

@@ -39,6 +39,18 @@ public class UserServlet extends HttpServlet {
             }
         } else if (act.equals("signUp")) {
             result = UserController.instance().signUp(body, req);
+        } else if (act.equals("openSignUp")) {
+            String reqId = req.getHeader(WebUtil.REQ_ID);
+            String reqUser = JsonUtil.getString(body, WebUtil.REQ_USER);
+            //LogUtil.log("UserServlet", "reqId=" + reqId + " reqUser=" + reqUser);
+            if (reqId != null && reqUser != null) {
+                req.setAttribute(WebUtil.REQ_ID, reqId);
+                req.setAttribute(WebUtil.REQ_USER, reqUser);
+                req.getRequestDispatcher("sign-up.jsp").forward(req, resp);
+                return;
+            } else {
+                result = "Invalid openSignUp request";
+            }
         }
 
         // Write response
