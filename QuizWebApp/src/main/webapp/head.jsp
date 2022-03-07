@@ -1,11 +1,11 @@
 <div class='head' style="margin:auto;background:#CCC">
-<label id='title' style="width:330px;margin:1px 5px;">Welcome</label>
-<input id='req_uid' value='<%=request.getAttribute("req_uid")%>' type='hidden'></input>
-<label id='req_user' style="width:230px;margin:1px 0px;"><%=request.getAttribute("req_user")%></label>
+<!-- label id='title' style="width:330px;margin:1px 5px;">Welcome</label -->
+<input id='req_id' value='<%=request.getAttribute("req_id")%>' type='hidden'></input>
+<label id='req_user' style="width:530px;font-size:39px;margin:1px 10px;"><%=request.getAttribute("req_user")%></label>
 <input type="button" onclick="window.location.href='sign-in.jsp'" value="Sign In"
-       style="width:150px;height:50px;font-size:35px;margin:5px 0px;"/>
+       style="width:180px;height:70px;font-size:39px;margin:5px 0px;"/>
 <input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"
-       style="width:160px;height:50px;font-size:35px;margin:5px 0px;"/>
+       style="width:180px;height:70px;font-size:39px;margin:5px 0px;"/>
 </div>
 
 <style>

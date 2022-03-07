@@ -4,6 +4,7 @@
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
 <form id="form">
+  <label style="width:900px;height:80px;">Please input the new user info : </label><br>
   <label>User type</label>
   <select name="user_type">
     <option value="1">Volunteer</option>
@@ -54,11 +55,10 @@
       alert("Please input the password. (length>=3)");
       return;
     }
-    var req_uid = document.getElementById('req_uid').value;
     var data = new FormData(document.getElementById("form"));
     var json = getJson(data);
     json['act'] = 'signUp';
-    json['parent_id'] = req_uid;
+    json['req_id'] = document.getElementById('req_id').value;
     json = JSON.stringify(json);
     var msg = "Would you sign up the new user as below : \n\n" + json;
     if (!confirm(msg)) {

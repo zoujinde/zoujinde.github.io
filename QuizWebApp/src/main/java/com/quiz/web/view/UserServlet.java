@@ -33,7 +33,7 @@ public class UserServlet extends HttpServlet {
                 return;
             }
         } else if (act.equals("signUp")) {
-            result = UserController.instance().signUp(body);
+            result = UserController.instance().signUp(body, req);
         }
 
         // Write response

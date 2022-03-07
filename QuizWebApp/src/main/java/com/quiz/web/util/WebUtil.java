@@ -19,7 +19,7 @@ public class WebUtil {
     public static final String UTF8 = "utf-8";
 
     // Save the user name to request object
-    public static final String REQ_UID = "req_uid";
+    public static final String REQ_ID = "req_id";
     public static final String REQ_USER = "req_user";
 
     // user_type : 0 Admin,  1 Volunteer, 2 Parents, 3 Participant
@@ -363,9 +363,33 @@ public class WebUtil {
     public synchronized static String getToken(HttpServletRequest req) {
         sBuilder.setLength(0);
         //sBuilder.append(req.getRemoteAddr());
-        sBuilder.append("#").append(req.getRemoteHost());
+        sBuilder.append(req.getRemoteHost());
         sBuilder.append("#").append(req.getRemotePort());
         //sBuilder.append("#").append(req.getRemoteUser());
+        return sBuilder.toString();
+    }
+
+    // Get request info
+    public synchronized static String getReqId(HttpServletRequest req, int userId, int type) {
+        sBuilder.setLength(0);
+        sBuilder.append(userId).append("#").append(type);
+        sBuilder.append("#").append(req.getRemoteHost());
+        sBuilder.append("#").append(req.getRemotePort());
+        return sBuilder.toString();
+    }
+
+    // Get user info
+    public synchronized static String getReqUser(int type, String userName) {
+        sBuilder.setLength(0);
+        if (type == USER_ADMIN) {
+            sBuilder.append("Admin : ").append(userName);
+        } else if (type == USER_VOLUNTEER) {
+            sBuilder.append("Volunteer : ").append(userName);
+        } else if (type == USER_PARENTS) {
+            sBuilder.append("Parents : ").append(userName);
+        } else if (type == USER_PARTICIPANT) {
+            sBuilder.append("Participant : ").append(userName);
+        }
         return sBuilder.toString();
     }
 
