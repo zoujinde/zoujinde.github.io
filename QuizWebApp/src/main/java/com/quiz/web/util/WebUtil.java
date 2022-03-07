@@ -359,38 +359,31 @@ public class WebUtil {
         }
     }
 
-    // Get request info
-    public synchronized static String getToken(HttpServletRequest req) {
-        sBuilder.setLength(0);
-        //sBuilder.append(req.getRemoteAddr());
-        sBuilder.append(req.getRemoteHost());
-        sBuilder.append("#").append(req.getRemotePort());
-        //sBuilder.append("#").append(req.getRemoteUser());
-        return sBuilder.toString();
-    }
-
-    // Get request info
-    public synchronized static String getReqId(HttpServletRequest req, int userId, int type) {
-        sBuilder.setLength(0);
-        sBuilder.append(userId).append("#").append(type);
-        sBuilder.append("#").append(req.getRemoteHost());
-        sBuilder.append("#").append(req.getRemotePort());
-        return sBuilder.toString();
-    }
-
-    // Get user info
-    public synchronized static String getReqUser(int type, String userName) {
-        sBuilder.setLength(0);
-        if (type == USER_ADMIN) {
-            sBuilder.append("Admin : ").append(userName);
-        } else if (type == USER_VOLUNTEER) {
-            sBuilder.append("Volunteer : ").append(userName);
-        } else if (type == USER_PARENTS) {
-            sBuilder.append("Parents : ").append(userName);
-        } else if (type == USER_PARTICIPANT) {
-            sBuilder.append("Participant : ").append(userName);
+    // Get user id from reqId like : user_id#user_type#host#port
+    public static int getUserId(String reqId) {
+        int id = -1;
+        if (reqId != null) {
+            int p = reqId.indexOf("#");
+            if (p > 0) {
+                id = Integer.parseInt(reqId.substring(0, p));
+            }
         }
-        return sBuilder.toString();
+        return id;
+    }
+
+    // Get user type from reqId like : user_id#user_type#host#port
+    public static int getUserType(String reqId) {
+        int type = -1;
+        if (reqId != null) {
+            int p1 = reqId.indexOf("#") + 1;
+            if (p1 > 1) {
+                int p2 = reqId.indexOf("#", p1);
+                if (p2 > 0) {
+                    type = Integer.parseInt(reqId.substring(p1, p2));
+                }
+            }
+        }
+        return type;
     }
 
 }

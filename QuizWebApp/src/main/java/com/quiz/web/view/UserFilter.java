@@ -31,6 +31,8 @@ public class UserFilter implements Filter {
         if (uri.endsWith("/sign-in.jsp") || uri.endsWith("/sign-up.jsp") ||  
             uri.endsWith("/favicon.ico") || uri.endsWith("/user")) {
             chain.doFilter(r1, r2);
+        } else if (req.getHeader(WebUtil.REQ_ID) != null){
+            chain.doFilter(r1, r2);
         } else if (req.getAttribute(WebUtil.REQ_ID) != null){
             chain.doFilter(r1, r2);
         } else {

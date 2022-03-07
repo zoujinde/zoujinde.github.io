@@ -58,7 +58,6 @@
     var data = new FormData(document.getElementById("form"));
     var json = getJson(data);
     json['act'] = 'signUp';
-    json['req_id'] = document.getElementById('req_id').value;
     json = JSON.stringify(json);
     var msg = "Would you sign up the new user as below : \n\n" + json;
     if (!confirm(msg)) {
@@ -68,6 +67,7 @@
     httpRequest.open("POST", "/user", true);
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    httpRequest.setRequestHeader("req_id", document.getElementById("req_id").value);
     // Set callback
     httpRequest.onreadystatechange = saveResult;
     httpRequest.send(json);

@@ -15,6 +15,7 @@ public class UserController {
 
     // Single instance
     private static final UserController INSTANCE = new UserController();
+    private StringBuilder mBuilder = new StringBuilder();
 
     // Private constructor
     private UserController() {
@@ -39,13 +40,13 @@ public class UserController {
                 for (User u : users) {
                     u.setAction(WebUtil.ACT_UPDATE);
                     u.signin_time = WebUtil.getTime();
-                    u.token = WebUtil.getToken(req);
+                    //u.token = getToken(req);
                 }
                 result = DataManager.instance().runSql(users);
                 if (WebUtil.OK.equals(result)) {
                     User u = users[0];
-                    req.setAttribute(WebUtil.REQ_ID, WebUtil.getReqId(req, u.user_id, u.user_type));
-                    req.setAttribute(WebUtil.REQ_USER, WebUtil.getReqUser(u.user_type, u.user_name));
+                    req.setAttribute(WebUtil.REQ_ID, getReqId(req, u.user_id, u.user_type));
+                    req.setAttribute(WebUtil.REQ_USER, getReqUser(u.user_type, u.user_name));
                 }
             } else {
                 result = "Invalid user name or password";
@@ -72,9 +73,9 @@ public class UserController {
                 if (user.birth_year < 1900 || user.birth_year > 2100) {
                     result = "Invalid birth year for participant";
                 } else {
-                    String[] array = getReqArray(body);
-                    int userId = getUserId(array);
-                    int userType = getUserType(array);
+                    String reqId = req.getHeader(WebUtil.REQ_ID);
+                    int userId = WebUtil.getUserId(reqId);
+                    int userType = WebUtil.getUserType(reqId);
                     if (userId > 0 && userType == WebUtil.USER_PARENTS) {
                         user.parent_id = userId;
                     } else {
@@ -98,32 +99,28 @@ public class UserController {
         return result;
     }
 
-    // Get array from reqId like : user_id#user_type#host#port
-    private String[] getReqArray(String body) {
-        String[] array = null;
-        String reqId = JsonUtil.getString(body, WebUtil.REQ_ID);
-        if (reqId != null) {
-            array = reqId.split("#");
-        }
-        return array;
+    // Get request info
+    private synchronized String getReqId(HttpServletRequest req, int userId, int type) {
+        mBuilder.setLength(0);
+        mBuilder.append(userId).append("#").append(type);
+        mBuilder.append("#").append(req.getRemoteHost());
+        mBuilder.append("#").append(req.getRemotePort());
+        return mBuilder.toString();
     }
 
-    // Get user id
-    private int getUserId(String[] array) {
-        int id = -1;
-        if (array != null && array.length >= 4) {
-            id = Integer.parseInt(array[0]);
+    // Get user info
+    private synchronized String getReqUser(int type, String userName) {
+        mBuilder.setLength(0);
+        if (type == WebUtil.USER_ADMIN) {
+            mBuilder.append("Admin : ").append(userName);
+        } else if (type == WebUtil.USER_VOLUNTEER) {
+            mBuilder.append("Volunteer : ").append(userName);
+        } else if (type == WebUtil.USER_PARENTS) {
+            mBuilder.append("Parents : ").append(userName);
+        } else if (type == WebUtil.USER_PARTICIPANT) {
+            mBuilder.append("Participant : ").append(userName);
         }
-        return id;
-    }
-
-    // Get user type
-    private int getUserType(String[] array) {
-        int type = -1;
-        if (array != null && array.length >= 4) {
-            type = Integer.parseInt(array[1]);
-        }
-        return type;
+        return mBuilder.toString();
     }
 
 }

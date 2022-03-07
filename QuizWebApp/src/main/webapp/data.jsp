@@ -132,6 +132,7 @@
     httpRequest.open("POST", path, true);
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    httpRequest.setRequestHeader("req_id", document.getElementById("req_id").value);
     // Set callback
     httpRequest.onreadystatechange = submitResult;
     httpRequest.send(data);
@@ -154,6 +155,7 @@
     var path = getPath() + select_url.value;
     httpRequest.open("POST", path, true);
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    httpRequest.setRequestHeader("req_id", document.getElementById("req_id").value);
     httpRequest.onreadystatechange = queryResult;
     httpRequest.send(text_query.value);
   }

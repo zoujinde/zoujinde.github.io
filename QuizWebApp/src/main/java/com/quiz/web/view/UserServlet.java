@@ -29,7 +29,13 @@ public class UserServlet extends HttpServlet {
         } else if (act.equals("signIn")) {
             result = UserController.instance().signIn(body, req);
             if (WebUtil.OK.equals(result)) {
-                req.getRequestDispatcher("sign-up.jsp").forward(req, resp);
+                String reqId = (String)req.getAttribute(WebUtil.REQ_ID);
+                int userType = WebUtil.getUserType(reqId);
+                if (userType == WebUtil.USER_ADMIN) {
+                    req.getRequestDispatcher("data.jsp").forward(req, resp);
+                } else {
+                    req.getRequestDispatcher("sign-up.jsp").forward(req, resp);
+                }
                 return;
             }
         } else if (act.equals("signUp")) {
