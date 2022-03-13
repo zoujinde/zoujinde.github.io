@@ -59,7 +59,7 @@
     json['act'] = 'signUp';
     json = JSON.stringify(json);
     // Post URL is Servlet, the sync is true
-    httpRequest.open("POST", "/user", true);
+    httpRequest.open("POST", "user", true);
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // Set callback

@@ -6,10 +6,10 @@
   <div style="width:99%; background:#EEE">
     <label style="width:110;font-size:20px;">Select Table:</label>
     <select id="url" onchange="onUrlChange(this)" style="width:120;height=20;font-size:16px;">
-      <option value="/data?tab=user">user</option>
-      <option value="/data?tab=quiz">quiz</option>
-      <option value="/data?tab=quiz_item">quiz_item</option>
-      <option value="/data?tab=quiz_result">quiz_result</option>
+      <option value="data?tab=user">user</option>
+      <option value="data?tab=quiz">quiz</option>
+      <option value="data?tab=quiz_item">quiz_item</option>
+      <option value="data?tab=quiz_result">quiz_result</option>
     </select>
     <label style="width:150;font-size:20px;">Query condition:</label>
     <textarea rows="1" cols="60" id="text_query" style="resize:none;font-size:16px;">{"act":"select", "id_range":"1-500"}</textarea>
