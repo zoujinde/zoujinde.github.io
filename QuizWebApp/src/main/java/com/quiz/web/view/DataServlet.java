@@ -12,13 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.quiz.web.control.DataController;
 import com.quiz.web.util.JsonUtil;
-import com.quiz.web.util.LogUtil;
 import com.quiz.web.util.WebUtil;
 
 @WebServlet(urlPatterns = "/data")
 public class DataServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private static final String TAG = DataServlet.class.getSimpleName();
 
     // Only define doPost
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -26,12 +24,10 @@ public class DataServlet extends HttpServlet {
         String body = WebUtil.getPostBody(req);
         String tab = req.getParameter("tab");
         String act = JsonUtil.getString(body, WebUtil.ACT);
-        int type = WebUtil.getUserType(req);
-        if (type != WebUtil.USER_ADMIN) {
-            result = "Invalid user";
-        } else if (tab == null) {
+        if (tab == null) {
             result = "tab is null";
-            LogUtil.log(TAG, result);
+        } else if (WebUtil.getUserType(req) != WebUtil.USER_ADMIN) {
+            result = "invalid user";
         } else if (body.startsWith("[") && body.endsWith("]")) {
             result = DataController.instance().setData(body, tab);
         } else if (act.equals(WebUtil.ACT_SELECT)) {
