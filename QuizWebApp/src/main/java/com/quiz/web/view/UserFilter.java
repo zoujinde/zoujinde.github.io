@@ -1,7 +1,6 @@
 package com.quiz.web.view;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -34,7 +33,7 @@ public class UserFilter implements Filter {
             for (Cookie c : cookies) {
                 if (c.getName().equals(WebUtil.REQ_ID)) {
                     // reqId like : user_id#user_type#user_name#host#port
-                    reqId = URLDecoder.decode(c.getValue(), WebUtil.UTF8);
+                    reqId = LogUtil.decrypt(c.getValue());
                     String[] array = reqId.split("#");
                     if (array.length >= 5) {
                         req.setAttribute(WebUtil.REQ_ARRAY, array);

@@ -1,7 +1,5 @@
 package com.quiz.web.control;
 
-import java.net.URLEncoder;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +34,8 @@ public class UserController {
         try {
             String user = JsonUtil.getString(body, "user_name").toLowerCase();
             String pass = JsonUtil.getString(body, "password");
+            pass = LogUtil.encrypt(pass);
+            //LogUtil.log(TAG, "signIn : " + pass);
             String[] values = new String[]{user, pass};
             String sql = "select * from user where user_name=? and password=?";
             User[] users = DataManager.instance().select(sql, values, User.class);
@@ -49,8 +49,9 @@ public class UserController {
                 result = DataManager.instance().runSql(users);
                 if (WebUtil.OK.equals(result)) {
                     User u = users[0];
-                    //use URLEncoder/URLDecoder to support Chinese etc.
-                    String id = URLEncoder.encode(getReqId(req, u), WebUtil.UTF8);
+                    // Use encrypt to support Chinese etc.
+                    String id = LogUtil.encrypt(getReqId(req, u));
+                    //LogUtil.log(TAG, "signIn : id=" + id);
                     resp.addCookie(new Cookie(WebUtil.REQ_ID, id));
                     if (u.user_type == WebUtil.USER_ADMIN) {
                         //req.getRequestDispatcher("data.jsp").forward(req, resp);
@@ -101,6 +102,8 @@ public class UserController {
                 user.create_time = WebUtil.getTime();
                 user.signin_time = WebUtil.getTime();
                 user.token = "";
+                user.password = LogUtil.encrypt(user.password);
+                //LogUtil.log(TAG, "signUp : " + user.password);
                 result = DataManager.instance().runSql(new User[]{user});
             }
         } catch (Exception e) {
