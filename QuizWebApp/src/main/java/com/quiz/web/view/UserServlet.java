@@ -28,16 +28,12 @@ public class UserServlet extends HttpServlet {
             result = "act is null";
         } else if (act.equals("signIn")) {
             result = UserController.instance().signIn(body, req, resp);
-            if (WebUtil.OK.equals(result)) {
-                return;
-            }
         } else if (act.equals("signUp")) {
             result = UserController.instance().signUp(body, req);
         }
 
         // Write response
-        //resp.setCharacterEncoding("UTF-8");
-        //resp.setContentType("text/html;charset=utf-8");
+        resp.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=utf-8");
         PrintWriter pw = resp.getWriter();
         pw.write(result);
