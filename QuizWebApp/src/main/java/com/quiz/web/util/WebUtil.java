@@ -20,6 +20,7 @@ public class WebUtil {
 
     // Save the user name to request object
     public static final String REQ_ID = "req_id";
+    public static final String REQ_ARRAY = "req_array";
     public static final String REQ_USER = "req_user";
 
     // user_type : 0 Admin,  1 Volunteer, 2 Parents, 3 Participant
@@ -359,37 +360,22 @@ public class WebUtil {
         }
     }
 
-    // Get user id from reqId like : user_id#user_type#host#port
+    // Get user id from reqId like : user_id#user_type#user_name#host#port
     public static int getUserId(HttpServletRequest req) {
         int id = -1;
-        String reqId = req.getHeader(WebUtil.REQ_ID);
-        if (reqId == null) {
-            reqId = (String)req.getAttribute(WebUtil.REQ_ID);
-        }
-        if (reqId != null) {
-            int p = reqId.indexOf("#");
-            if (p > 0) {
-                id = Integer.parseInt(reqId.substring(0, p));
-            }
+        String[] array = (String[])req.getAttribute(WebUtil.REQ_ARRAY);
+        if (array != null && array.length >= 5 ) {
+            id = Integer.parseInt(array[0]);
         }
         return id;
     }
 
-    // Get user type from reqId like : user_id#user_type#host#port
+    // Get user type from reqId like : user_id#user_type#user_name#host#port
     public static int getUserType(HttpServletRequest req) {
         int type = -1;
-        String reqId = req.getHeader(WebUtil.REQ_ID);
-        if (reqId == null) {
-            reqId = (String)req.getAttribute(WebUtil.REQ_ID);
-        }
-        if (reqId != null) {
-            int p1 = reqId.indexOf("#") + 1;
-            if (p1 > 1) {
-                int p2 = reqId.indexOf("#", p1);
-                if (p2 > 0) {
-                    type = Integer.parseInt(reqId.substring(p1, p2));
-                }
-            }
+        String[] array = (String[])req.getAttribute(WebUtil.REQ_ARRAY);
+        if (array != null && array.length >= 5 ) {
+            type = Integer.parseInt(array[1]);
         }
         return type;
     }

@@ -62,7 +62,6 @@
     httpRequest.open("POST", "/user", true);
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    httpRequest.setRequestHeader("req_id", document.getElementById("req_id").value);
     // Set callback
     httpRequest.onreadystatechange = saveResult;
     httpRequest.send(json);

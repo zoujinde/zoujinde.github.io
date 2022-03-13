@@ -1,6 +1,10 @@
 package com.quiz.web.control;
 
+import java.net.URLEncoder;
+
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.quiz.web.model.DataManager;
 import com.quiz.web.model.User;
@@ -27,7 +31,7 @@ public class UserController {
     }
 
     // SignIn
-    public String signIn(String body, HttpServletRequest req) {
+    public String signIn(String body, HttpServletRequest req, HttpServletResponse resp) {
         String result = null;
         try {
             String user = JsonUtil.getString(body, "user_name").toLowerCase();
@@ -45,8 +49,16 @@ public class UserController {
                 result = DataManager.instance().runSql(users);
                 if (WebUtil.OK.equals(result)) {
                     User u = users[0];
-                    req.setAttribute(WebUtil.REQ_ID, getReqId(req, u.user_id, u.user_type));
-                    req.setAttribute(WebUtil.REQ_USER, getReqUser(u.user_type, u.user_name));
+                    //use URLEncoder/URLDecoder to support Chinese etc.
+                    String id = URLEncoder.encode(getReqId(req, u), WebUtil.UTF8);
+                    resp.addCookie(new Cookie(WebUtil.REQ_ID, id));
+                    if (u.user_type == WebUtil.USER_ADMIN) {
+                        //req.getRequestDispatcher("data.jsp").forward(req, resp);
+                        resp.sendRedirect("data.jsp");
+                    } else {
+                        //req.getRequestDispatcher("sign-up.jsp").forward(req, resp);
+                        resp.sendRedirect("home.jsp");
+                    }
                 }
             } else {
                 result = "Invalid user name or password";
@@ -98,26 +110,21 @@ public class UserController {
     }
 
     // Get request info
-    private synchronized String getReqId(HttpServletRequest req, int userId, int type) {
+    private synchronized String getReqId(HttpServletRequest req, User u) {
         mBuilder.setLength(0);
-        mBuilder.append(userId).append("#").append(type);
+        mBuilder.append(u.user_id).append("#").append(u.user_type).append("#");
+        if (u.user_type == WebUtil.USER_ADMIN) {
+            mBuilder.append("Admin : ");
+        } else if (u.user_type == WebUtil.USER_VOLUNTEER) {
+            mBuilder.append("Volunteer : ");
+        } else if (u.user_type== WebUtil.USER_PARENTS) {
+            mBuilder.append("Parents : ");
+        } else if (u.user_type == WebUtil.USER_PARTICIPANT) {
+            mBuilder.append("Participant : ");
+        }
+        mBuilder.append(u.user_name);
         mBuilder.append("#").append(req.getRemoteHost());
         mBuilder.append("#").append(req.getRemotePort());
-        return mBuilder.toString();
-    }
-
-    // Get user info
-    private synchronized String getReqUser(int type, String userName) {
-        mBuilder.setLength(0);
-        if (type == WebUtil.USER_ADMIN) {
-            mBuilder.append("Admin : ").append(userName);
-        } else if (type == WebUtil.USER_VOLUNTEER) {
-            mBuilder.append("Volunteer : ").append(userName);
-        } else if (type == WebUtil.USER_PARENTS) {
-            mBuilder.append("Parents : ").append(userName);
-        } else if (type == WebUtil.USER_PARTICIPANT) {
-            mBuilder.append("Participant : ").append(userName);
-        }
         return mBuilder.toString();
     }
 

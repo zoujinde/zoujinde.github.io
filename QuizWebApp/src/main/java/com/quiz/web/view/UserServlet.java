@@ -27,35 +27,17 @@ public class UserServlet extends HttpServlet {
         if (act == null) {
             result = "act is null";
         } else if (act.equals("signIn")) {
-            result = UserController.instance().signIn(body, req);
+            result = UserController.instance().signIn(body, req, resp);
             if (WebUtil.OK.equals(result)) {
-                int userType = WebUtil.getUserType(req);
-                if (userType == WebUtil.USER_ADMIN) {
-                    req.getRequestDispatcher("data.jsp").forward(req, resp);
-                } else {
-                    req.getRequestDispatcher("sign-up.jsp").forward(req, resp);
-                }
                 return;
             }
         } else if (act.equals("signUp")) {
             result = UserController.instance().signUp(body, req);
-        } else if (act.equals("openSignUp")) {
-            String reqId = req.getHeader(WebUtil.REQ_ID);
-            String reqUser = JsonUtil.getString(body, WebUtil.REQ_USER);
-            //LogUtil.log("UserServlet", "reqId=" + reqId + " reqUser=" + reqUser);
-            if (reqId != null && reqUser != null) {
-                req.setAttribute(WebUtil.REQ_ID, reqId);
-                req.setAttribute(WebUtil.REQ_USER, reqUser);
-                req.getRequestDispatcher("sign-up.jsp").forward(req, resp);
-                return;
-            } else {
-                result = "Invalid openSignUp request";
-            }
         }
 
         // Write response
-        //resp.setContentType("text/html");
         //resp.setCharacterEncoding("UTF-8");
+        //resp.setContentType("text/html;charset=utf-8");
         resp.setContentType("application/json; charset=utf-8");
         PrintWriter pw = resp.getWriter();
         pw.write(result);

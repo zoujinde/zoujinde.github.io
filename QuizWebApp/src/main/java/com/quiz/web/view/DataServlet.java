@@ -26,7 +26,10 @@ public class DataServlet extends HttpServlet {
         String body = WebUtil.getPostBody(req);
         String tab = req.getParameter("tab");
         String act = JsonUtil.getString(body, WebUtil.ACT);
-        if (tab == null) {
+        int type = WebUtil.getUserType(req);
+        if (type != WebUtil.USER_ADMIN) {
+            result = "Invalid user";
+        } else if (tab == null) {
             result = "tab is null";
             LogUtil.log(TAG, result);
         } else if (body.startsWith("[") && body.endsWith("]")) {
