@@ -4,7 +4,7 @@
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
 <form id="form">
-  <label style="width:900px;height:80px;">Please input the new user info : </label><br>
+  <label style="width:900px;">Please input the new user info : </label><br>
   <label>User type</label>
   <select name="user_type">
     <option value="1">Volunteer</option>
@@ -24,6 +24,7 @@
   <label>Email    </label><input name="email"/><br>
   <label>Phone    </label><input name="phone"/>
   <input type="button" onclick="save()" value="Save" style="width:910px;"/>
+  <hr style="font-size:1px;">
   <label id="result" style="width:900px;font-size:30px;"/>
 </form>
 </div>

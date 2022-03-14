@@ -6,7 +6,7 @@
   <label>User name</label><input id="text_user"/><br>
   <label>Password </label><input type="password" id="text_pass"/><br>
   <input type="button" onclick="signIn()" value="Sign In" style="width:910px;"/>
-  <hr>
+  <hr style="font-size:1px;">
   <label id="result" style="width:910px;font-size:30px;"/>
 </div>
 </HTML>
