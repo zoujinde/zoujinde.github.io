@@ -28,6 +28,9 @@ public class UserServlet extends HttpServlet {
             result = "act is null";
         } else if (act.equals("signIn")) {
             result = UserController.instance().signIn(body, req, resp);
+            if (WebUtil.OK.equals(result)) {
+                return; // already redirect
+            }
         } else if (act.equals("signUp")) {
             result = UserController.instance().signUp(body, req);
         }
