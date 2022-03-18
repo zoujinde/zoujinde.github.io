@@ -51,14 +51,12 @@ public class UserController {
                     User u = users[0];
                     // Use encrypt to support Chinese etc.
                     String id = LogUtil.encrypt(getReqId(req, u));
-                    //LogUtil.log(TAG, "signIn : id=" + id);
                     resp.addCookie(new Cookie(WebUtil.REQ_ID, id));
+                    // AJAX can't redirect, so return jsp URL
                     if (u.user_type == WebUtil.USER_ADMIN) {
-                        //req.getRequestDispatcher("data.jsp").forward(req, resp);
-                        resp.sendRedirect("data.jsp");
+                        result = "data.jsp";
                     } else {
-                        //req.getRequestDispatcher("sign-up.jsp").forward(req, resp);
-                        resp.sendRedirect("home.jsp");
+                        result = "home.jsp";
                     }
                 }
             } else {

@@ -7,11 +7,11 @@
   <a id="a1" style="text-decoration:underline;" href="javascript:void(0);" onclick="showBulletin()" >News Bulletin</a>
   <a id="a2" style="text-decoration:none;"      href="javascript:void(0);" onclick="showActivity()" >My Activities</a>
   <hr style="font-size:1px;">
-  <table id="bulletin" border="1" style="display:block;width:930px;height:500px;" >
-    <tr> <th width="670">Bulletin</th> <th width="260">Time</th> </tr>
+  <table id="bulletin" border="1" style="display:block;width:930px;height:300px;" >
+    <tr> <th width="670" >Bulletin</th> <th width="260" >Time</th> </tr>
   </table>
-  <table id="activity" border="1" style="display:none; width:930px;height:500px;" >
-    <tr> <th width="670">Activity</th> <th width="260">Time</th> </tr>
+  <table id="activity" border="1" style="display:none; width:930px;height:300px;" >
+    <tr> <th width="670" >Activity</th> <th width="260">Time</th> </tr>
   </table>
   <hr style="font-size:1px;">
 </div>
@@ -56,13 +56,13 @@
 
   // Set table data
   function setTable(table, data) {
-    var label_style = '<label style="width:100%;color:blue;" onclick="alert(123)">';
-    for (var i = 0; i < data.length; i++) {
+    var label_style = '<label style="width:90%;color:blue;" onclick="alert(123)">';
+    for (var i = 0; i < 30; i++) {
       var row = table.insertRow();
       var c1 = row.insertCell();
       var c2 = row.insertCell();
-      c1.innerHTML = label_style + data[i]['title'] + '</label>';
-      c2.innerText = data[i]['time'];
+      c1.innerHTML = label_style + data[0]['title'] + '</label>';
+      c2.innerText = data[0]['time'];
     }
   }
 

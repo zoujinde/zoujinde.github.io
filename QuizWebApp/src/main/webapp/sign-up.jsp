@@ -22,7 +22,8 @@
   </select><br>
   <label>Address  </label><input name="address"/><br>
   <label>Email    </label><input name="email"/><br>
-  <label>Phone    </label><input name="phone"/>
+  <label>Phone    </label><input name="phone"/><br>
+  <br>
   <input type="button" onclick="save()" value="Save" style="width:910px;"/>
   <hr style="font-size:1px;">
   <label id="result" style="width:900px;font-size:30px;"/>
@@ -74,7 +75,11 @@
     if(httpRequest.readyState==4) {
       var result = document.getElementById("result");
       if(httpRequest.status==200) { // 200 OK
-        result.innerText = httpRequest.responseText;
+        var text = httpRequest.responseText;
+        if (text == 'OK') {
+          text = 'Sign up the new user OK. \n Please click the "Sign In" button to sign in.';
+        }
+        result.innerText = text;
       } else {
         result.innerText = httpRequest.status;
       }
