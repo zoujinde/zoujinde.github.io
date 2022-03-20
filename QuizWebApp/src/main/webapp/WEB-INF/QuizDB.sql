@@ -64,31 +64,20 @@ CREATE TABLE quiz_result (
 CREATE TABLE event (
   event_id     INT AUTO_INCREMENT NOT NULL,
   event_type   INT          NOT NULL,
-  event_title  VARCHAR(50)  NOT NULL,
-  event_desc   VARCHAR(200) NOT NULL,
-  event_time   TIMESTAMP    NOT NULL,
+  title        VARCHAR(50)  NOT NULL,
+  content      VARCHAR(200) NOT NULL,
+  create_time  TIMESTAMP    NOT NULL,
   PRIMARY KEY(event_id)
-) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
-
--- Bulletin table
-CREATE TABLE bulletin (
-  bulletin_id     INT AUTO_INCREMENT NOT NULL,
-  event_id        INT          NOT NULL,
-  bulletin_title  VARCHAR(50)  NOT NULL,
-  bulletin_desc   VARCHAR(200) NOT NULL,
-  bulletin_time   TIMESTAMP    NOT NULL,
-  PRIMARY KEY(bulletin_id),
-  CONSTRAINT fk_bulletin_event FOREIGN KEY (event_id) REFERENCES event(event_id)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
 -- Activity table
 CREATE TABLE activity (
-  activity_id     INT AUTO_INCREMENT NOT NULL,
-  user_id         INT          NOT NULL,
-  event_id        INT          NOT NULL,
-  activity_title  VARCHAR(50)  NOT NULL,
-  activity_desc   VARCHAR(200) NOT NULL,
-  activity_time   TIMESTAMP    NOT NULL,
+  activity_id  INT AUTO_INCREMENT NOT NULL,
+  user_id      INT          NOT NULL,
+  event_id     INT          NOT NULL,
+  title        VARCHAR(50)  NOT NULL,
+  content      VARCHAR(200) NOT NULL,
+  create_time  TIMESTAMP    NOT NULL,
   PRIMARY KEY(activity_id),
   CONSTRAINT fk_activity_user  FOREIGN KEY (user_id)  REFERENCES user(user_id),
   CONSTRAINT fk_activity_event FOREIGN KEY (event_id) REFERENCES event(event_id)
@@ -120,13 +109,11 @@ insert into quiz_item values(2, 5, 'In your opinion, which topic has the Spanish
        '(a) Gossipy news # (b) Information and technology # (c) Violence cases # (d) Sports # (e) Politics',
        1);
 
--- Insert event (event_id, event_type, event_title, event_desc, event_time)
-insert into event values(1, 0, 'default event title', 'default event description', '2022-03-19');
-
--- Insert bulletin (bulletin_id, event_id)
-insert into bulletin values(1, 1, 'Happy New Year', 'Happy New Year : 2022', '2022-01-01');
-insert into bulletin values(2, 1, 'New Art Class', 'description', '2022-02-15');
-insert into bulletin values(3, 1, 'Game : Angry Bird', 'description', '2022-03-10');
+-- Insert event (event_id, event_type, title, content, create_time)
+insert into event values(1, 0, 'default', 'default', '2022-01-01');
+insert into event values(2, 0, 'Happy New Year', 'Happy New Year : 2022', '2022-01-01');
+insert into event values(3, 2, 'New Art Class', 'description', '2022-02-15');
+insert into event values(4, 3, 'Game : Angry Bird', 'description', '2022-03-10');
 
 -- Insert activity (activity_id, user_id, event_id)
 insert into activity values(1, 1, 1, 'Drawing', 'description', '2022-01-10');
