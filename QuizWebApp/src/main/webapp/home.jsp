@@ -29,21 +29,34 @@
 
   // Load
   function load() {
-    var json = {
-      'bulletin':[
-        {'title':'New Art Class', 'time':'2022-03-11'},
-        {'title':'New Game', 'time':'2022-02-01'},
-        ],
-      'activity':[
-        {'title':'Drawing', 'time':'2022-02-28'},
-        {'title':'Reading', 'time':'2022-01-15'},
-        ],
-      };
-    // Refresh table data
-    deleteTable(bulletin);
-    deleteTable(activity);
-    setTable(bulletin, json['bulletin']);
-    setTable(activity, json['activity']);
+    var json = {'act':'getData'};
+    json = JSON.stringify(json);
+    // Post URL is Servlet, the sync is true
+    httpRequest.open("POST", "home", true);
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    httpRequest.onreadystatechange = loadResult;
+    httpRequest.send(json);
+  }
+
+  // Load result
+  function loadResult() {
+    if(httpRequest.readyState==4) {
+      if(httpRequest.status==200) { // 200 OK
+        var text = httpRequest.responseText.trim();
+        if (text.startsWith('{')) {
+          var json = JSON.parse(text);
+          // Refresh table data
+          deleteTable(bulletin);
+          deleteTable(activity);
+          setTable(bulletin, json['events']);
+          setTable(activity, json['activities']);
+        } else {
+          alert(text);
+        }
+      } else {
+        alert(httpRequest.status);
+      }
+    }
   }
 
   // Delete table rows but remain the header
@@ -57,12 +70,12 @@
   // Set table data
   function setTable(table, data) {
     var label_style = '<label style="width:90%;color:blue;" onclick="alert(123)">';
-    for (var i = 0; i < 30; i++) {
+    for (var i = 0; i < data.length; i++) {
       var row = table.insertRow();
       var c1 = row.insertCell();
       var c2 = row.insertCell();
-      c1.innerHTML = label_style + data[0]['title'] + '</label>';
-      c2.innerText = data[0]['time'];
+      c1.innerHTML = label_style + data[i]['title'] + '</label>';
+      c2.innerText = data[i]['create_time'].substring(0, 10);
     }
   }
 

@@ -29,6 +29,29 @@ public class JsonUtil {
         "                  "};
     private static StringBuilder sBuilder = new StringBuilder();
 
+    // To JSON string from keys and values
+    public synchronized static String toJson(String[] keys, String[] values) {
+        sBuilder.setLength(0);
+        sBuilder.append("{\n");
+        if (keys.length == values.length) {
+            for (int i = 0; i < keys.length; i++) {
+                String key = keys[i].trim();
+                String value = values[i].trim();
+                if (sBuilder.length() > 2) {
+                    sBuilder.append(",\n");
+                }
+                sBuilder.append("\"").append(key).append("\":");
+                if (value.startsWith("[") || value.startsWith("{")) {
+                    sBuilder.append(value);
+                } else {
+                    sBuilder.append("\"").append(value).append("\"");
+                }
+            }
+        }
+        sBuilder.append("\n}");
+        return sBuilder.toString();
+    }
+
     // To JSON string from object
     public synchronized static String toJson(Object object)
             throws ReflectiveOperationException {
