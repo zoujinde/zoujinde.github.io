@@ -6,6 +6,8 @@
   <div style="width:99%; background:#EEE">
     <label style="width:110;font-size:20px;">Select Table:</label>
     <select id="url" onchange="onUrlChange(this)" style="width:120;height=20;font-size:16px;">
+      <option value="data?tab=activity">activity</option>
+      <option value="data?tab=event">event</option>
       <option value="data?tab=user">user</option>
       <option value="data?tab=quiz">quiz</option>
       <option value="data?tab=quiz_item">quiz_item</option>
@@ -24,7 +26,7 @@
     <input type="button" onclick="deleteData()" value="Delete Rows">
     <input type="button" onclick="submitData()" value="Submit Data">
     <label id="result_data" style="width:330;font-size:16px;" > * </label> <br>
-    <textarea rows="7" cols="200" id="text_data" style="width:1500px;height=10px;font-size:15px;"></textarea><br>
+    <textarea rows="20" cols="200" id="text_data" style="width:1500px;height=10px;font-size:15px;"></textarea><br>
   </div>
 </div>
 </HTML>
@@ -117,13 +119,15 @@
       // {...} is OK
     } else if (data.startsWith('[') && data.endsWith(']')) {
       // [...] is OK
+    } else if (data.startsWith('-- ')) {
+      // -- SQL script is OK
     } else {
       // The result_data is a label, the result_data.value = 'xxx' can't work
       result_data.innerText = 'Invalid Data';
       return;
     }
     // Confirm the request
-    var path = getPath() + select_url.value;
+    var path = select_url.value;
     var msg = "Would you submit to " + path + "\n\n" + data;
     if (!confirm(msg)) {
       return;
@@ -151,7 +155,7 @@
 
   // Query data
   function queryData() {
-    var path = getPath() + select_url.value;
+    var path = select_url.value;
     httpRequest.open("POST", path, true);
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     httpRequest.onreadystatechange = queryResult;

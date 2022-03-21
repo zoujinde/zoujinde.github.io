@@ -7,10 +7,10 @@
   <a id="a1" style="text-decoration:underline;" href="javascript:void(0);" onclick="showBulletin()" >News Bulletin</a>
   <a id="a2" style="text-decoration:none;"      href="javascript:void(0);" onclick="showActivity()" >My Activities</a>
   <hr style="font-size:1px;">
-  <table id="bulletin" border="1" style="display:block;width:930px;height:300px;" >
+  <table id="bulletin" border="1" style="display:block;width:930px;" >
     <tr> <th width="670" >Bulletin</th> <th width="260" >Time</th> </tr>
   </table>
-  <table id="activity" border="1" style="display:none; width:930px;height:300px;" >
+  <table id="activity" border="1" style="display:none; width:930px;" >
     <tr> <th width="670" >Activity</th> <th width="260">Time</th> </tr>
   </table>
   <hr style="font-size:1px;">

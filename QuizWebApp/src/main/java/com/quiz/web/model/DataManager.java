@@ -490,14 +490,29 @@ public class DataManager {
             WebUtil.downloadMySql();
         }
         Connection cn = null;
-        PreparedStatement ps = null;
         try {
             String script = WebUtil.getWebInfPath() + "QuizDB.sql";
             LogUtil.log(TAG, script);
             String file = WebUtil.readFile(script);
-            String[] array = file.split("\n");
             // Can't use mDataSource, URL is different
             cn = DriverManager.getConnection(url, user, pass);
+            runSqlScript(file, cn);
+        } catch (Exception e) {
+            LogUtil.log(TAG, e.toString());
+        } finally {
+            WebUtil.close(cn);
+        }
+    }
+
+    // Run SQL script
+    public String runSqlScript(String script, Connection cn) {
+        String result = WebUtil.OK;
+        PreparedStatement ps = null;
+        try {
+            String[] array = script.split("\n");
+            if (cn == null) {
+                cn = mDataSource.getConnection();
+            }
             StringBuilder builder = new StringBuilder();
             for (String line : array) {
                 line = line.trim();
@@ -515,11 +530,13 @@ public class DataManager {
                 }
             }
         } catch (Exception e) {
-            LogUtil.log(TAG, e.toString());
+            result = "runSqlScript : " + e.getMessage();
+            LogUtil.log(TAG, result);
         } finally {
             WebUtil.close(ps);
             WebUtil.close(cn);
         }
+        return result;
     }
 
 }

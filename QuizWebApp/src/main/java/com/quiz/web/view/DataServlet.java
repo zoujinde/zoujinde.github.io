@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quiz.web.control.DataController;
+import com.quiz.web.model.DataManager;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.WebUtil;
 
@@ -30,6 +31,8 @@ public class DataServlet extends HttpServlet {
             result = "invalid user";
         } else if (body.startsWith("[") && body.endsWith("]")) {
             result = DataController.instance().setData(body, tab);
+        } else if (body.startsWith("-- ")) {
+            result = DataManager.instance().runSqlScript(body, null);
         } else if (act.equals(WebUtil.ACT_SELECT)) {
             result = DataController.instance().select(body, tab);
         } else if (act.equals(WebUtil.ACT_DELETE)) {
