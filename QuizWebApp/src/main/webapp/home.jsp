@@ -3,7 +3,10 @@
 <title>Home</title>
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
-  <label style="width:900px;">Welcome to home page</label><br>
+  <label style="width:520px;">Welcome to home page</label>
+  <input type="button" onclick="window.location.href='quiz-main.jsp'" value="Fill Questionnaire"
+       style="width:370px;height:60px;font-size:39px;margin:5px 0px;"/>
+  <br>
   <a id="a1" style="text-decoration:underline;" href="javascript:void(0);" onclick="showBulletin()" >News Bulletin</a>
   <a id="a2" style="text-decoration:none;"      href="javascript:void(0);" onclick="showActivity()" >My Activities</a>
   <hr style="font-size:1px;">

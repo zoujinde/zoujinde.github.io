@@ -29,6 +29,7 @@ CREATE TABLE user (
 CREATE TABLE quiz (
   quiz_id     INT AUTO_INCREMENT NOT NULL,
   quiz_name   VARCHAR(50) NOT NULL,
+  user_type   INT         NOT NULL,
   create_time TIMESTAMP   NOT NULL,
   PRIMARY KEY(quiz_id),
   UNIQUE KEY quiz_name_uniq(quiz_name)
@@ -37,12 +38,13 @@ CREATE TABLE quiz (
 -- Quiz item table
 -- We can get the last_insert_id() for current session as below:
 -- insert quiz_item values(last_insert_id(), 1, "?", "@", 1);
+-- answer_type : 0 single, 1 multiple, 2 text
 CREATE TABLE quiz_item (
   quiz_id      INT     NOT NULL,
   item_id      TINYINT NOT NULL,
   item_content VARCHAR(300) NOT NULL,
   item_answer  VARCHAR(300) NOT NULL,
-  multi_select BIT          NOT NULL,
+  answer_type  TINYINT NOT NULL,
   PRIMARY KEY(quiz_id, item_id),
   CONSTRAINT fk_quiz_item FOREIGN KEY (quiz_id) REFERENCES quiz(quiz_id)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
@@ -52,7 +54,7 @@ CREATE TABLE quiz_result (
   quiz_id      INT     NOT NULL,
   user_id      INT     NOT NULL,
   item_id      TINYINT NOT NULL,
-  answer       VARCHAR(10) NOT NULL,
+  answer       VARCHAR(1000) NOT NULL,
   answer_time  TIMESTAMP   NOT NULL,
   PRIMARY KEY(quiz_id, user_id, item_id),
   CONSTRAINT fk_quiz_result FOREIGN KEY (quiz_id, item_id) REFERENCES quiz_item(quiz_id, item_id),
@@ -85,9 +87,10 @@ CREATE TABLE activity (
 -- Insert user (user_id, parent_id, user_type)
 insert into user values(1, 0, 0, 'admin', '_TG3ufixa6JDL11AFE3A5w==', 'admin', 1980, 1, '', '', '', '', '2022-01-01', '2022-01-01');
 
--- Insert quiz 1
+-- Insert quiz 1 : TODO user_type
 insert into quiz values(1, 'Quiz 2022', '2022-01-01');
 insert into quiz_item values(1, 1, 'Question 1 : Are you in US?', '(a) Yes # (b) No', 0);
+-- Insert result : quiz_id, user_id, quiz_item_id, answer, answer_time
 insert into quiz_result values(1, 1, 1, '0', '2022-01-01');
 
 -- Insert quiz 2
