@@ -60,7 +60,6 @@ CREATE TABLE quiz_result (
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
 -- Event table
--- event_type : 0 default, 1 interest group, 2 art class, 3 game, 4 music
 CREATE TABLE event (
   event_id     INT AUTO_INCREMENT NOT NULL,
   event_type   INT          NOT NULL,
@@ -110,18 +109,12 @@ insert into quiz_item values(2, 5, 'In your opinion, which topic has the Spanish
        1);
 
 -- Insert event (event_id, event_type, title, content, create_time)
+-- event_type : 0 default, 1 music, 2 art class, 3 game
 insert into event values(1, 0, 'default', 'default', '2022-01-01');
 insert into event values(2, 0, 'Happy New Year', 'Happy New Year : 2022', '2022-01-01');
-insert into event values(3, 2, 'New Art Class', 'description', '2022-02-15');
+insert into event values(3, 2, 'Art Class', 'description', '2022-02-15');
 insert into event values(4, 3, 'Angry Bird', 'description', '2022-03-10');
-insert into event values(5, 3, 'Test1', 'description', '2022-03-10');
-insert into event values(6, 3, 'Test2', 'description', '2022-03-10');
-insert into event values(7, 3, 'Test3', 'description', '2022-03-10');
-insert into event values(8, 3, 'Test4', 'description', '2022-03-10');
-insert into event values(9, 3, 'Test5', 'description', '2022-03-10');
-insert into event values(10, 3, 'Test6', 'description', '2022-03-10');
-insert into event values(11, 3, 'Test7', 'description', '2022-03-10');
-insert into event values(12, 3, 'Test8', 'description', '2022-03-10');
+insert into event values(5, 1, 'Music', 'description', '2022-03-20');
 
 -- Insert activity (activity_id, user_id, event_id)
 insert into activity values(1, 1, 1, 'Drawing', 'description', '2022-01-10');
