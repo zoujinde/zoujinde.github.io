@@ -4,6 +4,7 @@ public class Quiz extends DataObject {
 
     public int quiz_id;
     public String quiz_name;
+    public int user_type;
     public java.sql.Timestamp create_time;
 
     @Override

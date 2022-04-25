@@ -4,9 +4,9 @@ public class Quiz_item extends DataObject {
 
     public int quiz_id;
     public int item_id;
+    public int item_type;
     public String item_content;
     public String item_answer;
-    public boolean multi_select;
 
     @Override
     public String getTableName() {
