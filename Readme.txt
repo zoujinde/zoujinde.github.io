@@ -1,9 +1,18 @@
 Setup Web Env:
+0、JDK 8
 1. GitHub
 2. Tomcat
 3. Maven 
 4. MySql
 5. Eclipse
+
+============================================================
+0. JDK 8
+
+Maven needs JDK 8, please uninstall other JRE/JDK, and install JDK 8.
+设置环境变量：
+JAVA_HOME = JDK8 path
+PATH ： Add path JDK8/bin
 
 ============================================================
 1. GitHub
@@ -104,8 +113,8 @@ F:\mysql-8.0.16-winx64\bin>mysqld --console
 F:\mysql-8.0.16-winx64\bin>mysql -uroot -p
 Enter password: ************
 
-mysql> 修改密码
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'rootpass';
+然后运行 ALTER 命令修改密码
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'rootpass';
 
 安装MySQL Workbench（http://dev.mysql.com/downloads/workbench/）
        可视化开发和管理平台，该平台提供了许多高级工具，
@@ -131,5 +140,14 @@ C:/Users/MZ6H9Z/Documents/GitHub/zoujinde.github.io/QuizWebApp
 我们编写了 Main.java，直接运行main()方法，即可启动嵌入式Tomcat。
 在开发时随时修改Java类，直接重新启动嵌入式tomcat.
 避免了发布war包并重启tomcat的复杂流程，可大大提高开发效率。
+
+You need to set jar path in Eclipse build path, for example as below:
+<classpathentry kind="lib" path="D:/data/web/apache-tomcat-9.0.56/lib/ecj-4.20.jar"/>
+<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar"/>
+<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/9.0.56/tomcat-embed-core-9.0.56.jar"/>
+<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/9.0.56/tomcat-embed-el-9.0.56.jar"/>
+<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/org/apache/tomcat/embed/tomcat-embed-jasper/9.0.56/tomcat-embed-jasper-9.0.56.jar"/>
+<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/org/apache/tomcat/tomcat-annotations-api/9.0.56/tomcat-annotations-api-9.0.56.jar"/>
+<classpathentry kind="lib" path="C:/Users/MZ6H9Z/.m2/repository/org/apache/tomcat/tomcat-jdbc/9.0.56/tomcat-jdbc-9.0.56.jar"/>
 
 ============================================================
