@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.quiz.web.control.QuizController;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
 import com.quiz.web.util.WebUtil;
@@ -26,8 +27,8 @@ public class QuizServlet extends HttpServlet {
         if (act == null) {
             result = "act is null";
         } else if (act.equals("getQuizMain")) {
-            result = "[{\"title\":\"Quiz 2022 March\", \"time\":\"2022-03-01\"},";
-            result += "{\"title\":\"Quiz 2022 April\", \"time\":\"2022-04-01\"}]";
+            int userType = WebUtil.getUserType(req);
+            result = QuizController.instance().getQuizMainData(userType);
         }
         resp.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=utf-8");

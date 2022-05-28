@@ -87,17 +87,15 @@ CREATE TABLE activity (
 -- Insert user (user_id, parent_id, user_type)
 insert into user values(1, 0, 0, 'admin', '_TG3ufixa6JDL11AFE3A5w==', 'admin', 1980, 1, '', '', '', '', '2022-01-01', '2022-01-01');
 
--- Insert quiz 1
+-- Insert quiz 1 : user_type = 1 for Volunteer
 insert into quiz(quiz_id, quiz_name, user_type, create_time)
-    values(1, 'Quiz for parents', 2, '2022-01-01');
+    values(1, 'Survey for Volunteer', 1, '2022-01-01');
 insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
     values(1, 1, 0, 'Q1 : Are you in US?', '(a) Yes # (b) No');
-insert into quiz_result(quiz_id, user_id, item_id, answer, answer_time)
-    values(1, 1, 1, '0', '2022-01-01');
 
--- Insert quiz 2
+-- Insert quiz 2 : user_type = 2 for Parents
 insert into quiz(quiz_id, quiz_name, user_type, create_time)
-    values(2, 'Survey of Spanish Media', 3, '2022-01-01');
+    values(2, 'Survey of Spanish Media', 2, '2022-01-01');
 insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
     values(2, 1, 0, 'To what extent is your knowledge on the Spanish media?',
     '(a) A huge extent # (b) Quite a huge extent # (c) An average extent # (d) Quite a limited extent # (e) A limited extent # (f) Not sure');
@@ -113,6 +111,26 @@ insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
 insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
     values(2, 5, 1, 'In your opinion, which topic has the Spanish media been stressing on?',
     '(a) Gossipy news # (b) Information and technology # (c) Violence cases # (d) Sports # (e) Politics');
+
+-- Insert quiz 3 : user_type = 3 for Participant
+insert into quiz(quiz_id, quiz_name, user_type, create_time)
+    values(3, 'Art survey for Participant', 3, '2022-01-01');
+insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
+    values(3, 1, 0, 'Q1 : Do you like art?', '(a) Yes # (b) No');
+insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
+    values(3, 2, 1, 'Q2 : Which arts do you like?', '(a) Music # (b) Painting # (c) Film  # (d) Dance');
+insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
+    values(3, 3, 2, 'Q3 : Please fill in your favorite music name.', '');
+
+-- Insert quiz 4 : user_type = 3 for Participant
+insert into quiz(quiz_id, quiz_name, user_type, create_time)
+    values(4, 'Sport survey for Participant', 3, '2022-01-01');
+insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
+    values(4, 1, 0, 'Q1 : Do you like sport?', '(a) Yes # (b) No');
+insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
+    values(4, 2, 1, 'Q2 : Which sports do you like?', '(a) Swimming # (b) Running # (c) Skating # (d) Skiing');
+insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
+    values(4, 3, 2, 'Q3 : Please fill in your sport achievement.', '');
 
 -- Insert event
 -- event_type : 0 default, 1 music, 2 art class, 3 game

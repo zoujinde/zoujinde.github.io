@@ -56,14 +56,21 @@
 
   // Set table data
   function setTable(table, data) {
-    var label_style = '<label style="width:90%;color:blue;" onclick="alert(123)">';
+    var style1 = '<label style="width:90%;color:blue;" onclick="openQuizItem(';
+    var style2 = ')">';
     for (var i = 0; i < data.length; i++) {
       var row = table.insertRow();
       var c1 = row.insertCell();
       var c2 = row.insertCell();
-      c1.innerHTML = label_style + data[i]['title'] + '</label>';
-      c2.innerText = data[i]['time'].substring(0, 10);
+      var label = style1 + data[i]['quiz_id'] + style2;
+      c1.innerHTML = label + data[i]['quiz_name'] + '</label>';
+      c2.innerText = data[i]['create_time'].substring(0, 10);
     }
+  }
+
+  // Open quiz item page
+  function openQuizItem(quiz_id) {
+    alert('quiz_id=' + quiz_id);
   }
 
 </script>

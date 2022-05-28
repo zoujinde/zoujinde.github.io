@@ -28,7 +28,7 @@
   var a2 = document.getElementById("a2");
 
   // Delay load
-  setTimeout("load()", 500);
+  setTimeout("load()", 100);
 
   // Load
   function load() {
