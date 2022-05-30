@@ -3,13 +3,13 @@
 <title>Sign In</title>
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
-  <label style="width:520px;">Please fill in the quiz</label>
+  <label style="width:520px;">Please fill out the quiz</label>
   <input type="button" onclick="window.location.href='quiz_main.jsp'" value="All Questionnaire"
        style="width:370px;height:60px;margin:5px 0px;"/>
   <br>
   <label id="title" style="width:900px;">Title : Quiz</label><br>
-  <table id="quiz_item" border="1" style="display:block;width:910px;" >
-    <tr> <th id="content" width="910" >(1/1) What is your name?</th> </tr>
+  <table id="quiz_tab" border="1" style="display:block;width:910px;" >
+    <tr> <th id="content" width="850" align="left">?</th><th></th></tr>
   </table>
   <input type="button" onclick="" value="Previous" style="width:280px;"/>
   <input type="button" onclick="" value="Submit" style="width:280px;"/>
@@ -21,14 +21,21 @@
 
 <script type="text/javascript">
   var httpRequest = getHttpRequest();
-  var quiz_item = document.getElementById("quiz_item");
+  var quiz_title = document.getElementById("title");
+  var quiz_tab = document.getElementById("quiz_tab");
+  var quiz_content = document.getElementById("content");
+  var quiz_id = ${param.quiz_id};
+  var quiz_item = [];
+  var quiz_answer = [];
+  var index = 0; // The current index of quiz_item
 
   // Delay load
   setTimeout("load()", 100);
 
   // Load
   function load() {
-    var json = '{"act":"getQuizItem"}';
+    var json = {'act':'getQuizItem', 'quiz_id':quiz_id};
+    json = JSON.stringify(json);
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", "quiz", true);
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -41,10 +48,12 @@
     if(httpRequest.readyState==4) {
       if(httpRequest.status==200) { // 200 OK
         var text = httpRequest.responseText.trim();
-        if (text.startsWith('[')) {
+        if (text.startsWith('{')) {
           var json = JSON.parse(text);
-          //deleteTable(quiz_ite);
-          //setTable(quiz_list, json);
+          quiz_title.innerText = ' * ' + json['title'][0]['quiz_name'];
+          quiz_item = json['quiz_item'];
+          quiz_result = json['quiz_result'];
+          showQuizItem();
         } else {
           alert(text);
         }
@@ -54,6 +63,24 @@
     }
   }
 
+  // Show quiz item in table
+  function showQuizItem() {
+    deleteTable(quiz_tab);
+    // Set quiz item content
+    var item = quiz_item[index];
+    var text = '(' + item['item_id'] + '/' + quiz_item.length + ') ' + item['item_content'];
+    quiz_content.innerText = text;
+    // Set answers according to type
+    var type = item['item_type'];
+    var answer = item['item_answer'];
+    if (type == 0) { // single choice
+      setSingleChoice(answer);
+    } else if (type == 1) { // multiple choice
+      setMultipleChoice(answer);
+    } else { // input text
+      setInputText(answer);
+    }
+  }
 
   // Delete table rows but remain the header
   function deleteTable(table) {
@@ -63,17 +90,15 @@
     }
   }
 
-  // Set table data
-  function setTable(table, data) {
-    var style1 = '<a style="width:90%;color:blue;" href="quiz_item.jsp?quiz_id=';
-    var style2 = '">';
-    for (var i = 0; i < data.length; i++) {
-      var row = table.insertRow();
+  // Set single choice
+  function setSingleChoice(answer) {
+    var array = answer.split(' # ');
+    for (var i = 0; i < array.length; i++) {
+      var row = quiz_tab.insertRow();
       var c1 = row.insertCell();
       var c2 = row.insertCell();
-      var href = style1 + data[i]['quiz_id'] + style2;
-      c1.innerHTML = href + data[i]['quiz_name'] + '</a>';
-      c2.innerText = data[i]['create_time'].substring(0, 10);
+      c1.innerText = array[i];
+      c2.innerHTML = '<input type="radio" style="width:50" value="' + i + '"/>';
     }
   }
 

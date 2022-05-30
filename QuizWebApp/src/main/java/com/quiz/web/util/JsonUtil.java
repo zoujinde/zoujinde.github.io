@@ -491,6 +491,23 @@ public class JsonUtil {
         return value;
     }
 
+    // Build JSON String
+    public static void buildJson(StringBuilder builder, String key, String value) {
+        int len = builder.length();
+        if (len <= 0) {
+            builder.append("{");
+        } else { // Replace the last } with ,
+            builder.setCharAt(len - 1, ',');
+        }
+        builder.append("\"").append(key).append("\":");
+        if (value.startsWith("{") || value.startsWith("[")) {
+            builder.append(value);
+        } else {
+            builder.append("\"").append(value).append("\"");
+        }
+        builder.append("}");
+    }
+
     // End : JSON methods ///////////////////////////////////////////
 
 }

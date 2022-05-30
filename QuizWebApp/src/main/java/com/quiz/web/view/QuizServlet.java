@@ -29,6 +29,10 @@ public class QuizServlet extends HttpServlet {
         } else if (act.equals("getQuizMain")) {
             int userType = WebUtil.getUserType(req);
             result = QuizController.instance().getQuizMainData(userType);
+        } else if (act.equals("getQuizItem")) {
+            int userId = WebUtil.getUserId(req);
+            int quizId = JsonUtil.getInt(body, "quiz_id");
+            result = QuizController.instance().getQuizItemData(quizId, userId);
         }
         resp.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=utf-8");
