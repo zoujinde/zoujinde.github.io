@@ -8,7 +8,7 @@
   <br>
   <input type="button" onclick="signIn()" value="Sign In" style="width:910px;"/>
   <hr style="font-size:1px;">
-  <label id="result" style="width:910px;font-size:30px;"/>
+  <label id="result" style="width:910px;"/>
 </div>
 </HTML>
 

@@ -4,9 +4,9 @@
 <label id='req_user' onclick="window.location.href='home.jsp'"
        style="width:510px;margin:10px;color:blue;font-weight:bold;">${req_user}</label>
 <input type="button" onclick="window.location.href='sign-in.jsp'" value="Sign In"
-       style="width:180px;height:70px;font-size:39px;margin:5px 0px;"/>
+       style="width:180px;height:70px;margin:5px 0px;"/>
 <input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"
-       style="width:180px;height:70px;font-size:39px;margin:5px 0px;"/>
+       style="width:180px;height:70px;margin:5px 0px;"/>
 <hr style="font-size:1px;">
 </div>
 
@@ -15,7 +15,7 @@
     border-style:solid;
     border-width:1px;
     border-color:#999999;
-    font-size:50px;
+    font-size:39px;
   }
 
   label{
@@ -24,7 +24,7 @@
     margin: 5px 5px;
     padding: 1px;
     width: 220px;
-    font-size:50px;
+    font-size:39px;
     text-align: left;
     vertical-align: top;
   }
@@ -33,7 +33,7 @@
     margin: 5px 10px;
     padding: 5px;
     width: 680px;
-    font-size:50px;
+    font-size:39px;
     vertical-align: top;
   }
 
@@ -41,28 +41,28 @@
     margin: 5px 5px;
     padding: 5px;
     width: 675px;
-    font-size:50px;
+    font-size:39px;
     vertical-align: top;
   }
 
   textarea{
     margin: 5px 1px;
     padding: 5px;
-    font-size:50px;
+    font-size:39px;
     vertical-align: top;
   }
 
   a {
     margin: 1px 80px;
     padding: 1px;
-    font-size:50px;
+    font-size:39px;
     vertical-align: top;
   }
 
   table {
     margin: 5px 5px;
     padding: 1px;
-    font-size:50px;
+    font-size:39px;
     vertical-align: top;
   }
 

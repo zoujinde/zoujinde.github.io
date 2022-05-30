@@ -26,7 +26,7 @@
   <br>
   <input type="button" onclick="save()" value="Save" style="width:910px;"/>
   <hr style="font-size:1px;">
-  <label id="result" style="width:900px;font-size:30px;"/>
+  <label id="result" style="width:900px;"/>
 </form>
 </div>
 </HTML>
