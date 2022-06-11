@@ -41,17 +41,17 @@ public class QuizController {
         try {
             String sql = "select quiz_name from quiz where quiz_id = ?";
             String title = DataManager.instance().select(sql, new Object[]{quizId});
-            sql = "select * from quiz_item where quiz_id = ? order by item_id";
-            String item = DataManager.instance().select(sql, new Object[]{quizId});
-            sql = "select * from quiz_result where quiz_id = ? and user_id = ? order by item_id";
-            result = DataManager.instance().select(sql, new Object[]{quizId, userId});
+            sql = "select a.*, b.answer from quiz_item a "
+                + "left join quiz_result b "
+                + "on a.quiz_id = b.quiz_id and a.item_id = b.item_id and b.user_id = ? "
+                + "where a.quiz_id = ? order by a.item_id";
+            String item = DataManager.instance().select(sql, new Object[]{userId, quizId});
             StringBuilder s = new StringBuilder();
             JsonUtil.buildJson(s, "title", title);
             JsonUtil.buildJson(s, "quiz_item", item);
-            JsonUtil.buildJson(s, "quiz_result", result);
             result = s.toString();
             //LogUtil.log(TAG, result);
-        } catch (WebException e) {
+        } catch (Exception e) {
             result = "getQuizMainData : " + e.getMessage();
             LogUtil.log(TAG, result);
         }
