@@ -33,6 +33,9 @@ public class QuizServlet extends HttpServlet {
             int userId = WebUtil.getUserId(req);
             int quizId = JsonUtil.getInt(body, "quiz_id");
             result = QuizController.instance().getQuizItemData(quizId, userId);
+        } else if (act.equals("setQuizData")) {
+            int userId = WebUtil.getUserId(req);
+            result = QuizController.instance().setQuizData(userId, body);
         }
         resp.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json; charset=utf-8");

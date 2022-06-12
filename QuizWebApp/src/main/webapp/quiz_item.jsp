@@ -191,8 +191,41 @@
 
   // To save data to server
   function toSave() {
-    if (checkResult()) {
-      // Only submit id and answer to server
+    if (!checkResult()) {
+      return;
+    }
+    // Only submit id and answer to server
+    var data = [];
+    for (var i = 0; i < quiz_item.length; i++) {
+      var itemId = quiz_item[i]['item_id'];
+      var answer = quiz_item[i]['answer'];
+      if (answer.length <= 0) {
+        alert('Please answer the question ' + itemId);
+        return;
+      }
+      data[i] = {};
+      data[i]['item_id'] = itemId;
+      data[i]['answer']  = answer;
+    }
+    var json = {'act':'setQuizData', 'quiz_id':quiz_id, 'data':data};
+    json = JSON.stringify(json);
+    // alert(json);
+    // Post URL is Servlet, the sync is true
+    httpRequest.open("POST", "quiz", true);
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    httpRequest.onreadystatechange = saveResult;
+    httpRequest.send(json);
+  }
+
+  // Save result
+  function saveResult() {
+    if(httpRequest.readyState==4) {
+      if(httpRequest.status==200) { // 200 OK
+        var text = httpRequest.responseText.trim();
+        alert(text);
+      } else {
+        alert(httpRequest.status);
+      }
     }
   }
 
