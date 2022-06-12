@@ -26,7 +26,9 @@
   var quiz_content = document.getElementById("content");
   var quiz_id = ${param.quiz_id};
   var quiz_item = [];
-  var quiz_index = 0; // The current index of quiz_item
+  var item_id = 1; // The current item_id
+  var item_index = 0;
+  var item_count = 0;
 
   // Delay load
   setTimeout("load()", 100);
@@ -51,6 +53,10 @@
           var json = JSON.parse(text);
           quiz_title.innerText = ' * ' + json['title'][0]['quiz_name'];
           quiz_item = json['quiz_item'];
+          var last = quiz_item.length - 1;
+          if (last >= 0) {
+            item_count = quiz_item[last]['item_id'];
+          }
           showQuizItem();
         } else {
           alert(text);
@@ -65,17 +71,34 @@
   function showQuizItem() {
     deleteTable(quiz_tab);
     // Set quiz item content
-    var item = quiz_item[quiz_index];
-    var text = '(' + item['item_id'] + '/' + quiz_item.length + ') ' + item['item_content'];
-    quiz_content.innerText = text;
+    var type = -1;
+    for (var i = 0; i < quiz_item.length; i++) {
+      var item = quiz_item[i];
+      if (item['item_id'] == item_id) {
+        if (item['item_row'] == 0) { // The question
+          item_index = i;
+          var text = item_id + '/' + item_count + ' # ' + item['item_content'];
+          quiz_content.innerText = text;
+          type = item['item_type'];
+        } else { // The answer
+          var input = '<input style="width:50; zoom:120%;" type="radio" name="radio_value"';
+          if (type == 1) {
+            input = '<input style="width:50; zoom:120%;" type="checkbox" name="check_value"';
+          }
+          var row = quiz_tab.insertRow();
+          var c1 = row.insertCell();
+          var c2 = row.insertCell();
+          c1.innerText = item['item_content'];
+          c2.innerHTML = input + ' value="' + i + '"/>';
+        }
+      }
+    }
     // Set answers according to type
-    var type = item['item_type'];
-    var item_answer = item['item_answer'];
-    var answer = item['answer'];
-    if (type == 0 || type == 1) {
-      setInputBox(item_answer, answer, type);
-    } else { // input text
-      setInputText(answer);
+    if (item_index >= 0) {
+      var answer = quiz_item[item_index]['answer'];
+      setInputBox(answer, type);
+    } else {
+      alert('Invalid item id : ' + item_id);
     }
   }
 
@@ -88,19 +111,7 @@
   }
 
   // Set radio or check box
-  function setInputBox(item_answer, answer, type) {
-    var array = item_answer.split(' # ');
-    var input = '<input style="width:50; zoom:120%;" type="radio" name="radio_value"';
-    if (type == 1) { // multiple choice
-        input = '<input style="width:50; zoom:120%;" type="checkbox" name="check_value"';
-    }
-    for (var i = 0; i < array.length; i++) {
-      var row = quiz_tab.insertRow();
-      var c1 = row.insertCell();
-      var c2 = row.insertCell();
-      c1.innerText = array[i];
-      c2.innerHTML = input + ' value="' + i + '"/>';
-    }
+  function setInputBox(answer, type) {
     // Set checked state
     if (type == 0) { // radio
       var radio_value = document.getElementsByName("radio_value");
@@ -110,7 +121,7 @@
           break;
         }
       }
-    } else { // check box
+    } else if (type == 1) { // check box
       var check_value = document.getElementsByName("check_value");
       // alert('answer=' + answer);
       for (var i = 0; i < check_value.length; i++) {
@@ -118,33 +129,30 @@
           check_value[i].checked = true;
         }
       }
+    } else {
+      var input = '<textarea rows="5" cols="36" id="text_value">'
+      var row = quiz_tab.insertRow();
+      var c1 = row.insertCell();
+      c1.innerHTML = input + answer + '</textarea>';
     }
-  }
-
-  // Set input text
-  function setInputText(answer) {
-    var input = '<textarea rows="5" cols="36" id="text_value">'
-    var row = quiz_tab.insertRow();
-    var c1 = row.insertCell();
-    c1.innerHTML = input + answer + '</textarea>';
   }
 
   // To previous item
   function toPrev() {
-    if (quiz_index <= 0) {
+    if (item_id <= 1) {
       alert('Already to the first item.');
     } else if (checkResult()) {
-      quiz_index -= 1;
+      item_id -= 1;
       showQuizItem();
     }
   }
 
   // To next item
   function toNext() {
-    if (quiz_index >= quiz_item.length - 1) {
+    if (item_id >= item_count) {
       alert('Already to the last item.');
     } else if (checkResult()) {
-      quiz_index += 1;
+      item_id += 1;
       showQuizItem();
     }
   }
@@ -152,7 +160,7 @@
   // Check the memory result
   function checkResult() {
     var answer = '';
-    var item = quiz_item[quiz_index];
+    var item = quiz_item[item_index];
     var type = item['item_type'];
     if (type == 0) { // radio
       var radio_value = document.getElementsByName("radio_value");
@@ -197,6 +205,9 @@
     // Only submit id and answer to server
     var data = [];
     for (var i = 0; i < quiz_item.length; i++) {
+      if (quiz_item[i]['item_row'] != 0) {
+        continue;
+      }
       var itemId = quiz_item[i]['item_id'];
       var answer = quiz_item[i]['answer'];
       if (answer.length <= 0) {

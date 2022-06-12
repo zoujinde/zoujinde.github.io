@@ -4,9 +4,9 @@ public class Quiz_item extends DataObject {
 
     public int quiz_id;
     public int item_id;
-    public int item_type;
+    public int item_row;
     public String item_content;
-    public String item_answer;
+    public int item_type;
 
     @Override
     public String getTableName() {
@@ -15,7 +15,7 @@ public class Quiz_item extends DataObject {
 
     @Override
     public String[] getPrimaryKey() {
-        return new String[]{"quiz_id","item_id"};
+        return new String[]{"quiz_id","item_id","item_row"};
     }
 
     @Override

@@ -38,14 +38,15 @@ CREATE TABLE quiz (
 -- Quiz item table
 -- We can get the last_insert_id() for current session as below:
 -- insert quiz_item values(last_insert_id(), 1, "?", "@", 1);
--- answer_type : 0 single, 1 multiple, 2 text
+-- item_row  : 0 is question, for 1 to n are answers
+-- item_type : 0 single, 1 multiple, 2 text
 CREATE TABLE quiz_item (
   quiz_id      INT     NOT NULL,
   item_id      TINYINT NOT NULL,
-  item_type    TINYINT NOT NULL,
+  item_row     TINYINT NOT NULL,
   item_content VARCHAR(500) NOT NULL,
-  item_answer  VARCHAR(500) NOT NULL,
-  PRIMARY KEY(quiz_id, item_id),
+  item_type    TINYINT NOT NULL,
+  PRIMARY KEY(quiz_id, item_id, item_row),
   CONSTRAINT fk_quiz_item FOREIGN KEY (quiz_id) REFERENCES quiz(quiz_id)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
@@ -54,10 +55,11 @@ CREATE TABLE quiz_result (
   quiz_id      INT     NOT NULL,
   user_id      INT     NOT NULL,
   item_id      TINYINT NOT NULL,
+  item_row     TINYINT NOT NULL,
   answer       VARCHAR(500) NOT NULL,
   answer_time  TIMESTAMP    NOT NULL,
-  PRIMARY KEY(quiz_id, user_id, item_id),
-  CONSTRAINT fk_quiz_result FOREIGN KEY (quiz_id, item_id) REFERENCES quiz_item(quiz_id, item_id),
+  PRIMARY KEY(quiz_id, user_id, item_id, item_row),
+  CONSTRAINT fk_quiz_result FOREIGN KEY (quiz_id, item_id, item_row) REFERENCES quiz_item(quiz_id, item_id, item_row),
   CONSTRAINT fk_quiz_result_user FOREIGN KEY (user_id) REFERENCES user(user_id)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
@@ -90,47 +92,131 @@ insert into user values(1, 0, 0, 'admin', '_TG3ufixa6JDL11AFE3A5w==', 'admin', 1
 -- Insert quiz 1 : user_type = 1 for Volunteer
 insert into quiz(quiz_id, quiz_name, user_type, create_time)
     values(1, 'Survey for Volunteer', 1, '2022-01-01');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(1, 1, 0, 'Q1 : Are you in US?', '(a) Yes # (b) No');
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(1, 1, 0, 'Q1 : Are you in US?', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(1, 1, 1, '(a) Yes', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(1, 1, 2, '(b) No', 0);
 
 -- Insert quiz 2 : user_type = 2 for Parents
 insert into quiz(quiz_id, quiz_name, user_type, create_time)
     values(2, 'Survey of Spanish Media', 2, '2022-01-01');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(2, 1, 0, 'To what extent is your knowledge on the Spanish media?',
-    '(a) A huge extent # (b) Quite a huge extent # (c) An average extent # (d) Quite a limited extent # (e) A limited extent # (f) Not sure');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(2, 2, 0, 'Through which media, the Spanish or English, do you most frequently retrieve the most updated news?',
-    '(a) Spanish media # (b) English media # (c) Both # (d) Not sure');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(2, 3, 1, 'Through which channel of the Spanish media do you most frequently retrieve the latest news?',
-    '(a) Mobile Phone # (b) Newspapers # (c) Television (Newscasts) # (d) Computer (Internet, webpages, blogs, etc) # (e) Radio/radio stations (FM 88.3, 93.3, 95.8, 100.3, etc)');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(2, 4, 1, 'Through which channel of the English media do you most frequently retrieve the latest news?',
-    '(a) Handphone # (b) Newspapers (The Straits Times, Today, The Newpaper, etc) # (c) Television (Newscasts) # (d) Computer (Internet, webpages, blogs, etc) # (e) Radio/radio stations (FM 91.3, 98.7, etc)');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(2, 5, 1, 'In your opinion, which topic has the Spanish media been stressing on?',
-    '(a) Gossipy news # (b) Information and technology # (c) Violence cases # (d) Sports # (e) Politics');
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 1, 0, 'To what extent is your knowledge on the Spanish media?', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 1, 1, '(a) A huge extent', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 1, 2, '(b) Quite a huge extent', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 1, 3, '(c) An average extent', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 1, 4, '(d) Quite a limited extent', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 1, 5, '(e) A limited extent', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 1, 6, '(f) Not sure', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 2, 0, 'Through which media, the Spanish or English, do you most frequently retrieve the most updated news?', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 2, 1, '(a) Spanish media', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 2, 2, '(b) English media', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 2, 3, '(c) Both', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 2, 4, '(d) Not sure', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 3, 0, 'Through which channel of the Spanish media do you most frequently retrieve the latest news?', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 3, 1, '(a) Mobile Phone', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 3, 2, '(b) Newspapers', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 3, 3, '(c) Television (Newscasts)', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 3, 4, '(d) Computer (Internet, webpages, blogs, etc)', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 3, 5, '(e) Radio/radio stations (FM 88.3, 93.3, 95.8, 100.3, etc)', 1);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 4, 0, 'Through which channel of the English media do you most frequently retrieve the latest news?', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 4, 1, '(a) Handphone', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 4, 2, '(b) Newspapers (The Straits Times, Today, The Newpaper, etc)', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 4, 3, '(c) Television (Newscasts)', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 4, 4, '(d) Computer (Internet, webpages, blogs, etc)', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 4, 5, '(e) Radio/radio stations (FM 91.3, 98.7, etc)', 1);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 5, 0, 'In your opinion, which topic has the Spanish media been stressing on?', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 5, 1, '(a) Gossipy news', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 5, 2, '(b) Information and technology', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 5, 3, '(c) Violence cases', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 5, 4, '(d) Sports', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(2, 5, 5, '(e) Politics', 1);
 
 -- Insert quiz 3 : user_type = 3 for Participant
 insert into quiz(quiz_id, quiz_name, user_type, create_time)
     values(3, 'Art survey for Participant', 3, '2022-01-01');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(3, 1, 0, 'Q1 : Do you like art?', '(a) Yes # (b) No');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(3, 2, 1, 'Q2 : Which arts do you like?', '(a) Music # (b) Painting # (c) Film  # (d) Dance');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(3, 3, 2, 'Q3 : Please fill in your favorite music name.', '');
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(3, 1, 0, 'Q1 : Do you like art?', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(3, 1, 1, '(a) Yes', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(3, 1, 2, '(b) No', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(3, 2, 0, 'Q2 : Which arts do you like?', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(3, 2, 1, '(a) Music', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(3, 2, 2, '(b) Painting', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(3, 2, 3, '(c) Film', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(3, 2, 4, '(d) Dance', 1);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(3, 3, 0, 'Q3 : Please fill in your favorite music name.', 2);
 
 -- Insert quiz 4 : user_type = 3 for Participant
 insert into quiz(quiz_id, quiz_name, user_type, create_time)
     values(4, 'Sport survey for Participant', 3, '2022-01-01');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(4, 1, 0, 'Q1 : Do you like sport?', '(a) Yes # (b) No');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(4, 2, 1, 'Q2 : Which sports do you like?', '(a) Swimming # (b) Running # (c) Skating # (d) Skiing');
-insert into quiz_item(quiz_id, item_id, item_type, item_content, item_answer)
-    values(4, 3, 2, 'Q3 : Please fill in your sport achievement.', '');
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(4, 1, 0, 'Q1 : Do you like sport?', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(4, 1, 1, '(a) Yes', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(4, 1, 2, '(b) No', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(4, 2, 0, 'Q2 : Which sports do you like?', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(4, 2, 1, '(a) Swimming', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(4, 2, 2, '(b) Running', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(4, 2, 3, '(c) Skating', 1);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(4, 2, 4, '(d) Skiing', 1);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(4, 3, 0, 'Q3 : Please fill in your sport achievement.', 2);
 
 -- Insert event
 -- event_type : 0 default, 1 music, 2 art class, 3 game

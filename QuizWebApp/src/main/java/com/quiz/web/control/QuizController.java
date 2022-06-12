@@ -46,8 +46,8 @@ public class QuizController {
             String title = DataManager.instance().select(sql, new Object[]{quizId});
             sql = "select a.*, b.answer from quiz_item a "
                 + "left join quiz_result b "
-                + "on a.quiz_id = b.quiz_id and a.item_id = b.item_id and b.user_id = ? "
-                + "where a.quiz_id = ? order by a.item_id";
+                + "on a.quiz_id = b.quiz_id and a.item_id = b.item_id and a.item_row = b.item_row and b.user_id = ? "
+                + "where a.quiz_id = ? order by a.item_id, a.item_row";
             String item = DataManager.instance().select(sql, new Object[]{userId, quizId});
             StringBuilder s = new StringBuilder();
             JsonUtil.buildJson(s, "title", title);
@@ -72,6 +72,7 @@ public class QuizController {
                 Quiz_result r = new Quiz_result();
                 r.quiz_id = quizId;
                 r.user_id = userId;
+                r.item_row = 0;
                 r.answer_time = WebUtil.getTime();
                 JsonUtil.toObject(data[i], r);
                 newData[i] = r;
