@@ -607,7 +607,7 @@ public class DataManager {
         boolean equal = true;
         Field[] fields = type.getDeclaredFields();
         for (Field f : fields) {
-            if (!f.getName().endsWith("_time")) {
+            if (f.getName().endsWith("_time")) {
                 continue; // Don't compare time
             }
             if (!f.get(oldObj).equals(f.get(newObj))) {
