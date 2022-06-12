@@ -5,7 +5,7 @@
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
   <label style="width:520px;">Welcome to home page</label>
   <input type="button" onclick="window.location.href='quiz_main.jsp'" value="Fill Questionnaire"
-       style="width:370px;height:60px;margin:5px 0px;"/>
+       style="width:370px;margin:5px 0px 50px 0px;"/>
   <br>
   <a id="a1" style="text-decoration:underline;" href="javascript:void(0);" onclick="showBulletin()" >News Bulletin</a>
   <a id="a2" style="text-decoration:none;"      href="javascript:void(0);" onclick="showActivity()" >My Activities</a>

@@ -33,6 +33,7 @@
     margin: 20px 10px;
     padding: 5px;
     width: 680px;
+    height: 70px;
     font-size:39px;
     vertical-align: top;
   }

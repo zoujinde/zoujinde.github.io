@@ -5,7 +5,7 @@
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
   <label style="width:520px;">Please fill out the quiz</label>
   <input type="button" onclick="window.location.href='quiz_main.jsp'" value="All Questionnaire"
-       style="width:370px;height:60px;margin:5px 0px;"/>
+       style="width:370px;margin:5px 0px;"/>
   <br>
   <label id="title" style="width:900px;">Title : Quiz</label><br>
   <table id="quiz_tab" border="1" style="display:block;width:910px;" >
