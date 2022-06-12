@@ -47,7 +47,7 @@ public class QuizController {
             sql = "select a.*, b.answer from quiz_item a "
                 + "left join quiz_result b "
                 + "on a.quiz_id = b.quiz_id and a.item_id = b.item_id and a.item_row = b.item_row and b.user_id = ? "
-                + "where a.quiz_id = ? order by a.item_id, a.item_row";
+                + "where a.quiz_id = ? order by a.quiz_id, a.item_id, a.item_row";
             String item = DataManager.instance().select(sql, new Object[]{userId, quizId});
             StringBuilder s = new StringBuilder();
             JsonUtil.buildJson(s, "title", title);
