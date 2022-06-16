@@ -14,8 +14,8 @@ struct ContentView: View {
 
     // init
     init () {
-        let gitUrl = URL(string: "https://raw.githubusercontent.com/zoujinde/zoujinde.github.io/main/server.txt")
-        mQuizView.load(gitUrl: gitUrl!)
+        let url = URL(string: "https://raw.githubusercontent.com/zoujinde/zoujinde.github.io/main/server.txt")
+        mQuizView.load(gitUrl: url!)
     }
 
     var body: some View {

@@ -28,6 +28,7 @@ struct QuizView: UIViewRepresentable {
          */
     }
 
+    // load url
     func load(gitUrl:URL) {
         var request = URLRequest(url: gitUrl)
         request.httpMethod = "GET"
@@ -58,14 +59,20 @@ class Delegate : NSObject, WKUIDelegate{
     // show js alert
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage msg: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        showDialog(msg: msg, handler: completionHandler)
+    }
+
+    // show dialog
+    func showDialog(msg: String, handler: @escaping () -> Void) {
         if let rootVC = UIApplication.shared.keyWindow?.rootViewController {
-            let alert = UIAlertController.init(title: msg, message: nil, preferredStyle: .alert)
-            let action = UIAlertAction.init(title: "OK", style: .default) { (action) in
-                completionHandler()
+            let alert = UIAlertController.init(title: "", message: msg, preferredStyle: .alert)
+            let action = UIAlertAction.init(title: "close", style: .default) { (action) in
+                handler()
             }
             alert.addAction(action)
             //self.present(alert, animated: true, completion: nil)
             rootVC.present(alert, animated: true)
         }
     }
+
 }
