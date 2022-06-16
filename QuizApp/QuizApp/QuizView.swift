@@ -9,27 +9,7 @@
 import SwiftUI
 import WebKit
 
-struct QuizView: View {
-
-    private var mWebView = WebView()
-
-    // init
-    init () {
-        let gitUrl = URL(string: "https://raw.githubusercontent.com/zoujinde/zoujinde.github.io/main/server.txt")
-        mWebView.load(gitUrl: gitUrl!)
-    }
-
-    // body
-    var body: some View {
-        VStack {
-            //Text("Purple Sense App Is Loading ...")
-            mWebView
-        }
-    }
-}
-
-// WebView
-struct WebView: UIViewRepresentable {
+struct QuizView: UIViewRepresentable {
 
     private var mWKWebView = WKWebView()
     private var mDelegate = Delegate()

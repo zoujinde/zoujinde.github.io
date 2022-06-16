@@ -9,8 +9,17 @@
 import SwiftUI
 
 struct ContentView: View {
+
+    private var mQuizView = QuizView()
+
+    // init
+    init () {
+        let gitUrl = URL(string: "https://raw.githubusercontent.com/zoujinde/zoujinde.github.io/main/server.txt")
+        mQuizView.load(gitUrl: gitUrl!)
+    }
+
     var body: some View {
-        QuizView()
+        mQuizView
     }
 }
 
