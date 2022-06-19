@@ -21,9 +21,13 @@
     <option value="0">Female</option>
   </select><br>
   <label>Address  </label><input name="address"/><br>
+  <label>City</label><input name="city"  style="width:280px;"/>
+  <label style="width:70px;">State</label><input name="state" style="width:290px;"/><br>
   <label>Email    </label><input name="email"/><br>
-  <label>Phone    </label><input name="phone"/><br>
-  <br>
+  <label>Phone    </label><label style="width:1px;">(</label>
+  <input name="phone1" maxlength="3" style="width:90px;"/><label style="width:1px;">)</label>
+  <input name="phone2" maxlength="3" style="width:90px;"/><label style="width:1px;">-</label>
+  <input name="phone3" maxlength="5" style="width:150px;"/><br>
   <input type="button" onclick="save()" value="Save" style="width:910px;"/>
   <hr style="font-size:1px;">
   <label id="result" style="width:900px;"/>
@@ -47,18 +51,20 @@
   function save() {
     // Check the data
     var user_name = document.getElementsByName("user_name")[0].value.trim();
-    if (user_name.length < 3) {
-      alert("Please input the user name. (length>=3)");
+    if (user_name.length < 6) {
+      alert("Please input the user name. (length>=6)");
       return;
     }
     var password  = document.getElementsByName("password")[0].value.trim();
-    if (password.length < 3) {
-      alert("Please input the password. (length>=3)");
+    if (password.length < 6) {
+      alert("Please input the password. (length>=6)");
       return;
     }
     var data = new FormData(document.getElementById("form"));
     var json = getJson(data);
     json['act'] = 'signUp';
+    json['phone'] = json['phone1'] + json['phone2'] + json['phone3']
+    json['address'] = json['address'] + ',' + json['city'] + ',' + json['state']
     json = JSON.stringify(json);
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", "user", true);
@@ -77,7 +83,7 @@
       if(httpRequest.status==200) { // 200 OK
         var text = httpRequest.responseText;
         if (text == 'OK') {
-          text = 'Sign up the new user OK. \n Please click the "Sign In" button to sign in.';
+          text = 'Sign up OK. Please click "Sign In" button to sign in.';
         }
         result.innerText = text;
       } else {

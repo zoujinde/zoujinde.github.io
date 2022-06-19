@@ -30,7 +30,7 @@
   }
 
   input{
-    margin: 20px 10px;
+    margin: 5px 10px 20px 10px;
     padding: 5px;
     width: 680px;
     height: 70px;
