@@ -3,11 +3,11 @@
 <title>Sign In</title>
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
-  <label style="width:520px;">Please fill out the quiz</label>
+  <label style="width:520px;">Please fill out the survey</label>
   <input type="button" onclick="window.location.href='quiz_main.jsp'" value="All Questionnaire"
        style="width:370px;margin:5px 0px;"/>
   <br>
-  <label id="title" style="width:900px;">Title : Quiz</label><br>
+  <label id="title" style="width:900px;">Title</label><br>
   <table id="quiz_tab" border="1" style="display:block;width:910px;" >
     <tr> <th id="content" width="850" align="left"></th><th></th></tr>
   </table>

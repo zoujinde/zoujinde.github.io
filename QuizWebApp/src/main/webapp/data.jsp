@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" session="false" %>
 <HTML>
-<title>Quzi Data Management</title>
+<title>Data Management</title>
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto;">
   <div style="width:99%; background:#EEE">

@@ -1,12 +1,23 @@
 <div class='head' style="margin:auto;background:#CCC">
 <!-- label id='title' style="width:330px;margin:1px 5px;">Welcome</label -->
 <input id='req_id' value='<%=request.getAttribute("req_id")%>' type='hidden'></input>
-<label id='req_user' onclick="window.location.href='home.jsp'"
-       style="width:510px;margin:10px;color:blue;font-weight:bold;">${req_user}</label>
-<input type="button" onclick="window.location.href='sign-in.jsp'" value="Sign In"
-       style="width:180px;height:70px;margin:5px 0px;"/>
-<input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"
-       style="width:180px;height:70px;margin:5px 0px;"/>
+<table style="width:930px;margin:0px;">
+  <tr>
+  <td>
+    <label style="width:500px;margin:0px;color:blue;font-weight:bold;"
+           onclick="location.href='home.jsp'">Purple Sense</label><br>
+    <label style="width:500px;margin:0px;font-size:36px;">${req_user}</label>
+  </td>
+  <td>
+    <input type="button" onclick="window.location.href='sign-in.jsp'" value="Sign In"
+     style="width:180px;height:70px;margin:5px 0px;"/>
+  </td>
+  <td>
+    <input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"
+     style="width:180px;height:70px;margin:5px 0px;"/>
+  </td>
+  </tr>
+</table>
 <hr style="font-size:1px;">
 </div>
 

@@ -5,7 +5,7 @@
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
   <label style="width:900px;">Please select a questionnaire</label><br>
   <table id="quiz_list" border="1" style="display:block;width:930px;" >
-    <tr> <th width="670" >Quiz Title</th> <th width="260" >Time</th> </tr>
+    <tr> <th width="670" >Title</th> <th width="260" >Time</th> </tr>
   </table>
 </div>
 </HTML>
@@ -56,7 +56,7 @@
 
   // Set table data
   function setTable(table, data) {
-    var style1 = '<a style="width:90%;color:blue;" href="quiz_item.jsp?quiz_id=';
+    var style1 = '<a style="margin:10px;color:blue;" href="quiz_item.jsp?quiz_id=';
     var style2 = '">';
     for (var i = 0; i < data.length; i++) {
       var row = table.insertRow();
@@ -65,6 +65,7 @@
       var href = style1 + data[i]['quiz_id'] + style2;
       c1.innerHTML = href + data[i]['quiz_name'] + '</a>';
       c2.innerText = data[i]['create_time'].substring(0, 10);
+      c2.height = 60;
     }
   }
 

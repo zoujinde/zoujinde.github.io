@@ -25,9 +25,10 @@
   <label style="width:70px;">State</label><input name="state" style="width:290px;"/><br>
   <label>Email    </label><input name="email"/><br>
   <label>Phone    </label><label style="width:1px;">(</label>
-  <input name="phone1" maxlength="3" style="width:90px;"/><label style="width:1px;">)</label>
-  <input name="phone2" maxlength="3" style="width:90px;"/><label style="width:1px;">-</label>
+  <input name="phone1" maxlength="3" style="width:100px;"/><label style="width:1px;">)</label>
+  <input name="phone2" maxlength="3" style="width:100px;"/><label style="width:1px;">-</label>
   <input name="phone3" maxlength="5" style="width:150px;"/><br>
+  <br>
   <input type="button" onclick="save()" value="Save" style="width:910px;"/>
   <hr style="font-size:1px;">
   <label id="result" style="width:900px;"/>
