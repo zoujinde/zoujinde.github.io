@@ -5,7 +5,7 @@
   <tr>
   <td>
     <label style="width:500px;margin:0px;color:blue;font-weight:bold;"
-           onclick="location.href='home.jsp'">Purple Sense</label><br>
+           onclick="location.href='home.jsp'">Purple Sense Home</label><br>
     <label style="width:500px;margin:0px;font-size:36px;">${req_user}</label>
   </td>
   <td>
