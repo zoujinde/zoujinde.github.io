@@ -1,12 +1,12 @@
 package com.quiz.web.util;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -19,8 +19,8 @@ public class MiniList<E> implements List<E>{
     private static final int ADD_TO_END = -1;
     private static final int REMOVE_BY_INDEX = 0;
     private static final int REMOVE_BY_VALUE = 1;
-    private static final int REMOVE_BY_COLLECTION = 2;
-    private static final int RETAIN_BY_COLLECTION = 3;
+    private static final int REMOVE_COLLECTION = 2;
+    private static final int RETAIN_COLLECTION = 3;
 
     private int mSize = 0;
     private MiniItem<E> mBeginItem = null;
@@ -155,6 +155,9 @@ public class MiniList<E> implements List<E>{
 
     @Override
     public boolean addAll(Collection<? extends E> collection) {
+        if (collection == this) {
+            throw new RuntimeException("Can't add this list self");
+        }
         for (E obj : collection) {
             this.add(ADD_TO_END, obj);
         }
@@ -163,6 +166,9 @@ public class MiniList<E> implements List<E>{
 
     @Override
     public boolean addAll(final int index, Collection<? extends E> collection) {
+        if (collection == this) {
+            throw new RuntimeException("Can't add this list self");
+        }
         int i = index;
         for (E obj : collection) {
             this.add(i++, obj);
@@ -268,19 +274,22 @@ public class MiniList<E> implements List<E>{
 
     @Override
     public E remove(int index) {
+        if (index < 0 || index >= mSize) {
+            throw new RuntimeException("remove : invalid index " + index);
+        }
         return this.remove(REMOVE_BY_INDEX, index, null, null);
     }
 
     @Override
     public boolean removeAll(Collection<?> collection) {
         // Remove objects in collection
-        return this.remove(REMOVE_BY_COLLECTION, 0, null, collection) != null;
+        return this.remove(REMOVE_COLLECTION, 0, null, collection) != null;
     }
 
     @Override
     public boolean retainAll(Collection<?> collection) {
         // Only retain objects in collection, and remove others.
-        return this.remove(RETAIN_BY_COLLECTION, 0, null, collection) != null;
+        return this.remove(RETAIN_COLLECTION, 0, null, collection) != null;
     }
 
     // private remove item method
@@ -288,7 +297,9 @@ public class MiniList<E> implements List<E>{
         E result = null;
         MiniItem<E> item = mBeginItem;
         MiniItem<E> previous = null;
-        for (int i = 0; i < mSize; i++) {
+        // Must remember the count, because mSize will be reduced when remove item
+        int count = mSize;
+        for (int i = 0; i < count; i++) {
             if (type == REMOVE_BY_INDEX && index == i) {
                 result = item.mValue;
                 removeItem(item, previous);
@@ -297,16 +308,15 @@ public class MiniList<E> implements List<E>{
                 result = obj;
                 removeItem(item, previous);
                 break; // Only remove the 1st matched value
-            } else if (type == REMOVE_BY_COLLECTION && collection.contains(item.mValue)) {
+            } else if (type == REMOVE_COLLECTION && collection.contains(item.mValue)) {
                 result = item.mValue;
                 removeItem(item, previous);
-            } else if (type == RETAIN_BY_COLLECTION && !collection.contains(item.mValue)) {
+            } else if (type == RETAIN_COLLECTION && !collection.contains(item.mValue)) {
                 result = item.mValue;
                 removeItem(item, previous);
             } else {
-                throw new RuntimeException("Invalid remove type");
+                previous = item;
             }
-            previous = item;
             item = item.mNext;
         }
         return result;
@@ -358,6 +368,8 @@ public class MiniList<E> implements List<E>{
                 }
                 item = item.mNext;
             }
+        } else {
+            throw new RuntimeException("subList : invalid range");
         }
         return result;
     }
@@ -367,8 +379,9 @@ public class MiniList<E> implements List<E>{
     public Object[] toArray() {
         E[] result = null;
         if (mSize > 0) {
-            ParameterizedType para = (ParameterizedType) getClass().getGenericSuperclass();
-            Class<E> type = (Class<E>)para.getActualTypeArguments()[0];
+            //ParameterizedType para = (ParameterizedType) getClass().getGenericSuperclass();
+            //Class<E> type = (Class<E>)para.getActualTypeArguments()[0];
+            Class<?> type = mBeginItem.mValue.getClass();
             result = (E[]) Array.newInstance(type, mSize);
             MiniItem<E> item = mBeginItem;
             for (int i = 0; i < mSize; i++) {
@@ -382,8 +395,43 @@ public class MiniList<E> implements List<E>{
     @SuppressWarnings("unchecked")
     @Override
     public <T> T[] toArray(T[] array) {
-        Object[] result = this.toArray();
-        return (T[])result;
+        T[] result = (T[]) this.toArray();
+        return result;
+    }
+
+    // Test MiniList and MiniMap
+    public static void main(String[] args) throws Exception {
+        // Test MiniList
+        List<Integer> list1 = new MiniList<Integer>();
+        for (int i = 0; i < 10; i++) {
+            list1.add(i);
+        }
+        List<Integer> list2 = new MiniList<Integer>();
+        for (int i = 0; i < 5; i++) {
+            list2.add(i);
+        }
+        list1.addAll(list2);
+        list1 = list1.subList(5, 12);
+        System.out.println("========== list iterator ==========");
+        Iterator<Integer> iterator = list1.iterator();
+        while (iterator.hasNext()) {
+            System.out.print(iterator.next() + ",");
+        }
+        // Test MiniMap
+        System.out.println("\n\n========== map test ==========");
+        Map<Integer, String> map1 = new MiniMap<>();
+        for (int i = 0; i < 10; i++) {
+            map1.put(i, " value = " + i);
+        }
+        Map<Integer, String> map2 = new MiniMap<>();
+        for (int i = 0; i < 5; i++) {
+            map2.put(i, " value = " + i + 10);
+        }
+        map1.putAll(map2);
+        //System.out.println();
+        for (Map.Entry<Integer, String> entry : map1.entrySet()) {
+            System.out.println(entry.getKey() + entry.getValue());
+        }
     }
 
 }
