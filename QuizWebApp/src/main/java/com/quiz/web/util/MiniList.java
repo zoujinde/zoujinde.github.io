@@ -15,8 +15,6 @@ import java.util.stream.Stream;
 
 public class MiniList<E> implements List<E>{
 
-    private static final int ADD_TO_TOP = 0;
-    private static final int ADD_TO_END = -1;
     private static final int REMOVE_BY_INDEX = 0;
     private static final int REMOVE_BY_VALUE = 1;
     private static final int REMOVE_COLLECTION = 2;
@@ -77,8 +75,10 @@ public class MiniList<E> implements List<E>{
 
     // private get item
     private MiniItem<E> getItem(int index) {
-        if (index < 0 || index >= mSize) {
+        if (index < -1 || index >= mSize) {
             throw new RuntimeException("Invalid index : " + index);
+        } else if (index == -1) {
+            return null; // before the 1st item
         }
         MiniItem<E> result = null;
         MiniItem<E> item = mBeginItem;
@@ -115,42 +115,39 @@ public class MiniList<E> implements List<E>{
     }
 
     @Override
-    public boolean add(E obj) {
-        this.add(ADD_TO_END, obj);
+    public boolean add(E value) {
+        this.addItem(mEndItem, value);
         return true;
     }
 
     @Override
-    public void add(int index, E obj) {
-        if (obj == null) {
-            throw new RuntimeException("Object is null");
+    public void add(int index, E value) {
+        MiniItem<E> previous = this.getItem(index - 1);
+        this.addItem(previous, value);
+    }
+
+    // private add item
+    private MiniItem<E> addItem(MiniItem<E> previous, E value) {
+        if (value == null) {
+            throw new RuntimeException("addItem : value is null");
         }
-        if (mBeginItem == null) {
-            MiniItem<E> item = new MiniItem<E>();
-            item.mValue = obj;
-            mBeginItem = item;
-            mEndItem = item;
-            mSize++;
-        } else if (index == ADD_TO_TOP) {
-            MiniItem<E> item = new MiniItem<E>();
-            item.mValue = obj;
-            item.mNext = mBeginItem;
-            mBeginItem = item;
-            mSize++;
-        } else if (index == ADD_TO_END) {
-            MiniItem<E> item = new MiniItem<E>();
-            item.mValue = obj;
-            mEndItem.mNext = item;
-            mEndItem = item;
-            mSize++;
-        } else { // Insert new item
-            MiniItem<E> previous = this.getItem(index - 1);
-            MiniItem<E> item = new MiniItem<E>();
-            item.mValue = obj;
-            item.mNext = previous.mNext;
-            previous.mNext = item;
-            mSize++;
+        MiniItem<E> newItem = new MiniItem<E>();
+        if (mEndItem == null) { // Empty list
+            mBeginItem = newItem;
+            mEndItem = newItem;
+        } else if (previous == null) { // Add on top
+            newItem.mNext = mBeginItem;
+            mBeginItem = newItem;
+        } else {
+            newItem.mNext = previous.mNext;
+            previous.mNext = newItem;
+            if (mEndItem == previous) {
+                mEndItem = newItem;
+            }
         }
+        newItem.mValue = value;
+        mSize++;
+        return newItem;
     }
 
     @Override
@@ -158,8 +155,8 @@ public class MiniList<E> implements List<E>{
         if (collection == this) {
             throw new RuntimeException("Can't add this list self");
         }
-        for (E obj : collection) {
-            this.add(ADD_TO_END, obj);
+        for (E value : collection) {
+            this.addItem(mEndItem, value);
         }
         return true;
     }
@@ -169,9 +166,9 @@ public class MiniList<E> implements List<E>{
         if (collection == this) {
             throw new RuntimeException("Can't add this list self");
         }
-        int i = index;
-        for (E obj : collection) {
-            this.add(i++, obj);
+        MiniItem<E> previous = this.getItem(index - 1);
+        for (E value : collection) {
+            previous = this.addItem(previous, value);
         }
         return true;
     }
@@ -408,10 +405,10 @@ public class MiniList<E> implements List<E>{
         }
         List<Integer> list2 = new MiniList<Integer>();
         for (int i = 0; i < 5; i++) {
-            list2.add(i);
+            list2.add(i+100);
         }
-        list1.addAll(list2);
-        list1 = list1.subList(5, 12);
+        list1.addAll(5, list2);
+        //list1 = list1.subList(5, 12);
         System.out.println("========== list iterator ==========");
         Iterator<Integer> iterator = list1.iterator();
         while (iterator.hasNext()) {
@@ -421,16 +418,16 @@ public class MiniList<E> implements List<E>{
         System.out.println("\n\n========== map test ==========");
         Map<Integer, String> map1 = new MiniMap<>();
         for (int i = 0; i < 10; i++) {
-            map1.put(i, " value = " + i);
+            map1.put(i, "=" + i);
         }
         Map<Integer, String> map2 = new MiniMap<>();
         for (int i = 0; i < 5; i++) {
-            map2.put(i, " value = " + i + 10);
+            map2.put(i, "=" + i + 10);
         }
         map1.putAll(map2);
         //System.out.println();
         for (Map.Entry<Integer, String> entry : map1.entrySet()) {
-            System.out.println(entry.getKey() + entry.getValue());
+            System.out.print(entry.getKey() + entry.getValue() + ",");
         }
     }
 
