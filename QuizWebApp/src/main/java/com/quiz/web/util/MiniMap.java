@@ -63,8 +63,8 @@ public class MiniMap<K, V> implements Map<K, V>{
         if (mEntrySet == null) {
             mEntrySet = new MiniSet<Map.Entry<K, V>>(){
                 @Override
-                public Iterator<Map.Entry<K, V>> iterator() {
-                    return new EntryIterator();
+                public Map.Entry<K, V> getValue(MiniNode<K, V> node) {
+                    return node;
                 }
             };
         }
@@ -102,8 +102,8 @@ public class MiniMap<K, V> implements Map<K, V>{
         if (mKeySet == null) {
             mKeySet = new MiniSet<K>(){
                 @Override
-                public Iterator<K> iterator() {
-                    return new KeyIterator();
+                public K getValue(MiniNode<K, V> node) {
+                    return node.mKey;
                 }
             };
         }
@@ -186,15 +186,13 @@ public class MiniMap<K, V> implements Map<K, V>{
         if (mValues == null) {
             mValues = new MiniSet<V>(){
                 @Override
-                public Iterator<V> iterator() {
-                    return new ValueIterator();
+                public V getValue(MiniNode<K, V> node) {
+                    return node.mValue;
                 }
             };
         }
         return mValues;
     }
-
-    // Begin : private methods =================================================
 
     // Get the previous node by key
     private MiniNode<K, V> getPreviousNode(Object key) {
@@ -299,30 +297,24 @@ public class MiniMap<K, V> implements Map<K, V>{
         return result;
     }
 
-    // End : private methods ===================================================
-
     // MiniNode class
     private static class MiniNode<K, V> implements Map.Entry<K, V> {
         private K mKey = null;
         private V mValue = null;
         private MiniNode<K, V> mNext = null;
-
         // Constructor
         private MiniNode(K k, V v) {
             mKey = k;
             mValue = v;
         }
-
         @Override
         public K getKey() {
             return mKey;
         }
-
         @Override
         public V getValue() {
             return mValue;
         }
-
         @Override
         public V setValue(V value) {
             V old = mValue;
@@ -332,7 +324,7 @@ public class MiniMap<K, V> implements Map<K, V>{
     }
 
     // MiniSet
-    private class MiniSet<E> extends AbstractSet<E> {
+    private abstract class MiniSet<E> extends AbstractSet<E> {
         @Override
         public Spliterator<E> spliterator() {
             return null;
@@ -354,101 +346,42 @@ public class MiniMap<K, V> implements Map<K, V>{
         }
         @Override
         public Iterator<E> iterator() {
-            return null;
+            return new MiniIterator<E>(this);
         }
         @Override
         public int size() {
             return mSize;
         }
+        // New abstract method
+        public abstract E getValue(MiniNode<K, V> node);
     }
 
-    // EntryIterator
-    private final class EntryIterator implements Iterator<Map.Entry<K, V>> {
-        private MiniNode<K, V> mEntry = null;
+    // MiniIterator
+    private final class MiniIterator<E> implements Iterator<E> {
+        protected MiniNode<K, V> mEntry = null;
         private int mIndex = 0;
-        @Override
-        public boolean hasNext() {
-            return hasNextNode(mIndex);
+        private MiniSet<E> mSet = null;
+        // Constructor
+        public MiniIterator(MiniSet<E> set) {
+            mSet = set;
         }
         @Override
-        public Map.Entry<K, V> next() {
-            Map.Entry<K, V> entry = null;
-            if (hasNextNode(mIndex)) {
+        public boolean hasNext() {
+            return mSize > 0 && mIndex < mSize;
+        }
+        @Override
+        public E next() {
+            E value = null;
+            if (hasNext()) {
                 if (mIndex == 0) {
                     mEntry = mBeginNode;
                 } else {
                     mEntry = mEntry.mNext;
                 }
-                entry = mEntry;
-                mIndex++;
-            }
-            return entry;
-        }
-        @Override
-        public void remove() {
-            throw new RuntimeException("Unsupported method : remove");
-        }
-    }
-
-    // KeyIterator
-    private final class KeyIterator implements Iterator<K> {
-        private MiniNode<K, V> mEntry = null;
-        private int mIndex = 0;
-        @Override
-        public boolean hasNext() {
-            return hasNextNode(mIndex);
-        }
-        @Override
-        public K next() {
-            K key = null;
-            if (hasNextNode(mIndex)) {
-                if (mIndex == 0) {
-                    mEntry = mBeginNode;
-                } else {
-                    mEntry = mEntry.mNext;
-                }
-                key = mEntry.mKey;
-                mIndex++;
-            }
-            return key;
-        }
-        @Override
-        public void remove() {
-            throw new RuntimeException("Unsupported method : remove");
-        }
-    }
-
-    // ValueIterator
-    private final class ValueIterator implements Iterator<V> {
-        private MiniNode<K, V> mEntry = null;
-        private int mIndex = 0;
-        @Override
-        public boolean hasNext() {
-            return hasNextNode(mIndex);
-        }
-        @Override
-        public V next() {
-            V value = null;
-            if (hasNextNode(mIndex)) {
-                if (mIndex == 0) {
-                    mEntry = mBeginNode;
-                } else {
-                    mEntry = mEntry.mNext;
-                }
-                value = mEntry.mValue;
+                value = mSet.getValue(mEntry);
                 mIndex++;
             }
             return value;
         }
-        @Override
-        public void remove() {
-            throw new RuntimeException("Unsupported method : remove");
-        }
     }
-
-    // private
-    private boolean hasNextNode(int index) {
-        return this.mSize > 0 && index < this.mSize;
-    }
-
 }

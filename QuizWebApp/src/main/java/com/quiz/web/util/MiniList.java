@@ -215,23 +215,18 @@ public class MiniList<E> implements List<E>{
         return new IteratorE();
     }
 
-    // private
-    private boolean hasNextNode(int index) {
-        return this.mSize > 0 && index < this.mSize;
-    }
-
     // Iterator E
     private final class IteratorE implements Iterator<E> {
         private MiniItem<E> mEntry = null;
         private int mIndex = 0;
         @Override
         public boolean hasNext() {
-            return hasNextNode(mIndex);
+            return mSize > 0 && mIndex < mSize;
         }
         @Override
         public E next() {
             E value = null;
-            if (hasNextNode(mIndex)) {
+            if (hasNext()) {
                 if (mIndex == 0) {
                     mEntry = mBeginItem;
                 } else {
@@ -241,10 +236,6 @@ public class MiniList<E> implements List<E>{
                 mIndex++;
             }
             return value;
-        }
-        @Override
-        public void remove() {
-            throw new RuntimeException("Unsupported method : remove");
         }
     }
 
