@@ -1,6 +1,5 @@
 package com.quiz.web.util;
 
-import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
@@ -23,9 +22,9 @@ public class MiniMap<K, V> implements Map<K, V>{
     private int mSize = 0;
     private MiniNode<K, V> mBeginNode = null;
     private MiniNode<K, V> mEndNode = null;
-    private EntrySet mEntrySet = null;
-    private KeySet mKeySet = null;
-    private Values mValues = null;
+    private MiniSet<Map.Entry<K, V>> mEntrySet = null;
+    private MiniSet<K> mKeySet = null;
+    private MiniSet<V> mValues = null;
 
     @Override
     public void clear() {
@@ -62,7 +61,12 @@ public class MiniMap<K, V> implements Map<K, V>{
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
         if (mEntrySet == null) {
-            mEntrySet = new EntrySet();
+            mEntrySet = new MiniSet<Map.Entry<K, V>>(){
+                @Override
+                public Iterator<Map.Entry<K, V>> iterator() {
+                    return new EntryIterator();
+                }
+            };
         }
         return mEntrySet;
     }
@@ -96,7 +100,12 @@ public class MiniMap<K, V> implements Map<K, V>{
     @Override
     public Set<K> keySet() {
         if (mKeySet == null) {
-            mKeySet = new KeySet();
+            mKeySet = new MiniSet<K>(){
+                @Override
+                public Iterator<K> iterator() {
+                    return new KeyIterator();
+                }
+            };
         }
         return mKeySet;
     }
@@ -175,7 +184,12 @@ public class MiniMap<K, V> implements Map<K, V>{
     @Override
     public Collection<V> values() {
         if (mValues == null) {
-            mValues = new Values();
+            mValues = new MiniSet<V>(){
+                @Override
+                public Iterator<V> iterator() {
+                    return new ValueIterator();
+                }
+            };
         }
         return mValues;
     }
@@ -317,92 +331,30 @@ public class MiniMap<K, V> implements Map<K, V>{
         }
     }
 
-    // EnterySet class
-    private final class EntrySet extends AbstractSet<Map.Entry<K, V>> {
+    // MiniSet
+    private class MiniSet<E> extends AbstractSet<E> {
         @Override
-        public Spliterator<Map.Entry<K, V>> spliterator() {
+        public Spliterator<E> spliterator() {
             return null;
         }
         @Override
-        public Stream<Map.Entry<K, V>> parallelStream() {
+        public Stream<E> parallelStream() {
             return null;
         }
         @Override
-        public boolean removeIf(Predicate<? super Map.Entry<K, V>> predicate) {
+        public boolean removeIf(Predicate<? super E> p) {
             return false;
         }
         @Override
-        public Stream<Map.Entry<K, V>> stream() {
+        public Stream<E> stream() {
             return null;
         }
         @Override
-        public void forEach(Consumer<? super Map.Entry<K, V>> consumer) {
+        public void forEach(Consumer<? super E> c) {
         }
         @Override
-        public Iterator<Map.Entry<K, V>> iterator() {
-            return new EntryIterator();
-        }
-        @Override
-        public int size() {
-            return mSize;
-        }
-    }
-
-    // KeySet class
-    private final class KeySet extends AbstractSet<K> {
-        @Override
-        public Spliterator<K> spliterator() {
+        public Iterator<E> iterator() {
             return null;
-        }
-        @Override
-        public Stream<K> parallelStream() {
-            return null;
-        }
-        @Override
-        public boolean removeIf(Predicate<? super K> predicate) {
-            return false;
-        }
-        @Override
-        public Stream<K> stream() {
-            return null;
-        }
-        @Override
-        public void forEach(Consumer<? super K> consumer) {
-        }
-        @Override
-        public Iterator<K> iterator() {
-            return new KeyIterator();
-        }
-        @Override
-        public int size() {
-            return mSize;
-        }
-    }
-
-    // Values class
-    private final class Values extends AbstractCollection<V> {
-        @Override
-        public Stream<V> parallelStream() {
-            return null;
-        }
-        @Override
-        public boolean removeIf(Predicate<? super V> predicate) {
-            return false;
-        }
-        @Override
-        public Spliterator<V> spliterator() {
-            return null;
-        }
-        @Override
-        public Stream<V> stream() {
-            return null;
-        }
-        @Override
-        public void forEach(Consumer<? super V> comsumer) {
-        }
-        @Override
-        public Iterator<V> iterator() {
-            return new ValueIterator();
         }
         @Override
         public int size() {

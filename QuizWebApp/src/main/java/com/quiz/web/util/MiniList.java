@@ -427,7 +427,13 @@ public class MiniList<E> implements List<E>{
         map1.putAll(map2);
         //System.out.println();
         for (Map.Entry<Integer, String> entry : map1.entrySet()) {
-            System.out.print(entry.getKey() + entry.getValue() + ",");
+            System.out.print(entry.getKey() + entry.getValue() + ", ");
+        }
+        for (Integer k : map1.keySet()) {
+            System.out.print(k + ", ");
+        }
+        for (String v : map1.values()) {
+            System.out.print(v + ", ");
         }
     }
 
