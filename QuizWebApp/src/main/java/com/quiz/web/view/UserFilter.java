@@ -46,8 +46,11 @@ public class UserFilter implements Filter {
         String uri = req.getRequestURI();
         LogUtil.log("UserFilter", uri + " = " + reqId);
         // Check URI and user
-        if (uri.endsWith("/sign-in.jsp") || uri.endsWith("/sign-up.jsp") ||
-            uri.endsWith("/favicon.ico") || uri.endsWith("/user")) {
+        if (uri.endsWith("/sign-in.jsp") ||
+            uri.endsWith("/sign-up.jsp") ||
+            uri.endsWith("/sign_form.jsp") ||
+            uri.endsWith("/favicon.ico") ||
+            uri.endsWith("/user")) {
             chain.doFilter(r1, r2);
         } else if (req.getAttribute(WebUtil.REQ_USER) != null){
             chain.doFilter(r1, r2);

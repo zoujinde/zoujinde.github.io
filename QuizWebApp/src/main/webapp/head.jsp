@@ -13,7 +13,7 @@
      style="width:180px;height:70px;margin:5px 0px;"/>
   </td>
   <td>
-    <input type="button" onclick="window.location.href='sign-up.jsp'" value="Sign Up"
+    <input type="button" onclick="window.location.href='sign_form.jsp'" value="Sign Up"
      style="width:180px;height:70px;margin:5px 0px;"/>
   </td>
   </tr>

@@ -21,8 +21,9 @@
     <option value="0">Female</option>
   </select><br>
   <label>Address  </label><input name="address"/><br>
-  <label>City</label><input name="city"  style="width:280px;"/>
-  <label style="width:70px;">State</label><input name="state" style="width:290px;"/><br>
+  <label>City</label><input name="city"/><br>
+  <label>State</label><input name="state" style="width:360px;"/>
+  <label style="width:50px;">ZIP</label><input name="zip" style="width:230px;"/><br>
   <label>Email    </label><input name="email"/><br>
   <label>Phone    </label><label style="width:1px;">(</label>
   <input name="phone1" maxlength="3" style="width:100px;"/><label style="width:1px;">)</label>
@@ -65,7 +66,7 @@
     var json = getJson(data);
     json['act'] = 'signUp';
     json['phone'] = json['phone1'] + json['phone2'] + json['phone3']
-    json['address'] = json['address'] + ',' + json['city'] + ',' + json['state']
+    json['address'] = json['address'] + ',' + json['city'] + ',' + json['state'] + ',' + json['zip']
     json = JSON.stringify(json);
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", "user", true);
