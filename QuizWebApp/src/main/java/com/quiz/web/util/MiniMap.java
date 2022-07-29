@@ -6,10 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterator;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -34,21 +31,6 @@ public class MiniMap<K, V> implements Map<K, V>{
     }
 
     @Override
-    public V compute(K key, @SuppressWarnings("rawtypes") BiFunction bf) {
-        return null;
-    }
-
-    @Override
-    public V computeIfAbsent(K key, @SuppressWarnings("rawtypes") Function f) {
-        return null;
-    }
-
-    @Override
-    public V computeIfPresent(K key, @SuppressWarnings("rawtypes") BiFunction bf) {
-        return null;
-    }
-
-    @Override
     public boolean containsKey(Object key) {
         return this.getNodeByKey(key) != null;
     }
@@ -69,10 +51,6 @@ public class MiniMap<K, V> implements Map<K, V>{
             };
         }
         return mEntrySet;
-    }
-
-    @Override
-    public void forEach(@SuppressWarnings("rawtypes") BiConsumer bc) {
     }
 
     @Override
@@ -108,11 +86,6 @@ public class MiniMap<K, V> implements Map<K, V>{
             };
         }
         return mKeySet;
-    }
-
-    @Override
-    public V merge(K key, V value, @SuppressWarnings("rawtypes") BiFunction bf) {
-        return null;
     }
 
     @Override
@@ -170,10 +143,6 @@ public class MiniMap<K, V> implements Map<K, V>{
             result = true;
         }
         return result;
-    }
-
-    @Override
-    public void replaceAll(@SuppressWarnings("rawtypes") BiFunction bf) {
     }
 
     @Override
