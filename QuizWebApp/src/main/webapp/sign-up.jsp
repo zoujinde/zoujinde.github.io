@@ -4,7 +4,7 @@
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
 <form id="form">
-  <label style="width:900px;">Please input the new user info : </label><br>
+  <label style="width:900px;font-weight:bold;">Please input the new user info : </label><br>
   <label>User type</label>
   <select name="user_type">
     <option value="1">Volunteer</option>
@@ -13,6 +13,8 @@
   </select><br>
   <label>User name </label><input name="user_name"/><br>
   <label>Password  </label><input type="password" name="password"/><br>
+  <label>Email    </label><input name="email"/><br>
+  <label style="width:900px;font-weight:bold;">The following items are optional : </label><br>
   <label>Nickname  </label><input name="nickname"/><br>
   <label>Birth year</label><input type="number" name="birth_year"/><br>
   <label>Gender    </label>
@@ -24,7 +26,6 @@
   <label>City</label><input name="city"/><br>
   <label>State</label><input name="state" style="width:360px;"/>
   <label style="width:50px;">ZIP</label><input name="zip" style="width:230px;"/><br>
-  <label>Email    </label><input name="email"/><br>
   <label>Phone    </label><label style="width:1px;">(</label>
   <input name="phone1" maxlength="3" style="width:100px;"/><label style="width:1px;">)</label>
   <input name="phone2" maxlength="3" style="width:100px;"/><label style="width:1px;">-</label>
@@ -60,6 +61,11 @@
     var password  = document.getElementsByName("password")[0].value.trim();
     if (password.length < 6) {
       alert("Please input the password. (length>=6)");
+      return;
+    }
+    var email  = document.getElementsByName("email")[0].value.trim();
+    if (email.indexOf("@") < 1 || email.indexOf(".com") < 5) {
+      alert("Please input the valid email such as xxx@xxx.com");
       return;
     }
     var data = new FormData(document.getElementById("form"));

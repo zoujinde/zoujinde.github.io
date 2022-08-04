@@ -3,6 +3,7 @@
 <title>Sign In</title>
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
+  <br>
   <label>User name</label><input id="text_user"/><br>
   <label>Password </label><input type="password" id="text_pass"/><br>
   <br>
