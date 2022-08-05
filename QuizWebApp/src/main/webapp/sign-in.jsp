@@ -48,10 +48,10 @@
         if (text.endsWith('.jsp')) {
           window.location.href = text;
         } else {
-          result.innerText = text;
+          alert(text);//result.innerText = text;
         }
       } else {
-        result.innerText = httpRequest.status + httpRequest.responseText;
+        alert(httpRequest.status + httpRequest.responseText);
       }
     }
   }

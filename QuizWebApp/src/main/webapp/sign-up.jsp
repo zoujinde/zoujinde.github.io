@@ -94,9 +94,9 @@
         if (text == 'OK') {
           text = 'Sign up OK. Please click "Sign In" button to sign in.';
         }
-        result.innerText = text;
+        alert(text);//result.innerText = text;
       } else {
-        result.innerText = httpRequest.status;
+        alert(httpRequest.status + httpRequest.responseText);
       }
     }
   }
