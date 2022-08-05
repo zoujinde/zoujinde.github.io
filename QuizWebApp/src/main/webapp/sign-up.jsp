@@ -13,8 +13,8 @@
   </select><br>
   <label>User name </label><input name="user_name"/><br>
   <label>Password  </label><input type="password" name="password"/><br>
-  <label>Email    </label><input name="email"/><br>
   <label style="width:900px;font-weight:bold;">The following items are optional : </label><br>
+  <label>Email    </label><input name="email"/><br>
   <label>Nickname  </label><input name="nickname"/><br>
   <label>Birth year</label><input type="number" name="birth_year"/><br>
   <label>Gender    </label>
@@ -63,11 +63,12 @@
       alert("Please input the password. (length>=6)");
       return;
     }
+    /* 2022-8-5 Remove email checking
     var email  = document.getElementsByName("email")[0].value.trim();
     if (email.indexOf("@") < 1 || email.indexOf(".com") < 5) {
       alert("Please input the valid email such as xxx@xxx.com");
       return;
-    }
+    }*/
     var data = new FormData(document.getElementById("form"));
     var json = getJson(data);
     json['act'] = 'signUp';

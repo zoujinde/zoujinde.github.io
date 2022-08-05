@@ -84,8 +84,10 @@ public class UserController {
                 int parentId = WebUtil.getUserId(req);
                 if (parentId <= 0) {
                     result = "Invalid parent id for participant";
-                } else if (user.birth_year < 1900 || user.birth_year > 2100) {
-                    result = "Invalid birth year for participant";
+                /* 2022-8-5 Remove the year checking
+                 * } else if (user.birth_year < 1900 || user.birth_year > 2100) {
+                 *   result = "Invalid birth year for participant";
+                 */
                 } else if (WebUtil.getUserType(req) != WebUtil.USER_PARENTS) {
                     result = "Invalid parent type for participant";
                 } else {
