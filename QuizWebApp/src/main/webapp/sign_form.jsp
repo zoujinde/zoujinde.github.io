@@ -27,7 +27,7 @@ Our group understand that there are laws in the United States and other countrie
   function agree() {
     var check = document.getElementById("check");
     if (check.checked) {
-      window.location.href = "sign-up.jsp";
+      window.location.href = "sign-up.jsp?act=create";
     } else {
       alert("Please agree to the Terms of Personal Information");
     }

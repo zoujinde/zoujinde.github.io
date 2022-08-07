@@ -30,6 +30,10 @@ public class UserServlet extends HttpServlet {
             result = UserController.instance().signIn(body, req, resp);
         } else if (act.equals("signUp")) {
             result = UserController.instance().signUp(body, req);
+        } else if (act.equals("getUser")) {
+            result = UserController.instance().getUser(body, req);
+        } else if (act.equals("setUser")) {
+            result = UserController.instance().setUser(body, req);
         }
 
         // Write response

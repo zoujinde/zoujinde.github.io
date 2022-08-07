@@ -36,6 +36,7 @@ public class WebUtil {
     public static final String ACT_UPDATE = "update";
 
     public static final String DATA = "data";
+    public static final String SECRET_DATA = "SECRET_DATA";
     public static final String OK = "OK";
     public static final int ROWS_LIMIT = 500;
     //The old driver is com.mysql.jdbc.Driver
@@ -378,6 +379,22 @@ public class WebUtil {
             type = Integer.parseInt(array[1]);
         }
         return type;
+    }
+
+    // Copy object values
+    public static void copy(Object[] source, Object[] target, String[] items)
+            throws ReflectiveOperationException {
+        if (source.length != target.length || source.length <= 0 || items.length <= 0) {
+            throw new RuntimeException("WebUtil.copy : invalid length");
+        }
+        Class<?> type = source[0].getClass();
+        for (int i = 0; i < source.length; i++) {
+            for (String item : items) {
+                Field f = type.getField(item);
+                Object v = f.get(source[i]);
+                f.set(target[i], v);
+            }
+        }
     }
 
 }

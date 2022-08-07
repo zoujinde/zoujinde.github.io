@@ -4,8 +4,8 @@
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto; background:#AAA">
 <form id="form">
-  <label style="width:900px;font-weight:bold;">Please input the new user info : </label><br>
-  <label>User type</label>
+  <label id="label_top" style="width:900px;font-weight:bold;">Please input the new user info : </label><br>
+  <label id="label_user_type">User type</label>
   <select name="user_type">
     <option value="1">Volunteer</option>
     <option value="2">Parents</option>
@@ -33,13 +33,75 @@
   <br>
   <input type="button" onclick="save()" value="Save" style="width:910px;"/>
   <hr style="font-size:1px;">
-  <label id="result" style="width:900px;"/>
 </form>
 </div>
 </HTML>
 
 <script type="text/javascript">
   var httpRequest = getHttpRequest();
+  var action = getUrlValue("act");
+  var user_type = document.getElementsByName("user_type")[0];
+  var user_name = document.getElementsByName("user_name")[0];
+  var password  = document.getElementsByName("password")[0];
+  var email  = document.getElementsByName("email")[0];
+
+  // Delay load
+  setTimeout("load()", 1);
+
+  // Load
+  function load() {
+    var label_top = document.getElementById("label_top");
+    if (action == "create") { // create a new user
+      label_top.innerText = "Please input the new user info :";
+    } else { // modify current user
+      label_top.innerText = "Modify the current user info :";
+      var label_user_type = document.getElementById("label_user_type");
+      label_user_type.style.display = "none";
+      user_type.style.display = "none";
+      user_name.disabled = "true";
+      // Get current user data when user_id is 0
+      var json = '{"act":"getUser", "user_id":0}';
+      httpRequest.open("POST", "user", true);
+      httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      httpRequest.onreadystatechange = loadResult;
+      httpRequest.send(json);
+    }
+  }
+
+  // Load result
+  function loadResult() {
+    if (httpRequest.readyState==4) {
+      var text = httpRequest.responseText;
+      if(httpRequest.status==200) { // 200 OK
+        if (text.startsWith("{")) {
+          var json = JSON.parse(text);
+          // Set UI data
+          user_type.value = json["user_type"];
+          user_name.value = json["user_name"];
+          password.value  = json["password"];
+          email.value     = json["email"];
+          document.getElementsByName("nickname")[0].value   = json["nickname"];
+          document.getElementsByName("birth_year")[0].value = json["birth_year"];
+          document.getElementsByName("gender")[0].value     = json["gender"];
+          var a = json["address"].split(",");
+          //alert("address=" + a[0] + "&" + a[1] + "&" + a[2] + "&" + a[3])
+          document.getElementsByName("address")[0].value = a[0];
+          document.getElementsByName("city")[0].value    = a[1];
+          document.getElementsByName("state")[0].value   = a[2];
+          document.getElementsByName("zip")[0].value     = a[3];
+          var phone = json["phone"];
+          //alert("phone=" + phone + " : " + phone.substr(100,200))
+          document.getElementsByName("phone1")[0].value = phone.substring(0, 3);
+          document.getElementsByName("phone2")[0].value = phone.substring(3, 6);
+          document.getElementsByName("phone3")[0].value = phone.substring(6, 10);
+        } else {
+          alert(text);
+        }
+      } else {
+        alert(httpRequest.status + text);
+      }
+    }
+  }
 
   // Get JSON from form data
   function getJson(data) {
@@ -53,25 +115,21 @@
   // Save data
   function save() {
     // Check the data
-    var user_name = document.getElementsByName("user_name")[0].value.trim();
-    if (user_name.length < 6) {
+    if (user_name.value.trim().length < 6) {
       alert("Please input the user name. (length>=6)");
       return;
     }
-    var password  = document.getElementsByName("password")[0].value.trim();
-    if (password.length < 6) {
+    if (password.value.trim().length < 6) {
       alert("Please input the password. (length>=6)");
       return;
     }
-    /* 2022-8-5 Remove email checking
-    var email  = document.getElementsByName("email")[0].value.trim();
-    if (email.indexOf("@") < 1 || email.indexOf(".com") < 5) {
-      alert("Please input the valid email such as xxx@xxx.com");
-      return;
-    }*/
     var data = new FormData(document.getElementById("form"));
     var json = getJson(data);
-    json['act'] = 'signUp';
+    if (action == "create") { // create new user
+      json['act'] = 'signUp';
+    } else { // modify current user data
+      json['act'] = 'setUser';
+    }
     json['phone'] = json['phone1'] + json['phone2'] + json['phone3']
     json['address'] = json['address'] + ',' + json['city'] + ',' + json['state'] + ',' + json['zip']
     json = JSON.stringify(json);
@@ -86,17 +144,19 @@
 
   // Save Callback
   function saveResult() {
-    // Check 4 : data received
     if(httpRequest.readyState==4) {
-      var result = document.getElementById("result");
+      var text = httpRequest.responseText;
       if(httpRequest.status==200) { // 200 OK
-        var text = httpRequest.responseText;
         if (text == 'OK') {
-          text = 'Sign up OK. Please click "Sign In" button to sign in.';
+          if (action == "create") {
+            text = 'Sign up new user OK. Please Sign In.';
+          } else {
+            text = "Save user data OK.";
+          }
         }
-        alert(text);//result.innerText = text;
+        alert(text);
       } else {
-        alert(httpRequest.status + httpRequest.responseText);
+        alert(httpRequest.status + text);
       }
     }
   }

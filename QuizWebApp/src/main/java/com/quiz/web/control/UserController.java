@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quiz.web.model.DataManager;
+import com.quiz.web.model.DataObject;
 import com.quiz.web.model.User;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
@@ -108,6 +109,61 @@ public class UserController {
             }
         } catch (Exception e) {
             result = "signUp : " + e;
+        }
+        return result;
+    }
+
+    // Get user data
+    public String getUser(String body, HttpServletRequest req) {
+        String result = WebUtil.OK;
+        try {
+            int userId = JsonUtil.getInt(body, "user_id");
+            if (userId == 0) { // Get current user data
+                userId = WebUtil.getUserId(req);
+            }
+            String sql = "select * from user where user_id = ?";
+            Object[] values = new Object[]{userId};
+            User[] users = DataManager.instance().select(sql, values, User.class);
+            if (users.length == 1) {
+                users[0].password = WebUtil.SECRET_DATA;
+                result = JsonUtil.toJson(users[0]);
+            } else {
+                result = "Invalid users length";
+            }
+        } catch (Exception e) {
+            result = "getUser : " + e;
+        }
+        return result;
+    }
+
+    // Set current user data
+    public String setUser(String body, HttpServletRequest req) {
+        String result = WebUtil.OK;
+        try {
+            int userId = WebUtil.getUserId(req);
+            String sql = "select * from user where user_id = ?";
+            Object[] values = new Object[]{userId};
+            DataManager dm = DataManager.instance();
+            User[] oldData = dm.select(sql, values, User.class);
+            if (oldData.length == 1) {
+                User[] newData = new User[]{new User()};
+                JsonUtil.toObject(body, newData[0]);
+                String[] items = new String[] {"create_time", "parent_id", "signin_time",
+                        "token", "user_id", "user_name", "user_type"};
+                // Copy some items to remain the old values
+                WebUtil.copy(oldData, newData, items);
+                if (WebUtil.SECRET_DATA.equals(newData[0].password)) {
+                    newData[0].password = oldData[0].password; // remain password
+                } else {
+                    newData[0].password = LogUtil.encrypt(newData[0].password);
+                }
+                DataObject[] actions = dm.getActions(oldData, newData);
+                result = dm.runSql(actions);
+            } else {
+                result = "Invalid user data";
+            }
+        } catch (Exception e) {
+            result = "getUser : " + e;
         }
         return result;
     }

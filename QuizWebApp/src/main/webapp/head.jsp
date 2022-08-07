@@ -1,12 +1,12 @@
 <div class='head' style="margin:auto;background:#CCC">
-<!-- label id='title' style="width:330px;margin:1px 5px;">Welcome</label -->
-<input id='req_id' value='<%=request.getAttribute("req_id")%>' type='hidden'></input>
+<!--input value='<%=request.getAttribute("req_user")%>' type='hidden'></input-->
 <table style="width:930px;margin:0px;">
   <tr>
   <td>
-    <label style="width:500px;margin:0px;color:blue;font-weight:bold;"
+    <label style="width:500px;margin:0px;color:blue;font-weight:bold;font-size:50px;"
            onclick="location.href='home.jsp'">Purple Sense Home</label><br>
-    <label style="width:500px;margin:0px;font-size:36px;">${req_user}</label>
+    <label style="width:500px;margin:20px 0px;color:red;font-size:50px;"
+           onclick="location.href='sign-up.jsp?act=modify'">${req_user}</label>
   </td>
   <td>
     <input type="button" onclick="window.location.href='sign-in.jsp'" value="Sign In"
@@ -94,6 +94,22 @@
       mHttpRequest = new ActiveXObject();
     }
     return mHttpRequest;
+  }
+
+  // Get URL argument value
+  function getUrlValue(key) {
+    var query = "&" + window.location.search.substring(1) + "&";
+    var key = "&" + key + "=";
+    var value = "";
+    var p1 = query.indexOf(key);
+    if (p1 >= 0) {
+      p1 = p1 + key.length;
+      var p2 = query.indexOf("&", p1);
+      if (p2 > p1) {
+        value = query.substring(p1, p2);
+      }
+    }
+    return value;
   }
 
 </script>
