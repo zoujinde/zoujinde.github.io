@@ -12,7 +12,7 @@
     <tr> <th id="content" width="850" align="left"></th><th></th></tr>
   </table>
   <input type="button" onclick="toPrev()" value="Previous" style="width:280px;"/>
-  <input type="button" onclick="toSave()" value="Submit" style="width:280px;"/>
+  <input type="button" onclick="toSave()" value="Submit" style="width:280px;" id="submit"/>
   <input type="button" onclick="toNext()" value="Next" style="width:280px;"/>
   <hr style="font-size:1px;">
   <label id="result" style="width:910px;"/>
@@ -30,6 +30,7 @@
   var item_index = 0;
   var item_count = 0;
   var result = document.getElementById("result");
+  var submit = document.getElementById("submit");
 
   // Delay load
   setTimeout("load()", 100);
@@ -73,6 +74,12 @@
 
   // Show quiz item in table
   function showQuizItem() {
+    result.innerText = "";
+    if (item_id == item_count) {
+      submit.style.visibility = "visible";
+    } else {
+      submit.style.visibility = "hidden";
+    }
     deleteTable(quiz_tab);
     // Set quiz item content
     var type = -1;
@@ -249,6 +256,7 @@
       if(httpRequest.status==200) { // 200 OK
         result.innerText = text;
         alert(text);
+        submit.style.visibility = "hidden";
       } else {
         text = httpRequest.status + text;
         result.innerText = text;
