@@ -56,7 +56,7 @@
     } else { // modify current user
       label_top.innerText = "Modify the current user info :";
       var label_user_type = document.getElementById("label_user_type");
-      label_user_type.style.display = "none";
+      label_user_type.style.width = "900px";
       user_type.style.display = "none";
       user_name.disabled = "true";
       // Get current user data when user_id is 0
@@ -76,7 +76,7 @@
         if (text.startsWith("{")) {
           var json = JSON.parse(text);
           // Set UI data
-          user_type.value = json["user_type"];
+          label_user_type.innerText = json["token"];
           user_name.value = json["user_name"];
           password.value  = json["password"];
           email.value     = json["email"];

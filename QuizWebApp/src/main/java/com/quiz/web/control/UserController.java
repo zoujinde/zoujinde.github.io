@@ -121,14 +121,38 @@ public class UserController {
             if (userId == 0) { // Get current user data
                 userId = WebUtil.getUserId(req);
             }
+            DataManager dm = DataManager.instance();
             String sql = "select * from user where user_id = ?";
             Object[] values = new Object[]{userId};
-            User[] users = DataManager.instance().select(sql, values, User.class);
-            if (users.length == 1) {
-                users[0].password = WebUtil.SECRET_DATA;
-                result = JsonUtil.toJson(users[0]);
+            User[] users = dm.select(sql, values, User.class);
+            if (users != null && users.length == 1) {
+                User u = users[0];
+                u.password = WebUtil.SECRET_DATA;
+                u.token = "";
+                if (u.user_type == WebUtil.USER_PARENTS) {
+                    users = getChildren(u.user_id);
+                    if (users != null) {
+                        for (User child : users) {
+                            if (u.token.length() == 0) {
+                                u.token += " Your child : " + child.user_name;
+                            } else {
+                                u.token += " , " + child.user_name;
+                            }
+                        }
+                    }
+                    u.token = "You are a parent. " + u.token;
+                } else if (u.user_type == WebUtil.USER_PARTICIPANT) {
+                    u.token = "You are a participant. Your parent : ";
+                    users = dm.select(sql, new Object[]{u.parent_id}, User.class);
+                    if (users != null && users.length == 1) {
+                        u.token += users[0].user_name;
+                    }
+                } else {
+                    u.token = "You are a volunteer.";
+                }
+                result = JsonUtil.toJson(u);
             } else {
-                result = "Invalid users length";
+                result = "Invalid users data";
             }
         } catch (Exception e) {
             result = "getUser : " + e;
@@ -145,7 +169,7 @@ public class UserController {
             Object[] values = new Object[]{userId};
             DataManager dm = DataManager.instance();
             User[] oldData = dm.select(sql, values, User.class);
-            if (oldData.length == 1) {
+            if (oldData != null && oldData.length == 1) {
                 User[] newData = new User[]{new User()};
                 JsonUtil.toObject(body, newData[0]);
                 String[] items = new String[] {"create_time", "parent_id", "signin_time",
@@ -185,6 +209,14 @@ public class UserController {
         mBuilder.append("#").append(req.getRemoteHost());
         mBuilder.append("#").append(req.getRemotePort());
         return mBuilder.toString();
+    }
+
+    // Get children
+    private User[] getChildren(int parentId) throws Exception {
+        String sql = "select * from user where parent_id = ?";
+        DataManager dm = DataManager.instance();
+        User[] users = dm.select(sql, new Object[]{parentId}, User.class);
+        return users;
     }
 
 }

@@ -25,6 +25,9 @@ CREATE TABLE user (
   UNIQUE KEY user_name_uniq(user_name)
 ) Engine=INNODB DEFAULT CHARSET=UTF8MB4 COLLATE=UTF8MB4_BIN;
 
+-- User index
+CREATE INDEX user_parent_id ON user(parent_id);
+
 -- Quiz main table
 CREATE TABLE quiz (
   quiz_id     INT AUTO_INCREMENT NOT NULL,
