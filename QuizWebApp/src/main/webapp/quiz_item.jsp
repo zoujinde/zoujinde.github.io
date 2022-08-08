@@ -29,6 +29,7 @@
   var item_id = 1; // The current item_id
   var item_index = 0;
   var item_count = 0;
+  var result = document.getElementById("result");
 
   // Delay load
   setTimeout("load()", 100);
@@ -59,10 +60,13 @@
           }
           showQuizItem();
         } else {
+          result.innerText = text;
           alert(text);
         }
       } else {
-        alert(httpRequest.status);
+        text = httpRequest.status + text;
+        result.innerText = text;
+        alert(text);
       }
     }
   }
@@ -98,7 +102,9 @@
       var answer = quiz_item[item_index]['answer'];
       setInputBox(answer, type);
     } else {
-      alert('Invalid item id : ' + item_id);
+      var text = 'Invalid item id : ' + item_id;
+      result.innerText = text;
+      alert(text);
     }
   }
 
@@ -140,7 +146,9 @@
   // To previous item
   function toPrev() {
     if (item_id <= 1) {
-      alert('Already to the first item.');
+      var text = 'Already to the first item.';
+      result.innerText = text;
+      alert(text);
     } else if (checkResult()) {
       item_id -= 1;
       showQuizItem();
@@ -150,7 +158,9 @@
   // To next item
   function toNext() {
     if (item_id >= item_count) {
-      alert('Already to the last item.');
+      var text = 'Already to the last item.';
+      result.innerText = text;
+      alert(text);
     } else if (checkResult()) {
       item_id += 1;
       showQuizItem();
@@ -192,7 +202,9 @@
       item['answer'] = answer;
       return true;
     } else {
-      alert('Please answer the question');
+      var text = 'Please answer the question.';
+      result.innerText = text;
+      alert(text);
       return false;
     }
   }
@@ -211,7 +223,9 @@
       var itemId = quiz_item[i]['item_id'];
       var answer = quiz_item[i]['answer'];
       if (answer.length <= 0) {
-        alert('Please answer the question ' + itemId);
+        var text = "Please answer the question ( " + itemId + " ).\n\nClick the Previous or Next to answer all.";
+        result.innerText = text;
+        alert(text);
         return;
       }
       data[i] = {};
@@ -231,11 +245,14 @@
   // Save result
   function saveResult() {
     if(httpRequest.readyState==4) {
+      var text = httpRequest.responseText.trim();
       if(httpRequest.status==200) { // 200 OK
-        var text = httpRequest.responseText.trim();
+        result.innerText = text;
         alert(text);
       } else {
-        alert(httpRequest.status);
+        text = httpRequest.status + text;
+        result.innerText = text;
+        alert(text);
       }
     }
   }

@@ -5,7 +5,7 @@
   <td>
     <label style="width:500px;margin:0px;color:blue;font-weight:bold;font-size:50px;"
            onclick="location.href='home.jsp'">Purple Sense Home</label><br>
-    <label style="width:500px;margin:20px 0px;color:red;font-size:50px;"
+    <label id="req_user" style="width:500px;margin:20px 0px;color:red;font-size:50px;"
            onclick="location.href='sign-up.jsp?act=modify'">${req_user}</label>
   </td>
   <td>

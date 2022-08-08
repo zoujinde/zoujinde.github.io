@@ -15,17 +15,22 @@
 
 <script type="text/javascript">
   var httpRequest = getHttpRequest();
+  var result = document.getElementById("result");
 
   // Sign in
   function signIn() {
     var user = document.getElementById("text_user").value.trim();
     var pass = document.getElementById("text_pass").value.trim();
     if (user.length < 3) {
-      alert("Please input the user name. (length>=3)");
+      var text = "Please input the user name. (length>=3)";
+      result.innerText = text;
+      alert(text);
       return;
     }
     if (pass.length < 3) {
-      alert("Please input the password. (length>=3)");
+      var text = "Please input the password. (length>=3)";
+      result.innerText = text;
+      alert(text);
       return;
     }
     var json = {'act':'signIn', 'user_name':user, 'password':pass};
@@ -42,16 +47,18 @@
   // Sign in result
   function signInResult() {
     if(httpRequest.readyState==4) {
-      var result = document.getElementById("result");
+      var text = httpRequest.responseText.trim();
       if(httpRequest.status==200) { // 200 OK
-        var text = httpRequest.responseText.trim();
         if (text.endsWith('.jsp')) {
           window.location.href = text;
         } else {
-          alert(text);//result.innerText = text;
+          result.innerText = text;
+          alert(text);
         }
       } else {
-        alert(httpRequest.status + httpRequest.responseText);
+        text = httpRequest.status + text;
+        result.innerText = text;
+        alert(text);
       }
     }
   }

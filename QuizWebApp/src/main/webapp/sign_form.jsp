@@ -22,6 +22,7 @@ Our group understand that there are laws in the United States and other countrie
 </HTML>
 
 <script type="text/javascript">
+  var result = document.getElementById("result");
 
   // Check
   function agree() {
@@ -29,7 +30,9 @@ Our group understand that there are laws in the United States and other countrie
     if (check.checked) {
       window.location.href = "sign-up.jsp?act=create";
     } else {
-      alert("Please agree to the Terms of Personal Information");
+      var text = "Please agree to the Terms of Personal Information";
+      result.innerText = text;
+      alert(text);
     }
   }
 

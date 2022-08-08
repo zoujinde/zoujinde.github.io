@@ -33,6 +33,7 @@
   <br>
   <input type="button" onclick="save()" value="Save" style="width:910px;"/>
   <hr style="font-size:1px;">
+  <label id="result" style="width:910px;"/>
 </form>
 </div>
 </HTML>
@@ -44,6 +45,7 @@
   var user_name = document.getElementsByName("user_name")[0];
   var password  = document.getElementsByName("password")[0];
   var email  = document.getElementsByName("email")[0];
+  var result = document.getElementById("result");
 
   // Delay load
   setTimeout("load()", 1);
@@ -53,6 +55,7 @@
     var label_top = document.getElementById("label_top");
     if (action == "create") { // create a new user
       label_top.innerText = "Please input the new user info :";
+      user_type.value = "3"; // Set participant to avoid wrong user type
     } else { // modify current user
       label_top.innerText = "Modify the current user info :";
       var label_user_type = document.getElementById("label_user_type");
@@ -95,10 +98,13 @@
           document.getElementsByName("phone2")[0].value = phone.substring(3, 6);
           document.getElementsByName("phone3")[0].value = phone.substring(6, 10);
         } else {
+          result.innerText = text;
           alert(text);
         }
       } else {
-        alert(httpRequest.status + text);
+        text = httpRequest.status + text;
+        result.innerText = text;
+        alert(text);
       }
     }
   }
@@ -116,11 +122,15 @@
   function save() {
     // Check the data
     if (user_name.value.trim().length < 6) {
-      alert("Please input the user name. (length>=6)");
+      var text = "Please input the user name. (length>=6)";
+      result.innerText = text;
+      alert(text);
       return;
     }
     if (password.value.trim().length < 6) {
-      alert("Please input the password. (length>=6)");
+      var text = "Please input the password. (length>=6)";
+      result.innerText = text;
+      alert(text);
       return;
     }
     var data = new FormData(document.getElementById("form"));
@@ -154,9 +164,12 @@
             text = "Save user data OK.";
           }
         }
+        result.innerText = text;
         alert(text);
       } else {
-        alert(httpRequest.status + text);
+        text = httpRequest.status + text;
+        result.innerText = text;
+        alert(text);
       }
     }
   }
