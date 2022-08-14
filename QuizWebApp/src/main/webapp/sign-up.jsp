@@ -2,7 +2,7 @@
 <HTML>
 <title>Sign Up</title>
 <%@ include file="head.jsp"%>
-<div style="width:100%; margin:auto; overflow:auto; background:#AAA">
+<div style="width:100%; margin:auto; overflow:auto;">
 <form id="form">
   <label id="label_top" style="width:900px;font-weight:bold;">Please input the new user info : </label><br>
   <label id="label_user_type">User type</label>
@@ -25,7 +25,7 @@
   <label>Address  </label><input name="address"/><br>
   <label>City</label><input name="city"/><br>
   <label>State</label><input name="state" style="width:360px;"/>
-  <label style="width:50px;">ZIP</label><input name="zip" style="width:230px;"/><br>
+  <label style="width:70px;">ZIP</label><input name="zip" style="width:210px;"/><br>
   <label>Phone    </label><label style="width:1px;">(</label>
   <input name="phone1" maxlength="3" style="width:100px;"/><label style="width:1px;">)</label>
   <input name="phone2" maxlength="3" style="width:100px;"/><label style="width:1px;">-</label>
@@ -60,6 +60,7 @@
       label_top.innerText = "Modify the current user info :";
       var label_user_type = document.getElementById("label_user_type");
       label_user_type.style.width = "900px";
+      label_user_type.style.fontSize = "39px";
       user_type.style.display = "none";
       user_name.disabled = "true";
       // Get current user data when user_id is 0

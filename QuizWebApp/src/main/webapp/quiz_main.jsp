@@ -2,7 +2,8 @@
 <HTML>
 <title>Sign In</title>
 <%@ include file="head.jsp"%>
-<div style="width:100%; margin:auto; overflow:auto; background:#AAA">
+<div style="width:100%; margin:auto; overflow:auto;">
+  <br>
   <label style="width:900px;">Please select a questionnaire</label><br>
   <table id="quiz_list" border="1" style="display:block;width:930px;" >
     <tr> <th width="670" >Title</th> <th width="260" >Time</th> </tr>

@@ -2,11 +2,11 @@
 <HTML>
 <title>Sign In</title>
 <%@ include file="head.jsp"%>
-<div style="width:100%; margin:auto; overflow:auto; background:#AAA">
-  <br>
-  <label>User name</label><input id="text_user"/><br>
+<div style="width:100%; margin:auto; overflow:auto;">
+  <br><br><br><br><br>
+  <label>User name</label><input id="text_user"/><br><br>
   <label>Password </label><input type="password" id="text_pass"/><br>
-  <br>
+  <br><br>
   <input type="button" onclick="signIn()" value="Sign In" style="width:910px;"/>
   <hr style="font-size:1px;">
   <label id="result" style="width:910px;"/>

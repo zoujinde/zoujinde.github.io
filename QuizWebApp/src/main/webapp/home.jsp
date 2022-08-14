@@ -2,7 +2,8 @@
 <HTML>
 <title>Home</title>
 <%@ include file="head.jsp"%>
-<div style="width:100%; margin:auto; overflow:auto; background:#AAA">
+<div style="width:100%; margin:auto; overflow:auto;">
+  <br>
   <label style="width:520px;">Welcome to home page</label>
   <input type="button" onclick="window.location.href='quiz_main.jsp'" value="Fill Questionnaire"
        style="width:370px;margin:5px 0px 50px 0px;"/>

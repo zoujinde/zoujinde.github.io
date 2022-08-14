@@ -2,7 +2,8 @@
 <HTML>
 <title>Sign In</title>
 <%@ include file="head.jsp"%>
-<div style="width:100%; margin:auto; overflow:auto; background:#AAA">
+<div style="width:100%; margin:auto; overflow:auto;">
+  <br>
   <label style="width:520px;">Please fill out the survey</label>
   <input type="button" onclick="window.location.href='quiz_main.jsp'" value="All Questionnaire"
        style="width:370px;margin:5px 0px;"/>
@@ -143,7 +144,7 @@
         }
       }
     } else {
-      var input = '<textarea rows="5" cols="36" id="text_value">'
+      var input = '<textarea rows="8" cols="30" id="text_value">'
       var row = quiz_tab.insertRow();
       var c1 = row.insertCell();
       c1.innerHTML = input + answer + '</textarea>';
