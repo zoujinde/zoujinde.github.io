@@ -6,7 +6,7 @@
     <!-- Set version >= 2.5, otherwise need to set isELIgnored="false" in each jsp -->
     <display-name>Archetype Created Web Application</display-name>
 
-    <servlet>
+    <!--servlet>
         <servlet-name>DefaultServlet</servlet-name>
         <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
         <init-param>
@@ -18,10 +18,10 @@
             <param-value>false</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
-    </servlet>
+    </servlet-->
 
     <servlet-mapping>
-        <servlet-name>DefaultServlet</servlet-name>
+        <servlet-name>default</servlet-name>
         <url-pattern>*.png</url-pattern>
     </servlet-mapping>
 
