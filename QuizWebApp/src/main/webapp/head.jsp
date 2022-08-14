@@ -1,4 +1,4 @@
-<div class='head' style="margin:auto;">
+<div id='div_head' style="margin:auto;">
 <!--input value='<%=request.getAttribute("req_user")%>' type='hidden'></input-->
 <table style="width:930px;margin:0px;">
   <tr>
@@ -9,7 +9,7 @@
            onclick="location.href='sign-up.jsp?act=modify'">${req_user}</label>
   </td>
   <td>
-    <input type="button" onclick="window.location.href='sign-in.jsp'" value="Sign In"
+    <input type="button" onclick="window.location.href='sign-in.jsp?act=input'" value="Sign In"
      style="width:200px;height:80px;margin:5px 0px;"/>
   </td>
   <td>
