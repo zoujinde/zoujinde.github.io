@@ -3,7 +3,7 @@
 <table style="width:930px;margin:0px;">
   <tr>
   <td>
-    <label style="width:500px;margin:20px 0px;color:blue;font-weight:bold;font-size:50px;"
+    <label style="width:500px;margin:10px 0px;color:blue;font-weight:bold;font-size:50px;"
            onclick="location.href='home.jsp'">Purple Sense Home</label><br>
     <label id="req_user" style="width:500px;margin:20px 0px;color:yellow;font-size:50px;"
            onclick="location.href='sign-up.jsp?act=modify'">${req_user}</label>
@@ -23,9 +23,8 @@
 
 <style>
   body {
-    background-image: url(home.png);
+    background-image: url("https://raw.githubusercontent.com/zoujinde/zoujinde.github.io/main/home.png");
     background-size: cover;
-    
   }
 
   div{
@@ -48,8 +47,8 @@
   }
 
   input{
-    margin: 5px 10px 20px 10px;
-    padding: 5px;
+    margin: 1px 1px 20px 10px;
+    padding: 1px;
     width: 680px;
     height: 80px;
     font-size:39px;
@@ -76,6 +75,7 @@
     padding: 1px;
     font-size:50px;
     vertical-align: top;
+    color: yellow;
   }
 
   table {
