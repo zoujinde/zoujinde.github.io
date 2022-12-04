@@ -3,7 +3,7 @@
 <title>Data Management</title>
 <%@ include file="head.jsp"%>
 <div style="width:100%; margin:auto; overflow:auto;">
-  <div style="width:99%; background:#EEE">
+  <div style="width:99%; background:#AAA">
     <label style="width:110;font-size:20px;">Select Table:</label>
     <select id="url" onchange="onUrlChange(this)" style="width:120;height=20;font-size:16px;">
       <option value="data?tab=activity">activity</option>

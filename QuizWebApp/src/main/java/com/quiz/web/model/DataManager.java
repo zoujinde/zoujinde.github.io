@@ -618,4 +618,117 @@ public class DataManager {
         return equal;
     }
 
+    // Dump table data
+    public String dump() {
+        StringBuilder builder = new StringBuilder();
+        String[] tables = new String[]{
+                "user",
+                "activity",
+                "event",
+                "quiz",
+                "quiz_item",
+                "quiz_result",
+        };
+        for (String tab : tables) {
+            try {
+                this.dump(builder, tab);
+            } catch (WebException e) {
+                builder.setLength(0);
+                builder.append(e.toString());
+                break;
+            }
+        }
+        return builder.toString();
+    }
+
+    // SQL for dump
+    private static final String SQL_DUMP = "SELECT COLUMN_NAME " +
+            " FROM INFORMATION_SCHEMA.COLUMNS " +
+            " WHERE TABLE_SCHEMA='quiz' and TABLE_NAME=? " +
+            " order by ordinal_position "; 
+ 
+    // build dump SQL
+    private void dump(StringBuilder builder, String table) throws WebException {
+        Connection cn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            cn = mDataSource.getConnection();
+            ps = cn.prepareStatement(SQL_DUMP);
+            ps.setObject(1, table);
+            rs = ps.executeQuery();
+            // Build : insert into table(x,x,x);
+            builder.append("insert into ").append(table).append("(");
+            int count = 0;
+            while (rs.next()) {
+                count++;
+                if (count > 1) {
+                    builder.append(",");
+                }
+                builder.append(rs.getString(1));
+            }
+            builder.append("),\n");
+            rs.close();
+            ps.close();
+            // Run select x,x,x from table
+            int p1 = builder.lastIndexOf("(");
+            int p2 = builder.lastIndexOf(")");
+            if (p1 > 0 && p2 > p1) {
+                String columns = builder.substring(p1 + 1, p2);
+                String select = String.format("select %s from %s", columns, table);
+                ps = cn.prepareStatement(select);
+                rs = ps.executeQuery();
+                ResultSetMetaData data = rs.getMetaData();
+                // int count = data.getColumnCount();
+                // Build : values(x,x,x);
+                int type = 0;
+                while (rs.next()) {
+                    builder.append("values(");
+                    for (int c = 1; c <= count; c++) {
+                        if (c > 1) {
+                            builder.append(",");
+                        }
+                        type = data.getColumnType(c);
+                        if (type == java.sql.Types.BIGINT) {
+                            builder.append(rs.getLong(c));
+                        } else if (type == java.sql.Types.TINYINT || type == java.sql.Types.INTEGER) {
+                            builder.append(rs.getInt(c));
+                        } else if (type == java.sql.Types.BOOLEAN || type == java.sql.Types.BIT) {
+                            builder.append(rs.getBoolean(c));
+                        } else if (type == java.sql.Types.VARCHAR) {
+                            this.build(builder, rs.getString(c));
+                        } else if (type == java.sql.Types.TIMESTAMP) {
+                            this.build(builder, rs.getTimestamp(c));
+                        } else {
+                            String log = "invalid types : " + table;
+                            LogUtil.log(TAG, log);
+                            builder.setLength(0);
+                            builder.append(log);
+                            break;
+                        }
+                    }
+                    builder.append("),\n");
+                }
+            } else {
+                throw new WebException("invalid columns : " + table);
+            }
+        } catch (Exception e) {
+            // e.printStackTrace();
+            throw new WebException("dump : " + e);
+        } finally {
+            WebUtil.close(rs);
+            WebUtil.close(ps);
+            WebUtil.close(cn);
+        }
+    }
+
+    // Builder object string
+    private void build(StringBuilder builder, Object obj) {
+        if (obj == null) {
+            builder.append("\"\"");
+        } else {
+            builder.append("\"").append(obj).append("\"");
+        }
+    }
+
 }

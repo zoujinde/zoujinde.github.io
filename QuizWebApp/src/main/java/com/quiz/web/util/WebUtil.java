@@ -10,6 +10,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Timestamp;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,33 +52,29 @@ public class WebUtil {
     private static final Timestamp SYS_TIME = new Timestamp(System.currentTimeMillis());
 
     // Update SYS_TIME per minute and do other task
-    private static Thread sThread = null;
+    private static ScheduledExecutorService sThreadPool = null;
 
     // Get time
     public static Timestamp getTime() {
         return SYS_TIME;
     }
 
+    // Get thread pool
+    public synchronized static ScheduledExecutorService getThreadPool() {
+        if (sThreadPool == null) {
+            sThreadPool = Executors.newScheduledThreadPool(1);
+        }
+        return sThreadPool;
+    }
+
     // Must synchronized to avoid multiple threads
     public static synchronized void startTimer() {
-        if (sThread == null) {
-            sThread = new Thread() {
-                @Override
-                public void run() {
-                    while (true) {
-                        try {
-                            LogUtil.log(TAG, "SYS " + SYS_TIME);
-                            Thread.sleep(60000);
-                            SYS_TIME.setTime(System.currentTimeMillis());
-                        } catch (Exception e) {
-                            LogUtil.log(TAG, "SYS " + e);
-                            break;
-                        }
-                    }
-                }
-            };
-            sThread.start();
-        }
+        getThreadPool().scheduleWithFixedDelay(new Runnable() {
+            public void run() {
+                SYS_TIME.setTime(System.currentTimeMillis());
+                LogUtil.log(TAG, "SYS " + SYS_TIME);
+            }
+        }, 0, 60, TimeUnit.SECONDS);
     }
 
     // Private Constructor
@@ -277,6 +276,17 @@ public class WebUtil {
             LogUtil.log(TAG, "readFile : " + e);
         }
         return result;
+    }
+
+    // write file
+    public synchronized static void writeFile(String file, String txt) {
+        try {
+            FileOutputStream f = new FileOutputStream(file);
+            f.write(txt.getBytes());
+            f.close();
+        } catch (IOException e) {
+            LogUtil.log(TAG, "writeFile : " + e);
+        }
     }
 
     // Download mysql driver
