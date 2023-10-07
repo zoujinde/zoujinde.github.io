@@ -21,7 +21,7 @@ public class MyJRE { // Reduce rt.jar
 		String newDir = "rtNew/";
 		mSn = 0;
 		try {
-			//rt.jar sun.reflect.misc �µ��಻����,��Ҫ�ֹ���� 
+			//rt.jar sun.reflect.misc
 			dealClass(needfile, oldDir, newDir);
 			//loadClass(oldDir, newDir);
 			System.out.print(mSn);

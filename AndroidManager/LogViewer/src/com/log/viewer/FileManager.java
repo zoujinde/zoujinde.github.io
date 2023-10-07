@@ -74,9 +74,8 @@ public class FileManager extends JInternalFrame {
 
 	//The constructor is private
 	private FileManager(String title) {
-		//2016-10-17 不显示关闭按钮
-		//参数：标题、可调整、可关闭、可最大化和可图标化的 JInternalFrame
-		//super(title, true, true, true, false);
+		//2016-10-17
+		//arguments(title, resize, close, max, icon)
 		super(title, false, false, false, false);
 		//this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 

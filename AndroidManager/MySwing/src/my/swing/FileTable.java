@@ -63,7 +63,7 @@ public class FileTable extends JTable {
 
 		//Add listener to save the local path
 		if(win!=null && mAdb==null){
-			//2016-10-17 发现在ubuntu上，窗口关闭事件不能触发，改用应用推出回调
+			//2016-10-17 On Ubuntu addWindowListener can't work
 //			win.addWindowListener(new WindowAdapter(){
 //				public void windowClosing(WindowEvent e) {
 //					System.out.println("FileTable : windowClosing");
