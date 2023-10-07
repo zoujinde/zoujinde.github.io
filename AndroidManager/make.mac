@@ -1,0 +1,10 @@
+gcc -o JavaL JavaLauncher.c
+
+./JavaL LogViewer.dat
+mv LogViewer.exe LogViewer.mac
+chmod +x LogViewer.mac
+
+./JavaL LogMerger.dat
+mv LogMerger.exe LogMerger.mac
+chmod +x LogMerger.mac
+

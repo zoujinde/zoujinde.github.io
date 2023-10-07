@@ -1,0 +1,24 @@
+-injars lv.jar
+
+-outjars LogViewer.jar
+
+
+#-libraryjars /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar
+
+-libraryjars  C:\Program Files\Java\jre1.6.0_45\lib\rt.jar
+
+
+-overloadaggressively
+
+-allowaccessmodification
+
+
+
+
+-keep public class com.log.viewer.MainWin {
+ public static void main(java.lang.String[]);
+}
+
+
+-keep class res.** {*;}
+

@@ -1,0 +1,16 @@
+-injars test.jar
+
+-outjars LogViewer.jar
+
+-libraryjars /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar
+
+-overloadaggressively
+
+-allowaccessmodification
+
+-keep public class com.log.viewer.MainWin {
+ public static void main(java.lang.String[]);
+}
+
+-keep class res.** {*;}
+
