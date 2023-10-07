@@ -20,7 +20,7 @@ public class LogIndexModel extends AbstractTableModel {
 
     private static final int TIME_LEN = 18;
     private static final int HEAD_LEN = 39;
-    public static final int WRAP = 150;
+    public static final int WRAP = 120;
     public static final int TIP_ROW = -100;
     public static final String INDEX = ".index";
 
@@ -165,7 +165,21 @@ public class LogIndexModel extends AbstractTableModel {
                     mValue[COL_LEVEL] = line.substring(20, levelEnd);
                     mValue[COL_LOG] = line.substring(levelEnd + 1);
                 }
-
+            } else if (line.charAt(4) == '/' && line.charAt(7) == '/' && line.charAt(13) == ':') {
+                // DLT log : 2022/01/12 16:26:17.855446  182312585 202 QNX- QSYM MODU log info ...
+                int tagBegin = line.indexOf(" ", 28); // Find the 1st space
+                if (tagBegin > 0) {
+                    tagBegin = line.indexOf(" ", tagBegin + 1); // Find the 2nd space
+                    if (tagBegin > 0) {
+                        int tagEnd = line.indexOf(" log ", tagBegin);
+                        if (tagEnd > 0) {
+                            mValue[COL_TIME] = line.substring(0, 26);
+                            mValue[COL_PID]  = line.substring(28, tagBegin);
+                            mValue[COL_TAG]  = line.substring(tagBegin, tagEnd);
+                            mValue[COL_LOG]  = line.substring(tagEnd);
+                        }
+                    }
+                }
             } else if (line.charAt(2) == '-' && line.charAt(8) == ':' && line.charAt(11) == ':') {
                 int levelEnd = getLevelEnd(line);
                 if (levelEnd > TIME_LEN) {
@@ -178,7 +192,6 @@ public class LogIndexModel extends AbstractTableModel {
                         mValue[COL_TAG] = line.substring(levelEnd, tagEnd);
                         mValue[COL_LOG] = line.substring(tagEnd + 1);
                     }
-
                 } else {
                     // AOL : 03-25 07:11:43.976 I/vold ( 1074): Android Volume
                     // DDMS: 01-01 10:10:56.309: VERBOSE/vold ( 1074): Android debug

@@ -66,7 +66,7 @@ public class MainMerger extends JFrame {
 	//Constructor
 	private MainMerger(String path){
 		//super("Log Merger");
-		this.setTitle("Log Merger  "+ MyTool.DATE);
+		this.setTitle("Log Merger");
 		try {
 			UIManager.setLookAndFeel(new WindowsLookAndFeel());
 		} catch (UnsupportedLookAndFeelException e1) {
