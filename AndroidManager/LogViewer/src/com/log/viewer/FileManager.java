@@ -45,7 +45,7 @@ public class FileManager extends JInternalFrame {
 	//Button title
 	private JButton btnOpenLog=new JButton("Open Logs");
 	private JButton btnOpenText=new JButton("Open Text");
-	private JButton btnSql = new JButton("Open Sqlite3 DB");
+	private JButton btnSql = new JButton("Open Sqlite DB");
 	
 	private JButton btnUpload=new JButton("Upload   --->");
 	private JButton btnDownload=new JButton("Download <---");
@@ -56,8 +56,8 @@ public class FileManager extends JInternalFrame {
 	private JButton btnDelete=new JButton("Delete");
 	private JButton btnChmod=new JButton("Change Mode");
 	
-    public static final String ADB_START = "Start ADB logcat";
-    public static final String ADB_STOP  = "Stop ADB logcat";
+    public static final String ADB_START = "Start logcat";
+    public static final String ADB_STOP  = "Stop logcat";
 
 	private JButton btnLogcat=new JButton(ADB_START);
     private JButton btnLang = new JButton("Set Languages");
@@ -558,14 +558,14 @@ public class FileManager extends JInternalFrame {
 	public void onLogcatStart(){
         this.btnLogcat.setText(ADB_STOP);
         this.btnLogcat.setForeground(Color.red);
-        showLocalTab();//ˢ���ļ��б�,��ʾ�������е���־�ļ�
+        showLocalTab();
 	}
 
     //2014-4-2
     public void onLogcatStop(){
         this.btnLogcat.setText(ADB_START);
         this.btnLogcat.setForeground(Color.black);
-        showLocalTab();//ˢ���ļ��б�,��ʾ�������е���־�ļ�
+        showLocalTab();
     }
     
 }

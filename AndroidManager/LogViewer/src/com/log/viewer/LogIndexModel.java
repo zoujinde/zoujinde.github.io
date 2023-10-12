@@ -167,17 +167,14 @@ public class LogIndexModel extends AbstractTableModel {
                 }
             } else if (line.charAt(4) == '/' && line.charAt(7) == '/' && line.charAt(13) == ':') {
                 // DLT log : 2022/01/12 16:26:17.855446  182312585 202 QNX- QSYM MODU log info ...
-                int tagBegin = line.indexOf(" ", 28); // Find the 1st space
+                int tagBegin = line.indexOf(" ", HEAD_LEN); // Find the space
                 if (tagBegin > 0) {
-                    tagBegin = line.indexOf(" ", tagBegin + 1); // Find the 2nd space
-                    if (tagBegin > 0) {
-                        int tagEnd = line.indexOf(" log ", tagBegin);
-                        if (tagEnd > 0) {
-                            mValue[COL_TIME] = line.substring(0, 26);
-                            mValue[COL_PID]  = line.substring(28, tagBegin);
-                            mValue[COL_TAG]  = line.substring(tagBegin, tagEnd);
-                            mValue[COL_LOG]  = line.substring(tagEnd);
-                        }
+                    int tagEnd = line.indexOf(" log ", tagBegin);
+                    if (tagEnd > 0) {
+                        mValue[COL_TIME] = line.substring(0, 26);
+                        mValue[COL_PID]  = line.substring(28, tagBegin);
+                        mValue[COL_TAG]  = line.substring(tagBegin, tagEnd);
+                        mValue[COL_LOG]  = line.substring(tagEnd);
                     }
                 }
             } else if (line.charAt(2) == '-' && line.charAt(8) == ':' && line.charAt(11) == ':') {

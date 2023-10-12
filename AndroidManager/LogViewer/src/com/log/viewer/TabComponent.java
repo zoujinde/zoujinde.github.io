@@ -43,7 +43,13 @@ public class TabComponent extends JPanel {
         String simpleName = title;
         int p = title.lastIndexOf("/");
         if (p >= 0) {
-            simpleName = title.substring(p + 1);
+            // 2023-11-11 multiple files name is too long, only show the 1st file name
+            int end = title.indexOf(" ", p);
+            if (end > 0) {
+                simpleName = title.substring(p + 1, end);
+            } else {
+                simpleName = title.substring(p + 1);
+            }
         }
         JLabel label = new JLabel(simpleName);
         add(label);

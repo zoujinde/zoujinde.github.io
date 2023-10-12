@@ -163,7 +163,7 @@ public class BackWin extends JInternalFrame {
             +"\n  // Zou Jinde (mz6h9z)      2022-10-12  Move LogWin.dispose codes to onClose"
             +"\n  // Zou Jinde (mz6h9z)      2023-02-01  Add getContentHeight method"
             +"\n  // Zou Jinde (mz6h9z)      2023-03-31  Modify filter dialog and rows navigation"
-            +"\n  // Zou Jinde (mz6h9z)      2023-10-07  Support DLT log format"
+            +"\n  // Zou Jinde (mz6h9z)      2023-10-11  Support QNX DLT log format"
 			+"\n  //";
 
 	public BackWin(String title){
