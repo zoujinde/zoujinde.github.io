@@ -14,7 +14,8 @@ public class IndexFile {
 	private int mSize = 0;
 	private FileWriter mWriter = null;
 	private BufferedRandomFile mReader = null;
-	private boolean mTimeSort = false;
+    @SuppressWarnings("unused")
+    private boolean mTimeSort = false;
 
     // Each line ends with \n
 	private static final int LINE_LENGTH = 10;
@@ -78,10 +79,11 @@ public class IndexFile {
 		try {
 			mWriter.close();
 			mWriter = null;
+			/* 2023-10-13 Because user can change time, so we can't sort by time
 			if (mTimeSort) { // When open multiple files
 				String tmpFile = mFilePath.replace("_A.", "_T.");
 				sortFile(mFilePath, tmpFile);
-			}
+			}*/
 			if (mReader == null) {
 				mReader = new BufferedRandomFile(mFilePath, "r");
 			} else {

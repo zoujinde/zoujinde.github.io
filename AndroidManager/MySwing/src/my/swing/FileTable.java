@@ -38,6 +38,7 @@ public class FileTable extends JTable {
     private String mFilter = "";
     private String mPath = "";
     private MyMenu mFileMenu = null;
+    private Vector<String> mResult = new Vector<String>();
 
     public FileTable(Window win, CMD adb){//Init table Constructor
 		this.mAdb=adb;
@@ -121,7 +122,8 @@ public class FileTable extends JTable {
             }
             this.showFiles(path, false, null);
         }else{//Device tab
-            String s = mAdb.adbCmd("shell mkdir " + newName).toString();
+            mAdb.adbCmd("shell mkdir " + newName, mResult);
+            String s = mResult.toString();
             if(s.length()>2){
                 MsgDlg.showOk(err + s);
                 return;
@@ -159,7 +161,8 @@ public class FileTable extends JTable {
             }           
             this.showFiles(path, false, null);
         }else{//Device tab : Must check name to void overwriting the existing file
-            String s = mAdb.adbCmd("shell ls "+newName).toString();
+            mAdb.adbCmd("shell ls " + newName, mResult);
+            String s = mResult.toString();
             if(!s.contains("No such file")){
                 MsgDlg.showOk("File exists : " + newName);
                 return;
@@ -172,7 +175,8 @@ public class FileTable extends JTable {
             } catch (HeadlessException e) {
             } catch (IOException e) {
             }
-            s = mAdb.adbCmd("push newFile " + newName).toString();
+            mAdb.adbCmd("push newFile " + newName, mResult);
+            s = mResult.toString();
             if(s.contains("failed")){
                 MsgDlg.showOk(s);
                 return;
@@ -217,7 +221,8 @@ public class FileTable extends JTable {
         }else{//Delete device files
             for(int i=0;i<size;i++){
                 String cmd = "shell rm -r " + path + list.get(i)[0];
-                String result = mAdb.adbCmd(cmd).toString();
+                mAdb.adbCmd(cmd, mResult);
+                String result = mResult.toString();
                 //System.out.println(result);
                 if(result.length()>2){
                     MsgDlg.showOk(result);
@@ -292,12 +297,14 @@ public class FileTable extends JTable {
             }
             this.showFiles(path, false);
         }else{//Device tab : Must check name, since the mv will overwrite the existing file
-            String s = mAdb.adbCmd("shell ls "+newName).toString();
+            mAdb.adbCmd("shell ls " + newName, mResult);
+            String s = mResult.toString();
             if(!s.contains("No such file")){
                 MsgDlg.showOk(err);
                 return;
             }
-            s = mAdb.adbCmd("shell mv " + oldName + " " + newName).toString();
+            mAdb.adbCmd("shell mv " + oldName + " " + newName, mResult);
+            s = mResult.toString();
             if(s.length()>2){
                 MsgDlg.showOk(err + s);
                 return;
@@ -496,32 +503,45 @@ public class FileTable extends JTable {
 
         DefaultTableModel mod = (DefaultTableModel) getModel();
         mod.setRowCount(0);// Discard all rows
-        Vector<String> v = null;
         if (mAdb == null) {
-            v = this.getLocalFiles(path, showHidden, filter);
+            this.getLocalFiles(path, showHidden, filter, mResult);
         } else {
-            v = this.getDeviceFiles(path, showHidden, filter);
+            this.getDeviceFiles(path, showHidden, filter, mResult);
             // Show device ID on header
             this.getColumnModel().getColumn(0).setHeaderValue(mAdb.getDeviceID());
             this.getParent().getParent().doLayout();
         }
 
-        Collections.sort(v);// Sort the files
+        // 2023-10-13 Sort files by file name number
+        Collections.sort(mResult);
         Vector<Vector<String>> tableData = mod.getDataVector();
-        this.addFiles(tableData, v);
+        this.addFiles(tableData, mResult);
         mod.fireTableRowsInserted(0, tableData.size() - 1);
         this.mPath = path;
         this.mFilePanel.setPath(mPath);
     }
 
+    // 2023-10-13 get the lower name with file number
+    // If file =  1-main.log, return 01-main.log
+    // If file =  2-main.log, return 02-main.log
+    // If file = 10-main.log, return 10-main.log
+    // Then we can sort the files by file number
+    private String getLowerFileNumber(String file) {
+        String result = file.toLowerCase();
+        if (result.length() > 1 && result.charAt(1) == '-'
+            && result.charAt(0) >= '0' && result.charAt(0) <= '9') {
+            result = "0" + result;
+        }
+        return result;
+    }
+
     // Show table
-    private Vector<String> getLocalFiles(String path, boolean showHidden, String filterStr) {
+    private void getLocalFiles(String path, boolean showHidden, String filterStr, Vector<String> list) {
+        list.clear();
         if (path == null || filterStr == null) {
             MsgDlg.showOk("Path or filter is null.");
-            return null;
+            return;
         }
-
-        Vector<String> list = new Vector<String>();
         // Add windows roots
         File[] file = null;
         String os = System.getProperty("os.name").toLowerCase();
@@ -536,20 +556,20 @@ public class FileTable extends JTable {
                     continue;
                 }
                 String s = "1"; // Dir 1
-                String name = file[i].getPath().replace("\\", "");// Use lower name for sorting
+                String name = file[i].getPath().replace("\\", "");
+                String lower = name.toLowerCase();
                 String size = Long.toString(file[i].length());
                 String date = MyTool.toDate(file[i].lastModified());
-                s = String.format("%s/%s/%s/%s/%s", s, name.toLowerCase(),
-                        name, size, date);
+                s = String.format("%s/%s/%s/%s/%s", s, lower, name, size, date);
                 list.add(s);
             }
-            return list;
+            return;
         }
 
         // List files
         file = new File(path).listFiles();
         if (file == null) {// When path is error
-            return list;
+            return;
         }
         String[] filters = filterStr.split(",");
 
@@ -565,29 +585,29 @@ public class FileTable extends JTable {
                 s = "2";
             }
             if (this.filterName(name, filters, s)) {
-                // Use lower name for sorting
+                // 2023-10-13 Use lower name and file number for sorting
+                String lower = getLowerFileNumber(name);
                 String size = Long.toString(file[i].length());
                 String date = MyTool.toDate(file[i].lastModified());
-                s = String.format("%s/%s/%s/%s/%s", s, name.toLowerCase(),
-                        name, size, date);
+                s = String.format("%s/%s/%s/%s/%s", s, lower, name, size, date);
                 list.add(s);
             }
         }
-        return list;
     }
 
     // Get file list using adb shell ls -l
-    private Vector<String> getDeviceFiles(String dir, boolean showHidden, String filterStr) {
+    private void getDeviceFiles(String dir, boolean showHidden, String filterStr, Vector<String> list) {
+        list.clear();
         if (dir == null || filterStr == null) {
             MsgDlg.showOk("Path or filter is null.");
-            return null;
+            return;
         }
 
         String cmd = "shell ls -l ";
         if (showHidden) {
             cmd += " -a ";
         }
-        Vector<String> list = mAdb.adbCmd(cmd + dir);
+        mAdb.adbCmd(cmd + dir, list);
         // Output like below:
         // -rwxr-x--- root root 453 1970-01-01 08:00 init_prep_keypad.sh
         // lrwxrwxrwx root system 2011-06-08 16:37 etc -> /system/etc
@@ -634,11 +654,11 @@ public class FileTable extends JTable {
 
             if (this.filterName(name, filters, s)) {
                 // Sort by lower case
-                s = String.format("%s/%s/%s/%s/%s", s, name.toLowerCase(), name, size, date);
+                String lower = getLowerFileNumber(name);
+                s = String.format("%s/%s/%s/%s/%s", s, lower, name, size, date);
                 list.set(i, s);// Replace the value
             }
         }
-        return list;
     }
 
     // Get simple string list, remove the empty string

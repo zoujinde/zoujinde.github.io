@@ -67,6 +67,7 @@ public class FileManager extends JInternalFrame {
 	
 	private static FileManager instance = new FileManager(MainWin.AM + BackWin.getRevisionDate());
 	protected CMD mCmd = new CMD();
+	private Vector<String> mResult = new Vector<String>();
 
 	public static FileManager getInstance() {
 		return instance;
@@ -205,10 +206,10 @@ public class FileManager extends JInternalFrame {
 
 		//Remove all device tree and table 
 		root.removeAllChildren();
-		Vector<String> result = mCmd.adbCmd("devices");
+		mCmd.adbCmd("devices", mResult);
 		boolean add = false;
-		for (int i = 0; i < result.size(); i++) {
-			String dev = result.get(i);
+		for (int i = 0; i < mResult.size(); i++) {
+			String dev = mResult.get(i);
 			if (dev.startsWith("List of")) {
 				add = true;
 				continue;
@@ -452,7 +453,8 @@ public class FileManager extends JInternalFrame {
 		for(int i=0;i<size;i++){
 			String fileName = list.get(i)[0];
 			String cmd = "push " + path + fileName + " " + devPath + fileName;
-			String result = mCmd.adbCmd(cmd).toString();
+			mCmd.adbCmd(cmd, mResult);
+            String result = mResult.toString();
 			if(result.contains("failed")){
 				MsgDlg.showOk(result);
 				break;
@@ -498,8 +500,8 @@ public class FileManager extends JInternalFrame {
 					break;
 				}
 			}
-			String tmp = mCmd.adbCmd(cmd).toString();
-			//System.out.println(result);
+			mCmd.adbCmd(cmd, mResult);
+            String tmp = mResult.toString();
 			if(tmp.contains("failed")){
 				MsgDlg.showOk(tmp);
 				result=false;
@@ -526,29 +528,29 @@ public class FileManager extends JInternalFrame {
 	}
 
 	//Upload file
-	public static void uploadFile(String file, String devFile){
-		FileManager fm = getInstance();
-		String cmd = "push " + file + " " + devFile;
-		String result = fm.mCmd.adbCmd(cmd).toString();
-		if(result.contains("failed")){
-			MsgDlg.showOk(result);
-		}
-		FileTable tab = fm.mDeviceTab;
+	public void upload(String file, String devFile){
+        String cmd = "push " + file + " " + devFile;
+        mCmd.adbCmd(cmd, mResult);
+        String result = mResult.toString();
+        if(result.contains("failed")){
+            MsgDlg.showOk(result);
+        }
+        FileTable tab = mDeviceTab;
         if(tab!=null){
             tab.showFiles(tab.getPath(), false, null);
         }
-}
+    }
 
     //Download file
-    public static void downloadFile(String devFile, String localFile){
-        FileManager fm = getInstance();
+    public void download(String devFile, String localFile){
         String cmd = "pull " + devFile + " " + localFile;
-        String result = fm.mCmd.adbCmd(cmd).toString();
+        mCmd.adbCmd(cmd, mResult);
+        String result = mResult.toString();
         if(result.contains("failed")){
             MsgDlg.showOk(result);
         }
 
-        FileTable tab = fm.mLocalTab;
+        FileTable tab = mLocalTab;
         if(tab!=null){
             tab.showFiles(tab.getPath(), false, null);
         }

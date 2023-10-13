@@ -285,35 +285,18 @@ public class LogWin extends JInternalFrame {
         long newLen = f0.length();
         long diff = newLen - mLength0;
         if(diff==0){
-            //MsgDlg.showOk("File length is not changed, so do not refresh.");
         	//2016-12-02 replace MsgDlg with ProgressDlg
             ProgressDlg.showProgress("File not changed", 1);
             return false;
         }
-        /*else if(diff < 0){
-            //String msg = " New log length = %d \n Old log length = %d \n Length difference : %d <= 0. \n So ignore the refresh request.";
-            //MsgDlg.showOk(String.format(msg, newLen, mLength0, diff));
-            String msg = " New log length = %d \n Old log length = %d \n Length difference : %d < 0. \n Do you want to refresh log again?";
-            boolean b = MsgDlg.showYesNo(String.format(msg, newLen, mLength0, diff));
-            if(!b){
-                return false;
-            }
-        }*/
         this.mLength0=newLen;
-
         //Check the log refresh interval
         long newTime = System.currentTimeMillis();
         if(readAgain && (newTime-mRefreshTime<=3000)){
-            //MsgDlg.showOk("Refresh interval <= 5 seconds, so ignore the refresh request.");
-//          boolean b =MsgDlg.showYesNo(" Refresh interval <= 5 seconds. \n Do you want to refresh log again?");
-//          if(!b){
-//              return false;
-//          }
         	//2016-12-02 replace MsgDlg with ProgressDlg
         	ProgressDlg.showProgress("Refresh interval <= 3 seconds, please try again later.", 2);
         	return false;
         }
-        
         //2016-12-03 Only when read again, then set time
         if(readAgain){
             mRefreshTime = newTime;

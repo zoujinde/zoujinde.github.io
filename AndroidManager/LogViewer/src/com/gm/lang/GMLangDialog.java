@@ -29,6 +29,7 @@ public class GMLangDialog extends JDialog{
     private JPanel mLangs = null;
     private CMD mCmd = null;
     private SqlDB mDB = null;
+    private Vector<String> mResult = new Vector<String>();
 
     public GMLangDialog(CMD cmd) {
         this.mCmd = cmd;
@@ -135,18 +136,19 @@ public class GMLangDialog extends JDialog{
     //Get data from SQLDB
     private String getData() {
         String dbPath = "/cache/data/calibrations/CalSets.db";
-        String s = mCmd.adbCmd("shell ls " + dbPath).toString();//Trigger ADB root
+        mCmd.adbCmd("shell ls " + dbPath, mResult);//Trigger ADB root
+        String s = mResult.toString();//Trigger ADB root
         if (s.contains("No such file")) {
             dbPath = "/update_cache/data/calibrations/CalSets.db";
         }
         String sql = "select CalValue from AllCalSets where CalName='AVAILABLE_TARGET_SYSTEM_LANGUAGE_ENABLES'";
         mDB = new SqlDB(mCmd, dbPath, false);
-        Vector<String> data = mDB.runSql(sql);
+        mDB.runSql(sql, mResult);
         //System.out.println("getData=" + data);
-        if (!mDB.hasError(data) && data.size() > 1) {
-            return data.get(1);
+        if (!mDB.hasError(mResult) && mResult.size() > 1) {
+            return mResult.get(1);
         } else {
-            return "Error : " + data;
+            return "Error : " + mResult;
         }
     }
 
@@ -175,9 +177,9 @@ public class GMLangDialog extends JDialog{
         sb.append("' \n where CalName='AVAILABLE_TARGET_SYSTEM_LANGUAGE_ENABLES'");
         String sql = sb.toString();
         if (MsgDlg.showYesNo("Will you run the update command? \n\n " + sql)) {
-            Vector<String> data = mDB.runSql(sql);
+            mDB.runSql(sql, mResult);
             //System.out.println("update : " + data);
-            String error = SqlDB.getError(data);
+            String error = SqlDB.getError(mResult);
             if(error != null){
                 MsgDlg.showOk("Update error : " + error);
             } else {

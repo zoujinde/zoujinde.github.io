@@ -135,7 +135,7 @@ public class TextWin extends JInternalFrame {
 			out.write(newText.getBytes(CMD.UTF_8));
 			out.close();
 			if(devFile!=null){
-				FileManager.uploadFile(file, devFile);
+				FileManager.getInstance().upload(file, devFile);
 			}
 		} catch (IOException e) {
 			MsgDlg.showOk(e.toString());
@@ -173,7 +173,7 @@ public class TextWin extends JInternalFrame {
 			    if(MsgDlg.showYesNo("Do you want to reload the content from file?")){
 			        
 			        if(mDevFile!=null){//Download the devFile again
-			            FileManager.downloadFile(mDevFile, mFile);
+			            FileManager.getInstance().download(mDevFile, mFile);
 			        }
 
 			        String s = readFile(mFile);

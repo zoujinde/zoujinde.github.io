@@ -328,13 +328,15 @@ public class LogIndexModel extends AbstractTableModel {
                     if (line  == null) {
                         break; // EOF
                     }
+                    /* 2023-10-13  Because user can change time, so we can't sort by time.
                     if (fileCount == 1) {
                         this.mIndex.add("", i, offset);
                     } else {
                         line = this.getLogTime(line);
                         //timeList.add(String.format("%s%d%8d", line, i, offset));
                         this.mIndex.add(line, i, offset);
-                    }
+                    }*/
+                    this.mIndex.add("", i, offset);
                     offset = mFiles[i].getNextStrat();
                 }
             }
@@ -351,6 +353,7 @@ public class LogIndexModel extends AbstractTableModel {
     }
 
     // Get log time
+    @SuppressWarnings("unused")
     private String getLogTime(String line) {
         String time = "                  "; // space 18
         if (line.length() > TIME_LEN && line.charAt(2) == '-' && line.charAt(8) == ':') {

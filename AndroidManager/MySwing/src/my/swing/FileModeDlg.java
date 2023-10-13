@@ -29,6 +29,7 @@ public class FileModeDlg extends JDialog {
     // private JCheckBox cbxHidden = null;
 
     private CMD mCmd = null;
+    private Vector<String> mResult = new Vector<String>();
     private boolean mAdbMode = true;
 
     // Private constructor
@@ -145,10 +146,10 @@ public class FileModeDlg extends JDialog {
             }
             if (this.mAdbMode) {
                 cmd = String.format("shell chmod %s %s%s", cmd, path, file);
-                mCmd.adbCmd(cmd);
+                mCmd.adbCmd(cmd, mResult);
             } else {// Local posix
                 cmd = String.format("chmod %s %s%s", cmd, path, file);
-                mCmd.runCmd(cmd);
+                mCmd.runCmd(cmd, mResult);
             }
         } else {// Windows PC using check box
             String readOnly = "-R";
@@ -156,7 +157,7 @@ public class FileModeDlg extends JDialog {
                 readOnly = "+R";
             }
             String cmd = String.format("attrib %s %s%s", readOnly, path, file);
-            mCmd.runCmd(cmd);
+            mCmd.runCmd(cmd, mResult);
         }
         this.setVisible(false);
     }
@@ -164,13 +165,14 @@ public class FileModeDlg extends JDialog {
     // Get the file mode string
     private String getFileMode(String path, String fileName) {
         String mode = null;
-        Vector<String> fileList = null;
+        mResult.clear();
         if (this.mAdbMode) {
-            fileList = mCmd.adbCmd("shell ls -l " + path);
+            mCmd.adbCmd("shell ls -l " + path, mResult);
         } else if (path.startsWith("/")) {// Local X PC
-            fileList = mCmd.runCmd("ls -l " + path);
+            mCmd.runCmd("ls -l " + path, mResult);
         } else {// Local windows PC
-            mode = mCmd.runCmd("attrib " + path + fileName).toString();
+            mCmd.runCmd("attrib " + path + fileName, mResult);
+            mode = mResult.toString();
             System.out.println(mode);
             return mode.substring(1, 10);
         }
@@ -184,7 +186,7 @@ public class FileModeDlg extends JDialog {
 
         //Must ls path, cannot ls path + fileName
         //For example : if fileName is DIR, we will get the wrong output
-        for (String line : fileList) {
+        for (String line : mResult) {
             line = line.trim();
             if (line.endsWith(tmp1) || line.contains(tmp2)) {
                 mode = line.substring(0, 10);

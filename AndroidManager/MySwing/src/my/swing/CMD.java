@@ -28,37 +28,39 @@ public class CMD {
     }
 
 	//Run adb command
-	public Vector<String> adbCmd(String cmd){
+	public void adbCmd(String cmd, Vector<String> result){
+	    result.clear();
 		if(cmd.equals("devices")){
 			cmd = "adb devices";
 		}else if(mDeviceID==null){
 			MsgDlg.showOk("Please select a device : " + cmd);
-			return new Vector<String>();
+			return;
 		}else{	
 			cmd = String.format("adb -s %s %s", mDeviceID , cmd);
 		}
-		Vector<String> result = runCmd(cmd);
+		runCmd(cmd, result);
 		if (result.size() >= 1 && result.size() <=3 ) {
 		    String s = result.toString();
 		    if (s.contains("Permission denied") || s.contains("Read-only") || s.contains("unable to open database")) {
-	            if (adbRemount()) {//Need call ADB root
-	                result = runCmd(cmd); //Run again
+	            if (adbRemount(result)) {//Need call ADB root
+	                runCmd(cmd, result); //Run again
 	            }
 	        }
 		}
-		return result;
 	}
 
 	//Call adb root and remount
-	private boolean adbRemount(){
+	private boolean adbRemount(Vector<String> result){
 		//Call adb root
-		String s = runCmd("adb -s " + mDeviceID + " root").toString();
+		runCmd("adb -s " + mDeviceID + " root", result);
+        String s = result.toString();
 		if(s.contains("product")){
 		    ProgressDlg.showProgress("adb root : " + s, 3);
 			return false;
 		}
 		//Call adb remount in some seconds
-        s = runCmd("adb -s " + mDeviceID + " remount").toString();
+        runCmd("adb -s " + mDeviceID + " remount", result);
+        s = result.toString();
         if (!s.contains("succeed")) {
             ProgressDlg.showProgress("adb remount : " + s, 3);
             return false;
@@ -125,8 +127,8 @@ public class CMD {
 	}
 
     // 2019-08-15 new method
-    public Vector<String> runCmd(String[] array, String info) {
-        Vector<String> v1 = new Vector<String>();
+    public void runCmd(String[] array, String info, Vector<String> result) {
+        result.clear();
         try {
             Process p = null;
             if (array != null) {
@@ -134,8 +136,8 @@ public class CMD {
             } else {
                 p = Runtime.getRuntime().exec(info);
             }
-            ReadThread t1 = new ReadThread(p.getErrorStream(), v1, info);
-            ReadThread t2 = new ReadThread(p.getInputStream(), v1, info);
+            ReadThread t1 = new ReadThread(p.getErrorStream(), result, info);
+            ReadThread t2 = new ReadThread(p.getInputStream(), result, info);
             ExecThread t3 = new ExecThread(p, info);
             t1.start();
             t2.start();
@@ -161,12 +163,11 @@ public class CMD {
             MsgDlg.showOk(e.toString());
         }
 	    ProgressDlg.hideProgress();
-	    return v1;
 	}
 
     //Run standard command
-	public Vector<String> runCmd(String cmd){
-	    return runCmd(null, cmd);
+	public void runCmd(String cmd, Vector<String> result){
+	    runCmd(null, cmd, result);
 	}
 
 	//Run adb logcat

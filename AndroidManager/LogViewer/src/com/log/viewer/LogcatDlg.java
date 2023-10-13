@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -35,6 +36,7 @@ public class LogcatDlg extends JDialog {
 	//private String mTitleRunning = "ADB logcat : running on ";
 
 	private CMD mAdbCmd = null;
+	private Vector<String> mResult = new Vector<String>();
 	//private String mLocalPath = null;
 	private Process mProc = null;
 	private FileManager mFileManager = null;
@@ -222,7 +224,7 @@ public class LogcatDlg extends JDialog {
 	    }
 
 	    if(this.mClearBox.isSelected()){
-            this.mAdbCmd.adbCmd("logcat -c");
+            this.mAdbCmd.adbCmd("logcat -c", mResult);
         }
 	    
 	    Runnable onStopCallback = new Runnable(){

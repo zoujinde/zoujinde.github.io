@@ -50,7 +50,8 @@ public class SqlWin extends JInternalFrame {
 	private JScrollPane right3=null;
 	private String mRootText = "Tables";
 	private int LIMIT = 9999;
-	
+	private Vector<String> mResult = new Vector<String>();
+
 	//The constructor
 	public SqlWin(String title,SqlDB sqlDB) {
 		super(title, false, false, false, false);
@@ -233,23 +234,20 @@ public class SqlWin extends JInternalFrame {
 		}
 		//Run SQL 
 		btnNew.setText(SqlTable.NEW);
-		Vector<String> data = this.mSqlDB.runSql(sql);
+        this.mSqlDB.runSql(sql, mResult);
 		this.mFilterStr = null;//Must reset the filter string
-		if(data==null){
-			return;
-		}
 
 		//To show result
-        String err = SqlDB.getError(data);
-		this.mSqlTab.resetTable(data,sql);
+        String err = SqlDB.getError(mResult);
+		this.mSqlTab.resetTable(mResult, sql);
 		TitledBorder border3 = new TitledBorder("Run Results  :  " + sql);
 		right3.setBorder(BorderFactory.createCompoundBorder(border3, mBorder));
-		if(err!=null){
+		if (err != null){
 			return;
 		}
 
 		//Check the limit
-		if(data.size()==LIMIT+1){//The 1st row is colNames, so+1
+		if (mResult.size() > LIMIT){ //The 1st row is colNames, so+1
 			String tips = " The query result rows >= " + LIMIT + ".\n\n You can add WHERE clause to reduce the query result rows.";
 			//ProgressDlg.showProgress(tips, 10);
 			MsgDlg.showOk(tips);

@@ -34,7 +34,8 @@ public class SqlTable extends JTable{
 	
 	//2014-1-21 Add the mData, migrate from SqlWin 
 	public Vector<Vector<String>> mData = null;
-	
+	private Vector<String> mResult = new Vector<String>();
+
 	public SqlTable(SqlDB db /*,JButton btnNew*/){//Init table Constructor
 		this.mSqlDB = db;
 		//this.mBtnNew = btnNew;
@@ -148,10 +149,9 @@ public class SqlTable extends JTable{
             removeEditor();
         	return;
         }
-        Vector<String> data = this.mSqlDB.runSql(sb.toString());
-        String err = SqlDB.getError(data);
-        data.removeAllElements();
-        data=null;
+        this.mSqlDB.runSql(sb.toString(), mResult);
+        String err = SqlDB.getError(mResult);
+        mResult.removeAllElements();
         if(err!=null){
         	MsgDlg.showOk(err);
             removeEditor();
@@ -386,8 +386,8 @@ public class SqlTable extends JTable{
 			}
 			sb.delete(start, sb.length());//Reset builder
 			sb.append(pk);
-			Vector<String> data = this.mSqlDB.runSql(sb.toString());
-			String err = SqlDB.getError(data);
+			this.mSqlDB.runSql(sb.toString(), mResult);
+			String err = SqlDB.getError(mResult);
 			if(err!=null){
 				MsgDlg.showOk(sb.append('\n').append(err).toString());
 				return false;
@@ -455,8 +455,8 @@ public class SqlTable extends JTable{
 		}
 		sb.append(")");
 		if(MsgDlg.showYesNo("Will you save the new row as below?\n\n"+ sb, true)){
-			Vector<String> data = this.mSqlDB.runSql(sb.toString());
-			String err = SqlDB.getError(data);
+			this.mSqlDB.runSql(sb.toString(), mResult);
+			String err = SqlDB.getError(mResult);
 			if(err!=null){
 				MsgDlg.showOk(err);
 			}else{

@@ -43,7 +43,8 @@ public class SqlDB{
 	public Vector<String> getDBStruc(){
 		if(mDBStruc==null){//Only select name, cannot select name,sql. Since the sql includes \n
 			String sql = "select name from sqlite_master where type='table';";
-			this.mDBStruc = this.runSql(sql);
+			this.mDBStruc = new Vector<String>();
+			this.runSql(sql, this.mDBStruc);
 		}
 		return this.mDBStruc;
 	}
@@ -53,102 +54,92 @@ public class SqlDB{
     private int mSqlType = -1;
 
 	//2019-08-14 runSql
-    private Vector<String> runSql(final String dbname, final String sql){
-        Vector<String> v = null;
+    private void runSql(final String dbname, final String sql, Vector<String> result){
+        result.clear();
         if(this.mLocal){
             mLocalSql[1] = dbname;
             mLocalSql[2] = sql;
-            v = mCmd.runCmd(mLocalSql, sql);
+            mCmd.runCmd(mLocalSql, sql, result);
         } else { // ADB device
             if (mSqlType <= 0) {
                 String cmd = "shell " + mAdbSqlite3 + dbname + " \""  + sql + "\"";
-                v = mCmd.adbCmd(cmd);
-
+                mCmd.adbCmd(cmd, result);
             } else if (mSqlType == 1) {
                 String cmd = "shell " + mAdbSqlite3 + dbname + " \\\""  + sql + "\\\"";
-                v = mCmd.adbCmd(cmd);
-
+                mCmd.adbCmd(cmd, result);
             } else if (mSqlType == 2) {
                 mAdbSql[2] = mCmd.getDeviceID();
                 mAdbSql[4] = mAdbSqlite3;
                 mAdbSql[5] = dbname;
                 mAdbSql[6] = sql;
-                v = mCmd.runCmd(mAdbSql, sql);
+                mCmd.runCmd(mAdbSql, sql, result);
             }
 
             if (mSqlType < 0) { // init mAdbSqlComma
                 //If the default mAdbSqlite3 cannot work, then use prop try again
-                if (v.size() >=1 && v.get(0).contains(" sqlite3: not found")){
+                if (result.size() >=1 && result.get(0).contains(" sqlite3: not found")){
                     String cmd = MyProp.getProp(MyProp.LOG_INI, MyProp.ADB_SQLITE3, "/data/local/tmp/sqlite3").trim();
                     //System.out.println("runSqlCmd : adb_sqlite3 = " + prop);
                     if (cmd.length() > 0) {
                         this.mAdbSqlite3 = cmd + " ";
-                        v = runSql(dbname, sql);
+                        runSql(dbname, sql, result);
                     }
                 }
 
-                if (v.size() >= 1 && v.get(0).startsWith("Error: ")) {
-                    System.out.println("init sql : " + v.get(0));
+                if (result.size() >= 1 && result.get(0).startsWith("Error: ")) {
+                    System.out.println("init sql : " + result.get(0));
                     mSqlType = 1;
-                    v = runSql(dbname, sql);
-                    if (v.size() >= 1 && v.get(0).startsWith("Error: ")) {
-                        System.out.println("init sql : " + v.get(0));
+                    runSql(dbname, sql, result);
+                    if (result.size() >= 1 && result.get(0).startsWith("Error: ")) {
+                        System.out.println("init sql : " + result.get(0));
                         mSqlType = 2;
-                        v = runSql(dbname, sql);
+                        runSql(dbname, sql, result);
                     }
                 } else {
                     mSqlType = 0;
                 }
-                System.out.println("============ init sql command type = " + mSqlType);
+                System.out.println("============ init sql type = " + mSqlType);
             }
         }
-        return v;
     }
 
 	//Execute the sql, return string
-	private String getSql(String table){
+	private String getSql(String table, Vector<String> result){
 		StringBuilder sb = new StringBuilder();
 		String cmd = "select sql from sqlite_master where name='"+table+"';";
-		//cmd = this.mDbName + " \"" +cmd+"\"";
-		Vector<String> vec = this.runSql(mDbName, cmd);
-		for(String s:vec){
+		this.runSql(mDbName, cmd, result);
+		for(String s : result){
 			sb.append(s);
 			sb.append(' ');
 		}
-		vec.removeAllElements();
-		vec=null;
 		return sb.toString();
 	}
-	
+
 	//Run sql using adb
-	public Vector<String> runSql(String sql){
-        sql = sql.trim();//Must trim
+	public void runSql(String sql, Vector<String> result){
+	    result.clear();
+	    sql = sql.trim();//Must trim
         for(char ch : sql.toCharArray()){
             if(ch>127){//If sql includes Chinese, the value will be error
-                Vector<String> result = new Vector<String>();
                 result.add(SqlDB.ERROR + "Only accept ASCII sql for now.");
-                return result;
+                return;
         	}
         }
-		//String cmd =  this.mDbName + " \"" +sql+"\"";
-		Vector<String> result = this.runSql(mDbName, sql);
-		if(SqlDB.getError(result) != null){
-			return result;
+        String header = null;
+        String prefix = sql.substring(0,7).toLowerCase();
+        if(prefix.equals("select ")){
+            // Get the column name as header
+            header = this.getColName(sql, result);
+            if (header == null){
+                header = ERROR + "Invalid SQL";
+            }
+        }else{ // insert,delete,update,create,drop
+            header = sql; // SQL as table header
+        }
+		this.runSql(mDbName, sql, result);
+		if (SqlDB.getError(result) == null){
+		    result.add(header);
 		}
-		String prefix = sql.substring(0,7).toLowerCase();
-		if(prefix.equals("select ")){
-			//Add the column names
-			String colName = this.getColName(sql);
-			//System.out.println("colName=" + colName);
-			if(colName==null){
-			    result.add(0, ERROR + "Invalid SQL.");
-			} else {
-			    result.add(0, colName);
-			}
-		}else{//Such as insert,delete,update,create,drop
-			result.add(0, sql);//Add SQL as table header
-		}
-		return result;
 	}
 
 	//Get the table name
@@ -166,7 +157,7 @@ public class SqlDB{
 	}	
 
 	//Get the column names
-	private String getColName(String sql){
+	private String getColName(String sql, Vector<String> result){
 		int from = sql.toLowerCase().indexOf(" from ");
 		if(from<0){
 			return null;
@@ -179,14 +170,14 @@ public class SqlDB{
 	        if(end>0){
 	            table = table.substring(0,end);
 	        }
-	        col = this.getTabCol(table);
+	        col = this.getTabCol(table, result);
 		}
         return col;
 	}
 
 	//Get colName according to the table name
-	private String getTabCol(String table){
-		String sql = this.getSql(table);
+	private String getTabCol(String table, Vector<String> result){
+		String sql = this.getSql(table, result);
 		//System.out.println("getTabCol : sql=" + sql);
 		//Get the colNames
 		int pos1 = sql.indexOf("(");
@@ -204,7 +195,7 @@ public class SqlDB{
 		sql=sql.substring(pos1+1,pos2);
 		
 		String[] cols=sql.split(",");
-		Vector<String> list = new Vector<String>();
+		result.clear();
 		int pk_start = 1000;
 		for(int i=0;i<cols.length;i++){
 			String col = cols[i].trim();
@@ -220,7 +211,7 @@ public class SqlDB{
 			if(lower.contains(" primary ")){
 				col+=PK;
 			}
-			list.add(col);
+			result.add(col);
 		}
 
 		//Get all PK cols
@@ -231,14 +222,14 @@ public class SqlDB{
 				pk = pk.substring(pos1+1).trim();
 			}
 			//Set all PK cols
-			for(int x=0;i<list.size();i++){
-			    if(list.get(x).equalsIgnoreCase(pk)){
-			        list.set(x, list.get(x)+PK);
+			for(int x=0; i<result.size(); i++){
+			    if (result.get(x).equalsIgnoreCase(pk)){
+			        result.set(x, result.get(x) + PK);
 			        break;
 			    }
 			}
 		}
-		String s = list.toString();
+		String s = result.toString();
 		return s.substring(1, s.length() - 1);//Remove []
 	}
 }
