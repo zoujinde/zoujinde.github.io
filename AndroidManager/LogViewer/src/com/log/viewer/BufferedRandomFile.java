@@ -27,7 +27,7 @@ public class BufferedRandomFile extends RandomAccessFile {
         int p0 = 0, p1 = 0, read = 0;
         boolean findNewLine = false;
 
-        String line = "";
+        String result = "";
         while (true) {
             // Check if the pointer is in the buffer
             if (pointer >= mBufferStart && pointer < mBufferEnd) {
@@ -60,7 +60,11 @@ public class BufferedRandomFile extends RandomAccessFile {
             if (p1 > p0) {
                 // Though String+= slower than StringBuider.append, but very few lines call it.
                 // So we use the String+= to avoid the multiple thread error of StringBuilder.
-                line += new String(mBuffer, p0, p1 - p0);
+                if (result.length() == 0) {
+                    result = new String(mBuffer, p0, p1 - p0);
+                } else {
+                    result += new String(mBuffer, p0, p1 - p0);
+                }
             }
 
             if (findNewLine) {
@@ -70,7 +74,7 @@ public class BufferedRandomFile extends RandomAccessFile {
             }
         }
         this.mLineStart = lineStart;
-        return line;
+        return result;
     }
 
     public int getLineStrat() {

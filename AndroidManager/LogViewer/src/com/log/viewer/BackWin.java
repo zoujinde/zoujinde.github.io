@@ -165,7 +165,8 @@ public class BackWin extends JInternalFrame {
             +"\n  // Zou Jinde (mz6h9z)      2023-03-31  Modify filter dialog and rows navigation"
             +"\n  // Zou Jinde (mz6h9z)      2023-10-11  Support QNX DLT log format"
             +"\n  // Zou Jinde (mz6h9z)      2023-10-13  Remove sort log because user can change time"
-            +"\n  // Zou Jinde (mz6h9z)      2023-10-13  Sort file name by file number"
+            +"\n  // Zou Jinde (mz6h9z)      2023-10-13  Sort files by file number"
+            +"\n  // Zou Jinde (mz6h9z)      2023-10-15  Add filter color index and modify LogIndexModel"
 			+"\n  //";
 
 	public BackWin(String title){

@@ -124,7 +124,6 @@ public class LogWin extends JInternalFrame {
         this.mTableAll = this.createTable(mModAll);//The table 0 is all logs
         JScrollPane p0 = new JScrollPane(mTableAll);
         this.add(p0);
-		this.readLogs(false);
 
 		//Add the resize panel
 		String tip = "Drag this bar to resize the table size.";
@@ -227,7 +226,7 @@ public class LogWin extends JInternalFrame {
 		mMenu.addComponent(mTableSub);
 
 		// 2021-10-22 must initiate
-        mModSub.addRowToFilter(LogIndexModel.TIP_ROW);
+        mModSub.addRowToFilter(LogIndexModel.TIP_ROW, -1);
 		mModSub.initFilterReader();
 
 		this.addInternalFrameListener(new InternalFrameAdapter(){
@@ -248,6 +247,8 @@ public class LogWin extends JInternalFrame {
                 onClose();
             }
 		});
+		// 2023-10-15 read all logs on the end
+		this.readLogs(false);
 	}
 
 	// on close
@@ -304,7 +305,7 @@ public class LogWin extends JInternalFrame {
 
         //Read log files
         if(diff<0){//2014-1-29 Remove all rows when file is reset(diff<0)
-            this.mModAll.removeAllElements();
+            this.mModAll.clear();
             //Runtime.getRuntime().gc();
         }
 
@@ -540,27 +541,32 @@ public class LogWin extends JInternalFrame {
 		for(Filter filter : this.mFilterList){
 			filter.mRowCount=0;//Must reset row count = 0
 		}
-		boolean find = false;
 		int count = 0;
 		if(this.mFilterList.size()>0){
 		    count = mModAll.getRowCount();
 		}
-        mModSub.removeAllElements();//Clear sub data
+        mModSub.clear();//Clear sub data
         mModSub.initFilterWriter();
-		for(int i=0;i<count;i++){
-			find = false;
-			for(Filter filter : this.mFilterList){
-				if(filter.filterLog(mModAll,i)){
+        int size = mFilterList.size();
+		for(int row = 0; row < count; row++){
+			int color = -1;
+			for (int index = 0; index < size; index++){
+			    Filter filter = mFilterList.get(index);
+				if(filter.filterLog(mModAll, row)){
 					if(filter.mRowCount==0){
 						filter.mMin = mModSub.getRowCount();
 					}
 					filter.mMax = mModSub.getRowCount();
 					filter.mRowCount++;
-					find = true;
+					if (color < 0) {
+						color = index;
+					}
 				}
 			}
-			if(find){//The addRow trigger table event, very slow
-				mModSub.addRowToFilter(i);
+			if (color >= 0) {
+			    // DefaultTableModel.addRow() will trigger table event, so it is slow.
+			    // But mModSub.addRowToFilter will not trigger table event, so it is not slow.
+				mModSub.addRowToFilter(row, color);
 			}
 		}
         mModSub.initFilterReader();
@@ -618,8 +624,8 @@ public class LogWin extends JInternalFrame {
 			}
 			setFindDialog(mTableAll);
 			mRow = mTableAll.getSelectedRow();
-			if(mRow>=0){//mRow!=oldRow)&& mTime-oldTime<=MyTool.DOUBLE_CLICK){
-				int index = Filter.getIndex(mModSub, mRow+1);//rowNum=mRow+1
+			if (mRow>=0) {
+				int index = mModSub.getFilterIndex(mRow);
 				setFocusRow(mTableSub, index, false);
 			}
 		}
@@ -635,9 +641,9 @@ public class LogWin extends JInternalFrame {
 			}
 			setFindDialog(mTableSub);
 			mRow = mTableSub.getSelectedRow();
-			if(mRow>=0){//mRow!=oldRow)&& mTime-oldTime<=MyTool.DOUBLE_CLICK){
-				int rowNum = mModSub.getRowNum(mRow);
-				setFocusRow(mTableAll, rowNum-1, false);
+			if (mRow >= 0) {
+				int row = mModSub.getOriginalIndex(mRow);
+				setFocusRow(mTableAll, row, false);
 			}
 		}
 	};
@@ -701,8 +707,8 @@ public class LogWin extends JInternalFrame {
 		    // 2019-02-21 change the 3rd argument from true to false
 		    // To fix issue : the 1st filtered row cannot be seen
 			this.setFocusRow(mTableSub, row, false);
-			rowNum = mModSub.getRowNum(row);
-			this.setFocusRow(mTableAll, rowNum-1, false);
+			rowNum = mModSub.getOriginalIndex(row);
+			this.setFocusRow(mTableAll, rowNum, false);
 			return;
 		}
 		
@@ -728,9 +734,9 @@ public class LogWin extends JInternalFrame {
 
 		//Set mTableAll focus
 		boolean focusUp = column!=FilterTable.COL_NEXT;
-		rowNum = mModSub.getRowNum(row);
+		rowNum = mModSub.getOriginalIndex(row);
 		this.setFocusRow(mTableSub, row, focusUp);
-		this.setFocusRow(mTableAll, rowNum-1, focusUp);
+		this.setFocusRow(mTableAll, rowNum, focusUp);
 	}
 
 	//Load filter from file
@@ -976,23 +982,24 @@ public class LogWin extends JInternalFrame {
 
 		public Component getTableCellRendererComponent(JTable table,Object value,
 				boolean isSelected, boolean hasFocus, int row,int column) {
-			if(mRow!=row || row==0){//row 0 must get color again
+            // If row change or 0 must get color again
+		    if (mRow != row || row == 0){
 				mRow = row;
-				LogIndexModel mod = (LogIndexModel)table.getModel();
-				mRowColor = Color.black;
-				for(Filter filter : mFilterList){
-					if(filter.filterLog(mod,row)){
-						mRowColor = filter.mColor;
-						break;
-					}
+				LogIndexModel model = (LogIndexModel) table.getModel();
+				int i = model.getColorIndex();
+				if (i >= 0 && i < mFilterList.size()) {
+	                mRowColor = mFilterList.get(i).mColor;
+				} else {
+	                mRowColor = Color.black;
 				}
 			}
-			String tmp = "";
-			if (value == null) {
-			    System.out.println("getTableCellRendererComponent : value is null, row=" + row + ", col=" + column);
-			} else {
-			    tmp = value.toString();
-			}
+            // Get the value
+            String tmp = "";
+            if (value == null) {
+                System.out.println("getTableCell : value is null, row=" + row + ", col=" + column);
+            } else {
+                tmp = value.toString();
+            }
 			//Reset row height
 			if(tmp.length()>mWrap && table.getRowHeight(row)<=mRowHeight){
 	             int height = getContentHeight(tmp);

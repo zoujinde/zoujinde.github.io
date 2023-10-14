@@ -86,11 +86,11 @@ public class SqlDB{
                     }
                 }
 
-                if (result.size() >= 1 && result.get(0).startsWith("Error: ")) {
+                if (result.size() >= 1 && result.get(0).startsWith(ERROR)) {
                     System.out.println("init sql : " + result.get(0));
                     mSqlType = 1;
                     runSql(dbname, sql, result);
-                    if (result.size() >= 1 && result.get(0).startsWith("Error: ")) {
+                    if (result.size() >= 1 && result.get(0).startsWith(ERROR)) {
                         System.out.println("init sql : " + result.get(0));
                         mSqlType = 2;
                         runSql(dbname, sql, result);
@@ -138,7 +138,7 @@ public class SqlDB{
         }
 		this.runSql(mDbName, sql, result);
 		if (SqlDB.getError(result) == null){
-		    result.add(header);
+		    result.add(0, header);
 		}
 	}
 

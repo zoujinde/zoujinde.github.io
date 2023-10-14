@@ -17,9 +17,14 @@ public class IndexFile {
     @SuppressWarnings("unused")
     private boolean mTimeSort = false;
 
-    // Each line ends with \n
-	private static final int LINE_LENGTH = 10;
+    // Each line length is 12 = 1 + 8 + 2 + 1
+    // fileId : 1
+    // offset : 8
+    // color  : 2
+    // end \n : 1
+	private static final int LINE_LENGTH = 12;
 	private static final int TIME_LENGTH = 18;
+    public static final int TRIM_LENGTH = LINE_LENGTH - 1;
 
 	// Constructor
 	public IndexFile(String file) {
@@ -31,33 +36,10 @@ public class IndexFile {
 		}
 	}
 
-	public int getFileId(int row) {
-		int id = -1;
-		String line = readLine(row);
-		if (line.length() > 1) {
-			id =  Integer.parseInt(line.substring(0,1));
-		}
-		return id;
-	}
-
-	public int getOffset(int row) {
-		int offset = -1;
-		String line = readLine(row);
-		if (line.length() > 1) {
-			offset = Integer.parseInt(line.substring(1));
-		}
-		return offset;
-	}
-
 	//public void add(Index index) {
-	public void add(String line, int file, int offset) throws IOException {
+	public void add(int file, int offset, int color) throws IOException {
 		mSize++; // Save data to index file
-		if (line.length() == TIME_LENGTH) {
-			mTimeSort = true;
-			line = String.format("%s %d%08d\n", line, file, offset);
-		} else {
-			line = String.format("%d%08d\n", file, offset);
-		}
+		String line = String.format("%d%08d%02d\n", file, offset, color);
 		mWriter.write(line);
 	}
 
@@ -77,8 +59,10 @@ public class IndexFile {
 	// InitFileReader
 	public void initReader() {
 		try {
-			mWriter.close();
-			mWriter = null;
+		    if (mWriter != null) {
+	            mWriter.close();
+	            mWriter = null;
+		    }
 			/* 2023-10-13 Because user can change time, so we can't sort by time
 			if (mTimeSort) { // When open multiple files
 				String tmpFile = mFilePath.replace("_A.", "_T.");
@@ -140,15 +124,20 @@ public class IndexFile {
 	}
 
 	// Read line from index file
-	private String readLine(int row) {
+	public String readLine(int row) {
 		int lineStart = row * LINE_LENGTH;
-		String line = "";
+		String line = null;
 		try {
-			line = mReader.readLine(lineStart);
+		    line = mReader.readLine(lineStart);
 		} catch (IOException e) {
 			System.err.println(mFilePath + " readLine : " + e);
 		}
 		return line;
+	}
+
+	// Check if the reader state
+	public boolean isReaderOn () {
+	    return this.mReader != null;
 	}
 
 }

@@ -23,14 +23,21 @@ public class LogIndexModel extends AbstractTableModel {
     public static final int WRAP = 120;
     public static final int TIP_ROW = -100;
     public static final String INDEX = ".index";
+    public static final String TIP = "Tips : \n\n  Right-Click-Menu to find text, add new filter and save log.\n\n"
+            + "  Click the Left-Buttons to apply filters, add new filter and delete filter.";
 
-    private LogIndexModel mFullDataModel = null;
+    private LogIndexModel mExtraData = null;
     private BufferedRandomFile[] mFiles = null;
     private String[] mSimpleName = null;
     private int mRowIndex = -1;
-    private String[] mColName = new String[] { "Num", "Time", "PID", "Level", "Tag", "Log", "File" };
+    private String[] mColName = new String[]{"Num", "Time", "PID", "Level", "Tag", "Log", "File"};
     private String[] mValue = new String[7];
     private String mLine = "";
+    private int mOriginalRow = -1;
+    private int mColorIndex  = -1;
+    private int mIndexBegin  = -1;
+    private int mIndexCenter = -1;
+    private int mIndexEnd    = -1;
 
     // To save memory, only save index data, do not save log data
     // 2021-10-20 Save index data to file, do not use memory
@@ -63,15 +70,16 @@ public class LogIndexModel extends AbstractTableModel {
 
     // The filtered data model
     public LogIndexModel(LogIndexModel fullDataModel) {
-        this.mFullDataModel = fullDataModel;
+        this.mExtraData = fullDataModel;
         this.mIndex = new IndexFile(getIndexFile());
+        fullDataModel.mExtraData = this;
     }
 
     // Clear the old index files and return the new index file
     private String getIndexFile() {
         if (mIndexFile == null) {
-            if (mFullDataModel != null) { // filter mode
-                mIndexFile = mFullDataModel.mIndexFile.replace("_A.", "_B.");
+            if (mFiles == null) { // filter mode
+                mIndexFile = mExtraData.mIndexFile.replace("_A.", "_B.");
             } else { // full mode
                 Date d = new Date();
                 String date = String.format("%tF", d);
@@ -106,52 +114,97 @@ public class LogIndexModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int row, int col) {
         Object value = "";
-        if (this.mFullDataModel != null) { // Filtered log data
-            int originalRow = mIndex.getOffset(row);
-            //System.out.println("LogIndexModel getValueAt : row=" + row + ", col=" + col + ", originalRow=" + originalRow);
-            if (originalRow == TIP_ROW) {
-               if (col == 5) {
-                   value = "Tips : \n\n  Right-Click-Menu to find text, add new filter and save log.\n\n"
-                         + "  Click the Left-Buttons to apply filters, add new filter and delete filter.";
-               }
-            } else {
-               value = mFullDataModel.getValueAt(originalRow, col);
-            }
-            return value;
-        }
 
-        int file = mIndex.getFileId(row);
-
-        if (this.mRowIndex != row) { // Original log row changed
+        // If row changed, then read mIndexLine and set values
+        if (this.mRowIndex != row) {
             this.mRowIndex = row;
-            this.mLine = ""; // Clear values
-            for (int i = 0; i < mValue.length; i++) {
-                mValue[i] = "";
-            }
-            try {
-                int offset = mIndex.getOffset(row);
-                mLine = mFiles[file].readLine(offset);
-            } catch (IOException e) {
-                System.out.println("LogIndexModel.getValueAt : " + e);
+            String line = mIndex.readLine(row);
+            if (this.mFiles == null) { // Filter data model
+                this.mOriginalRow = this.getOffset(line);
+                this.mColorIndex = this.getColorIndex(line);
+            } else { // Full data model : reset all values
+                try {
+                    this.mLine = "";
+                    for (int i = 0; i < mValue.length; i++) {
+                        mValue[i] = "";
+                    }
+                    int fileId = this.getFileId(line);
+                    int offset = this.getOffset(line);
+                    mLine = mFiles[fileId].readLine(offset);
+                    setValues(mLine);
+                    mValue[COL_FILE] = mSimpleName[fileId];
+                    this.mColorIndex = mExtraData.getColorIndex(row);
+                } catch (IOException e) {
+                    System.out.println("LogIndexModel.getValueAt : " + e);
+                }
             }
         }
 
-        if (col == -1) {//return full log line
-            value = mLine;
-        } else if (col == COL_NUM) {
-            value = String.valueOf(row + 1);
-        } else if (col == COL_FILE) {
-            value = mSimpleName[file];
-        } else {
-            if (mValue[COL_LOG].equals("") && !mLine.equals("")) {
-                setValues(mLine);
+        // Check the data model
+        if (mFiles == null) { // Filter data model
+            if (mOriginalRow >= 0) {
+                value = mExtraData.getValueAt(mOriginalRow, col);
+            } else if (mOriginalRow == TIP_ROW && col == COL_LOG) {
+                value = TIP;
             }
-            value = mValue[col];
+        } else { // Full data model
+            if (col == -1) {// return the full log line
+                value = mLine;
+            } else if (col == COL_NUM) {
+                value = String.valueOf(row + 1);
+            } else {
+                value = mValue[col];
+            }
         }
+
+        // Check the null
         if (value == null) {
-            System.out.println("LogIndexModel value null : row=" + row + ", col=" + col);
+            System.out.println("Log value is null : row=" + row + ", col=" + col);
         }
         return value;
+    }
+
+    // Get file
+    private int getFileId(String line) {
+        int id = -1;
+        if (line != null && line.length() == IndexFile.TRIM_LENGTH) {
+            id =  Integer.parseInt(line.substring(0,1));
+        }
+        return id;
+    }
+
+    // Get offset
+    private int getOffset(String line) {
+        int offset = -1;
+        if (line != null && line.length() == IndexFile.TRIM_LENGTH) {
+            offset = Integer.parseInt(line.substring(1, 9));
+        }
+        return offset;
+    }
+
+    // Get the color index for the current line
+    private int getColorIndex(String line) {
+        int result = -1;
+        if (line != null && line.length() == IndexFile.TRIM_LENGTH) {
+            result = Integer.parseInt(line.substring(9, IndexFile.TRIM_LENGTH));
+        }
+        return result;
+    }
+
+    // Get the color index by the originalIndex
+    private int getColorIndex(int originalIndex) {
+        int result = -1;
+        int row = this.getFilterIndex(originalIndex);
+        if (row >= 0) {
+            String line = this.mIndex.readLine(row);
+            result = this.getColorIndex(line);
+        }
+        return result;
+    }
+
+    // Get the current color index
+    public int getColorIndex() {
+        return this.mColorIndex;
     }
 
     // Set values
@@ -255,18 +308,12 @@ public class LogIndexModel extends AbstractTableModel {
     }
 
     // Delete all rows
-    public void removeAllElements() {
+    public void clear() {
         this.mIndex.clear();
         this.mRowIndex = -1;// Must reset the mRowIndex=-1
-    }
-
-    // Get the row number
-    public int getRowNum(int row) {
-        if (mFiles == null) { // Filter Model
-            return mIndex.getOffset(row) + 1;
-        } else {
-            return row + 1;
-        }
+        this.mIndexBegin = -1;
+        this.mIndexCenter = -1;
+        this.mIndexEnd = -1;
     }
 
     // Get the full log row using -1
@@ -276,8 +323,8 @@ public class LogIndexModel extends AbstractTableModel {
 
     // Initiate the writer
     public void initFilterWriter() {
-        if (mFullDataModel == null) {
-            throw new RuntimeException("initFilterWriter : mFullDataModel null");
+        if (mFiles != null) {
+            throw new RuntimeException("Full data model can't call initFilterWriter");
         } else {
             this.mIndex.initWriter();
         }
@@ -285,17 +332,17 @@ public class LogIndexModel extends AbstractTableModel {
 
     // Initiate the filter row and file
     public void initFilterReader() {
-        if (mFullDataModel == null) {
-            throw new RuntimeException("initFilterReader : mFullDataModel null");
+        if (mFiles != null) {
+            throw new RuntimeException("Full data model can't call initFilterReader");
         } else {
             this.mIndex.initReader();
         }
     }
 
     // Add row number to filer data model
-    public void addRowToFilter(int rowNumber) {
+    public void addRowToFilter(int rowNumber, int color) {
         try {
-            this.mIndex.add("", 0, rowNumber);
+            this.mIndex.add(0, rowNumber, color);
         } catch (IOException e) {
             System.err.println("addRowToFilter : " + e);
         }
@@ -317,8 +364,9 @@ public class LogIndexModel extends AbstractTableModel {
             // Read file one by one
             for (i = 0; i < fileCount; i++) {
                 if (fileCount == 1 && initRows > 0) {
-                    // Read the last row to refresh new logs
-                    mFiles[i].readLine(mIndex.getOffset(initRows - 1));
+                    // Read the last line to refresh new logs
+                    line = mIndex.readLine(initRows - 1);
+                    mFiles[i].readLine(this.getOffset(line));
                     offset = mFiles[i].getNextStrat();
                 } else {
                     offset = 0;
@@ -336,7 +384,7 @@ public class LogIndexModel extends AbstractTableModel {
                         //timeList.add(String.format("%s%d%8d", line, i, offset));
                         this.mIndex.add(line, i, offset);
                     }*/
-                    this.mIndex.add("", i, offset);
+                    this.mIndex.add(i, offset, -1);
                     offset = mFiles[i].getNextStrat();
                 }
             }
@@ -361,6 +409,68 @@ public class LogIndexModel extends AbstractTableModel {
             time = line.substring(0, TIME_LEN);
         }
         return time;
+    }
+
+    // Get the originalIndex by the filterIndex
+    public int getOriginalIndex(final int filterIndex) {
+        if (mFiles != null) {
+            throw new RuntimeException("Full data model can't call getOriginalIndex");
+        }
+        String line = mIndex.readLine(filterIndex);
+        return this.getOffset(line);
+    }
+
+    // Get the filterIndex by the originalRowIndex
+    public int getFilterIndex(final int original){
+        if (mFiles != null) {
+            throw new RuntimeException("Full data model can't call getFilterIndex");
+        }
+        int begin = 0;
+        int end = mIndex.size() - 1;
+        if (end < 0 || !mIndex.isReaderOn()) {
+            return -1;
+        }
+        // Check and set the index
+        if (this.mIndexBegin < 0) {
+            this.mIndexBegin = this.getOriginalIndex(0);
+            this.mIndexCenter = this.getOriginalIndex(end / 2);
+            this.mIndexEnd = this.getOriginalIndex(end);
+        }
+        // Check the original row index
+        if (original < this.mIndexBegin || original > this.mIndexEnd) {
+            return -1;
+        } else if (original == this.mIndexBegin) {
+            return 0;
+        } else if (original == this.mIndexEnd) {
+            return end;
+        } else if (original == this.mIndexCenter) {
+            return end / 2;
+        } else if (original < this.mIndexCenter) {
+            end = end / 2;
+        } else if (original > this.mIndexCenter) {
+            begin = end / 2;
+        }
+        //Check begin and end
+        while (true) {
+            if (end - begin <= 1) { // interval is small
+                for (int i = begin; i <= end; i++){
+                    if (this.getOriginalIndex(i) == original){
+                        return i;
+                    }
+                }
+                return -1;
+            }
+            //If the interval is big, need check the center
+            int center = begin + (end - begin) / 2;
+            int value = this.getOriginalIndex(center);
+            if (original == value) {
+                return center;
+            } else if (original > value){
+                begin = center;
+            } else {
+                end = center;
+            }
+        }
     }
 
 }

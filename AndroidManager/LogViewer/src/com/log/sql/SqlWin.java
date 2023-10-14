@@ -58,7 +58,7 @@ public class SqlWin extends JInternalFrame {
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.mSqlDB = sqlDB;
 		this.mSqlTab = new SqlTable(sqlDB);//,btnNew); 
-		
+
 		SmartLayout smart = new SmartLayout(1,2);
 		smart.setColWidth(0, 220);
 		this.setLayout(smart);
@@ -288,6 +288,7 @@ public class SqlWin extends JInternalFrame {
 		//Add table nodes again
 		Vector<String> struc = this.mSqlDB.getDBStruc();
 		int size = struc.size();
+		// Read the table name from i = 1
 		for(int i=1;i<size;i++){
 			root.add(new DefaultMutableTreeNode(struc.get(i)));
 		}

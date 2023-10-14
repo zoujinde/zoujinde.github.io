@@ -267,35 +267,6 @@ public class Filter {
 		return v;
 	}
 
-	//int direction : -1 previous, 0 current, 1 next
-	public static int getIndex(LogIndexModel mod, int rowNum){
-		int start = 0;
-		int end = mod.getRowCount()-1;
-		int i =0;
-		int center = 0;
-		int num = 0;
-		while(true){//Check start and end
-			if(end-start<2){//If interval is small
-				for(i = start;i<=end;i++){
-					if(mod.getRowNum(i)==rowNum){
-						return i;
-					}
-				}
-				return -1;
-			}
-			//If the interval is big, need check the center
-			center = start + (end-start)/2;
-			num = mod.getRowNum(center);
-			if(rowNum==num){
-				return center;
-			}else if(rowNum>num){
-				start=center;
-			}else{//if(rowNum<num){
-				end=center;
-			}
-		}
-	}
-	
 	//Check if the filter string is equal
 	public static boolean isEqual(String filter1, String filter2){
 		//Remove the color value
