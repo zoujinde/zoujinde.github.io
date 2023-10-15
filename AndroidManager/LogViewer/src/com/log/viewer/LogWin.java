@@ -711,13 +711,13 @@ public class LogWin extends JInternalFrame {
 	
 		//Get new row number
 		if(column==FilterTable.COL_NEXT){//To next
-			row = filter.getNextRow(mModAll, start+1);
+			row = filter.getNextRow(mModSub, start+1);
 			if(row<0){
 				ProgressDlg.showProgress("Already at the filter end.",3);
 				return;
 			}
 		}else if(column==FilterTable.COL_PREV){//To previous
-			row = filter.getPrevRow(mModAll, start-1);
+			row = filter.getPrevRow(mModSub, start-1);
 			if(row<0){
 				ProgressDlg.showProgress("Already at the filter top.",3);
 				return;

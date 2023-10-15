@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
+import javax.swing.table.TableModel;
+
 import my.swing.MyTool;
 
 //The new Filter class (Support RegluarExpression)
@@ -190,7 +192,7 @@ public class Filter {
 	}
 
 	//Filter log
-	public boolean filterLog(DataAllModel mod, int row){//Show filter logs result
+	public boolean filterLog(TableModel mod, int row){//Show filter logs result
 		if(row<0){
 			return false;
 		}
@@ -286,7 +288,7 @@ public class Filter {
 	}
 	
 	//Get next row
-	public int getNextRow(DataAllModel mod, int start){
+	public int getNextRow(TableModel mod, int start){
 		for(int i=start;i<=this.mMax;i++){
 			if(this.filterLog(mod, i)){
 				return i;
@@ -296,7 +298,7 @@ public class Filter {
 	}
 
 	//Get previous row
-	public int getPrevRow(DataAllModel mod, int start){
+	public int getPrevRow(TableModel mod, int start){
 		for(int i=start;i>=this.mMin;i--){
 			if(this.filterLog(mod, i)){
 				return i;
