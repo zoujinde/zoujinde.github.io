@@ -73,7 +73,7 @@ public class LogWin extends JInternalFrame {
 	private LogIndexModel mModSub = null;
 
 	private FilterTable mFilterTable = null;
-	private Vector<Filter> mFilterList = new Vector<Filter>();
+	private final Vector<Filter> mFilterList = new Vector<Filter>();
 	private String mFilterFile = null;
 	private String mFilterFileKey= "filter_file";
 	
@@ -367,21 +367,33 @@ public class LogWin extends JInternalFrame {
 		}
 	};
 
+	// 2023-10-15 check the changed state
 	private void refresh(){
-        //mBtnRefresh.setEnabled(false);
-        //2017-3-17 remember the selected row before refresh
-        int historySub = mTableSub.getSelectedRow();
-        int historyAll = mTableAll.getSelectedRow();
-        if(mFiles.length==1 && readLogs(true)){//Only read the single file again
-            mFilterList.removeAllElements();//Must clear list before refresh
-            ProgressDlg.showProgress("Log Refreshing......", 1);
-        }
         Vector<Filter> list = mFilterTable.selectFilter();
-        applyFilter(list);
-        //2017-3-17 go to history row
-        setFocusRow(mTableSub, historySub, false);
-        setFocusRow(mTableAll, historyAll, false);
-        //mBtnRefresh.setEnabled(true);
+	    boolean changed = false;
+	    if (mFiles.length == 1 && readLogs(true)) {
+	        // Only read the single file again
+	        changed = true; // data changed
+        } else if (list != null) { // check filter list
+            String oldStr = mFilterList.toString();
+            String newStr = list.toString();
+            if (!oldStr.equals(newStr)) {
+                changed = true; // filter changed
+            }
+        }
+	    // Check result
+	    if (changed) {
+            ProgressDlg.showProgress("Log data or filters are refreshing......", 1);
+	        //2017-3-17 remember the selected row before refresh
+	        int historySub = mTableSub.getSelectedRow();
+	        int historyAll = mTableAll.getSelectedRow();
+	        applyFilter(list);
+	        //2017-3-17 go to history row
+	        setFocusRow(mTableSub, historySub, false);
+	        setFocusRow(mTableAll, historyAll, false);
+	    } else {
+            ProgressDlg.showProgress("Log data or filters are not changed.", 1);
+	    }
 	}
 
 	//Mouse Listener
@@ -507,47 +519,27 @@ public class LogWin extends JInternalFrame {
 		}
 	};
 
-
 	//Refresh the filtered log table, when the filters change, call this method
 	private void applyFilter(Vector<Filter> newList){
 		mP2.setToolTipText("No change.");
-		if(newList==null){
+		if (newList == null) {
+		    System.out.println("applyFilter : newList is null");
 			return;
 		}
+		this.mFilterList.removeAllElements(); // Clear data
+        this.mFilterList.addAll(newList); // Add new filters
 
-		//Get the new filters expression
-		StringBuilder newSb = new StringBuilder();
-		for(Filter newFilter: newList){
-		    newSb.append(newFilter.getFilterNoColor());
-		    newSb.append('\n');
-		}
-		
-		//Check the old filters
-        StringBuilder oldSb = new StringBuilder();
-        for(Filter oldFilter: this.mFilterList){
-            oldSb.append(oldFilter.getFilterNoColor());
-            oldSb.append('\n');
-        }
-        this.mFilterList.removeAllElements();//Clear the old filters
-		this.mFilterList = newList;
-		if(newSb.equals(oldSb)){//Filter not changed, only update color
-			this.mTableAll.updateUI();
-			this.mTableSub.updateUI();
-			this.mFilterTable.updateUI();
-			return;
-		}
-
-		//Refresh log table1
-		for(Filter filter : this.mFilterList){
+        //Refresh log table1
+		for (Filter filter : this.mFilterList){
 			filter.mRowCount=0;//Must reset row count = 0
 		}
-		int count = 0;
-		if(this.mFilterList.size()>0){
+        int count = 0;
+        int size = mFilterList.size();
+		if (size > 0) {
 		    count = mModAll.getRowCount();
 		}
         mModSub.clear();//Clear sub data
         mModSub.initFilterWriter();
-        int size = mFilterList.size();
 		for(int row = 0; row < count; row++){
 			int color = -1;
 			for (int index = 0; index < size; index++){
@@ -565,7 +557,7 @@ public class LogWin extends JInternalFrame {
 			}
 			if (color >= 0) {
 			    // DefaultTableModel.addRow() will trigger table event, so it is slow.
-			    // But mModSub.addRowToFilter will not trigger table event, so it is not slow.
+			    // But mModSub.addRowToFilter will not trigger table event, so not slow.
 				mModSub.addRowToFilter(row, color);
 			}
 		}
@@ -986,7 +978,7 @@ public class LogWin extends JInternalFrame {
 		    if (mRow != row || row == 0){
 				mRow = row;
 				LogIndexModel model = (LogIndexModel) table.getModel();
-				int i = model.getColorIndex();
+				int i = model.getColorIndex(row);
 				if (i >= 0 && i < mFilterList.size()) {
 	                mRowColor = mFilterList.get(i).mColor;
 				} else {

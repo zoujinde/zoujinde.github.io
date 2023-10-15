@@ -34,10 +34,11 @@ public class LogIndexModel extends AbstractTableModel {
     private String[] mValue = new String[7];
     private String mLine = "";
     private int mOriginalRow = -1;
-    private int mColorIndex  = -1;
     private int mIndexBegin  = -1;
     private int mIndexCenter = -1;
     private int mIndexEnd    = -1;
+    private int mLastIndex   = -1;
+    private int mLastResult  = -1;
 
     // To save memory, only save index data, do not save log data
     // 2021-10-20 Save index data to file, do not use memory
@@ -113,27 +114,29 @@ public class LogIndexModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        Object value = "";
-
         // If row changed, then read mIndexLine and set values
         if (this.mRowIndex != row) {
             this.mRowIndex = row;
             String line = mIndex.readLine(row);
             if (this.mFiles == null) { // Filter data model
                 this.mOriginalRow = this.getOffset(line);
-                this.mColorIndex = this.getColorIndex(line);
             } else { // Full data model : reset all values
                 try {
-                    this.mLine = "";
+                    mLine = "";
                     for (int i = 0; i < mValue.length; i++) {
                         mValue[i] = "";
                     }
                     int fileId = this.getFileId(line);
-                    int offset = this.getOffset(line);
-                    mLine = mFiles[fileId].readLine(offset);
-                    setValues(mLine);
-                    mValue[COL_FILE] = mSimpleName[fileId];
-                    this.mColorIndex = mExtraData.getColorIndex(row);
+                    if (fileId >=0 && fileId < mFiles.length) {
+                        int offset = this.getOffset(line);
+                        if (offset >= 0) {
+                            mLine = mFiles[fileId].readLine(offset);
+                            if (mLine != null) {
+                                setValues(mLine);
+                                mValue[COL_FILE] = mSimpleName[fileId];
+                            }
+                        }
+                    }
                 } catch (IOException e) {
                     System.out.println("LogIndexModel.getValueAt : " + e);
                 }
@@ -141,6 +144,7 @@ public class LogIndexModel extends AbstractTableModel {
         }
 
         // Check the data model
+        Object value = "";
         if (mFiles == null) { // Filter data model
             if (mOriginalRow >= 0) {
                 value = mExtraData.getValueAt(mOriginalRow, col);
@@ -156,12 +160,7 @@ public class LogIndexModel extends AbstractTableModel {
                 value = mValue[col];
             }
         }
-
-        // Check the null
-        if (value == null) {
-            System.out.println("Log value is null : row=" + row + ", col=" + col);
-        }
-        return value;
+        return value == null ? "" : value;
     }
 
     // Get file
@@ -182,29 +181,23 @@ public class LogIndexModel extends AbstractTableModel {
         return offset;
     }
 
-    // Get the color index for the current line
-    private int getColorIndex(String line) {
-        int result = -1;
-        if (line != null && line.length() == IndexFile.TRIM_LENGTH) {
-            result = Integer.parseInt(line.substring(9, IndexFile.TRIM_LENGTH));
-        }
-        return result;
-    }
-
     // Get the color index by the originalIndex
-    private int getColorIndex(int originalIndex) {
+    public int getColorIndex(int row) {
         int result = -1;
-        int row = this.getFilterIndex(originalIndex);
         if (row >= 0) {
-            String line = this.mIndex.readLine(row);
-            result = this.getColorIndex(line);
+            if (mFiles == null) { // Filter data model
+                String line = mIndex.readLine(row);
+                if (line != null && line.length() == IndexFile.TRIM_LENGTH) {
+                    result = Integer.parseInt(line.substring(9, IndexFile.TRIM_LENGTH));
+                }
+            } else { // Full data model
+                row = mExtraData.getFilterIndex(row);
+                if (row >= 0) {
+                    result = mExtraData.getColorIndex(row);
+                }
+            }
         }
         return result;
-    }
-
-    // Get the current color index
-    public int getColorIndex() {
-        return this.mColorIndex;
     }
 
     // Set values
@@ -314,6 +307,8 @@ public class LogIndexModel extends AbstractTableModel {
         this.mIndexBegin = -1;
         this.mIndexCenter = -1;
         this.mIndexEnd = -1;
+        this.mLastIndex = -1;
+        this.mLastResult = -1;
     }
 
     // Get the full log row using -1
@@ -427,7 +422,7 @@ public class LogIndexModel extends AbstractTableModel {
         }
         int begin = 0;
         int end = mIndex.size() - 1;
-        if (end < 0 || !mIndex.isReaderOn()) {
+        if (end < 0 || !mIndex.isReaderOn()) { // Reader must be ON
             return -1;
         }
         // Check and set the index
@@ -450,11 +445,23 @@ public class LogIndexModel extends AbstractTableModel {
         } else if (original > this.mIndexCenter) {
             begin = end / 2;
         }
-        //Check begin and end
+        // Check last index
+        if (mLastIndex >= 0) {
+            if (original == mLastIndex) {
+                return mLastResult;
+            } else if (original > mLastIndex && begin < mLastResult) {
+                begin = mLastResult;
+            } else if (original < mLastIndex && end > mLastResult) {
+                end = mLastResult;
+            }
+        }
+        // Check begin and end
         while (true) {
             if (end - begin <= 1) { // interval is small
                 for (int i = begin; i <= end; i++){
                     if (this.getOriginalIndex(i) == original){
+                        this.mLastIndex = original;
+                        this.mLastResult = i;
                         return i;
                     }
                 }
@@ -464,6 +471,8 @@ public class LogIndexModel extends AbstractTableModel {
             int center = begin + (end - begin) / 2;
             int value = this.getOriginalIndex(center);
             if (original == value) {
+                this.mLastIndex = original;
+                this.mLastResult = center;
                 return center;
             } else if (original > value){
                 begin = center;
