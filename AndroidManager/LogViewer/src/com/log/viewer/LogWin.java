@@ -34,6 +34,7 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 import my.swing.FileDlg;
 import my.swing.FindDlg;
@@ -53,7 +54,7 @@ public class LogWin extends JInternalFrame {
 
 	private final int mRowHeight = 20;
 	private int mRowH = 0;
-    private int mWrap = LogIndexModel.WRAP;
+    private int mWrap = DataAllModel.WRAP;
 	private String mPath = null;
 
     //private JButton mBtnRefresh = new JButton();
@@ -69,8 +70,8 @@ public class LogWin extends JInternalFrame {
 	private JTable mTableAll = null;//All logs table
 	private JTable mTableSub = null;//The filtered log table, it is sub-set
 	//private JTable mFocusTab = null;
-	private LogIndexModel mModAll = null;
-	private LogIndexModel mModSub = null;
+	private DataAllModel mModAll = null;
+	private DataSubModel mModSub = null;
 
 	private FilterTable mFilterTable = null;
 	private final Vector<Filter> mFilterList = new Vector<Filter>();
@@ -120,7 +121,7 @@ public class LogWin extends JInternalFrame {
 
 		this.mKernelStart = kernelStart;
 		this.mFiles = files.toArray(new String[files.size()]);
-        this.mModAll = new LogIndexModel(mFiles);//,1000000);
+        this.mModAll = new DataAllModel(mFiles);//,1000000);
         this.mTableAll = this.createTable(mModAll);//The table 0 is all logs
         JScrollPane p0 = new JScrollPane(mTableAll);
         this.add(p0);
@@ -156,7 +157,7 @@ public class LogWin extends JInternalFrame {
 		JScrollPane p21 = new JScrollPane(this.mFilterTable);
 		MyPanel p22 = new MyPanel(8,1);
 		//Add the filtered log table
-		this.mModSub = new LogIndexModel(mModAll);
+		this.mModSub = new DataSubModel(mModAll);
 		this.mTableSub = this.createTable(mModSub);
 		JScrollPane p23 = new JScrollPane(mTableSub);
 
@@ -226,7 +227,7 @@ public class LogWin extends JInternalFrame {
 		mMenu.addComponent(mTableSub);
 
 		// 2021-10-22 must initiate
-        mModSub.addRowToFilter(LogIndexModel.TIP_ROW, -1);
+        mModSub.addRowToFilter(DataSubModel.TIP_ROW, -1);
 		mModSub.initFilterReader();
 
 		this.addInternalFrameListener(new InternalFrameAdapter(){
@@ -261,7 +262,7 @@ public class LogWin extends JInternalFrame {
         MyProp.setProp(MyProp.LOG_INI, mFilterFileKey, mFilterFile);
         LogWinCol.saveColWidth(MyProp.WIDTH_ALL, mTableAll.getColumnModel());
         LogWinCol.saveColWidth(MyProp.WIDTH_SUB, mTableSub.getColumnModel());
-        DefaultTableModel modF = (DefaultTableModel)this.mFilterTable.getModel();
+        DefaultTableModel modF = (DefaultTableModel)mFilterTable.getModel();
         modF.setRowCount(0);
         this.mFilterList.removeAllElements();
 
@@ -456,7 +457,7 @@ public class LogWin extends JInternalFrame {
 
 
 	//Create the log table
-	private JTable createTable(LogIndexModel mod) {
+	private JTable createTable(TableModel mod) {
 		JTable tab = new JTable(mod);
 		tab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		tab.setDefaultRenderer(Object.class, new LogRender());
@@ -509,9 +510,8 @@ public class LogWin extends JInternalFrame {
 				return;
 			}
 			StringBuilder sb = new StringBuilder();
-			LogIndexModel mod = (LogIndexModel)tab.getModel();
 			for(int i=0;i<rows.length;i++){
-				sb.append(mod.getRow(rows[i])).append("\r\n");
+			    sb.append(tab.getValueAt(rows[i], DataAllModel.GET_LOG_LINE)).append("\r\n");
 			}
 			StringSelection trans = new StringSelection(sb.toString());
 			Clipboard clip = tab.getToolkit().getSystemClipboard();
@@ -711,13 +711,13 @@ public class LogWin extends JInternalFrame {
 	
 		//Get new row number
 		if(column==FilterTable.COL_NEXT){//To next
-			row = filter.getNextRow(mModSub, start+1);
+			row = filter.getNextRow(mModAll, start+1);
 			if(row<0){
 				ProgressDlg.showProgress("Already at the filter end.",3);
 				return;
 			}
 		}else if(column==FilterTable.COL_PREV){//To previous
-			row = filter.getPrevRow(mModSub, start-1);
+			row = filter.getPrevRow(mModAll, start-1);
 			if(row<0){
 				ProgressDlg.showProgress("Already at the filter top.",3);
 				return;
@@ -797,8 +797,7 @@ public class LogWin extends JInternalFrame {
                     MsgDlg.showOk(e.toString());
                 }
 			}else if(act.equals(menuSaveLog)){
-				LogIndexModel mod = (LogIndexModel)table.getModel();
-				int rows = mod.getRowCount();
+				int rows = table.getRowCount();
 				if (rows > 10000) {
 					MsgDlg.showOk("Cannot save log when rows > 10000");
 					return;
@@ -811,7 +810,7 @@ public class LogWin extends JInternalFrame {
 					FileOutputStream out = new FileOutputStream(file);
 					StringBuilder sb = new StringBuilder(rows * 80);
 					for (int i = 0; i < rows; ++i) {
-						sb.append(mod.getRow(i)).append("\r\n");
+						sb.append(table.getValueAt(i, DataAllModel.GET_LOG_LINE)).append("\r\n");
 					}
 					out.write(sb.toString().getBytes());
 					out.close();
@@ -977,10 +976,10 @@ public class LogWin extends JInternalFrame {
             // If row change or 0 must get color again
 		    if (mRow != row || row == 0){
 				mRow = row;
-				LogIndexModel model = (LogIndexModel) table.getModel();
-				int i = model.getColorIndex(row);
+				Object obj = table.getValueAt(row, DataAllModel.GET_COLOR);
+				int i = IndexFile.parseInt(obj);
 				if (i >= 0 && i < mFilterList.size()) {
-	                mRowColor = mFilterList.get(i).mColor;
+				    mRowColor = mFilterList.get(i).mColor;
 				} else {
 	                mRowColor = Color.black;
 				}

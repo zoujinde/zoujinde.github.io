@@ -69,7 +69,7 @@ public class MainWin extends JFrame {
         // Clear index files
         File[] files = new File(MyTool.getHome()).listFiles();
         for (File f : files) {
-            if (f.isFile() && f.getName().endsWith(LogIndexModel.INDEX)) {
+            if (f.isFile() && f.getName().endsWith(DataAllModel.INDEX)) {
                 f.delete();
             }
         }

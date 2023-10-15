@@ -93,11 +93,10 @@ public class FilterTable extends JTable {
 	public void saveFilter(String fileName){
     	StringBuilder sb = new StringBuilder();
 		Filter filter = null;
-		DefaultTableModel mod = (DefaultTableModel)this.getModel();
-		int count = mod.getRowCount();
+		int count = this.getRowCount();
 		String s = null;
 		for(int i = 0;i<count ;i++){
-			filter = (Filter)mod.getValueAt(i, 0);
+			filter = (Filter)this.getValueAt(i, 0);
 			s = filter.getFilterStr();
 			if(s.length()>0){
 	            sb.append(s).append('\n');
@@ -206,13 +205,12 @@ public class FilterTable extends JTable {
 	
 	//Get the filter list
 	private Vector<String> getFilterList(){
-		DefaultTableModel mod = (DefaultTableModel)getModel();
 		Filter filter = null;
-		int count = mod.getRowCount();
+		int count = this.getRowCount();
 		Vector<String> list = new Vector<String>();
 		String s = null;
 		for(int i = 0;i<count ;i++){
-			filter = (Filter)mod.getValueAt(i, 0);
+			filter = (Filter)this.getValueAt(i, 0);
 			s = filter.getFilterStr();
 			if(s.length()>0){
 			    list.add(s);
@@ -271,12 +269,11 @@ public class FilterTable extends JTable {
 	
 	//Get active filter list
 	public Vector<Filter> getActiveFilterList(){
-		DefaultTableModel mod = (DefaultTableModel)getModel();
-		int count = mod.getRowCount();
+		int count = this.getRowCount();
 		Vector<Filter> list = new Vector<Filter>();
 		Filter filter = null;
 		for(int i=0;i<count;i++){
-			filter = (Filter)mod.getValueAt(i, 0);
+			filter = (Filter)this.getValueAt(i, 0);
 			if(filter.mActive){
 				list.add(filter);
 			}
@@ -291,8 +288,7 @@ public class FilterTable extends JTable {
 			return null;
 		}
 		int row = rows[0];
-		DefaultTableModel mod = (DefaultTableModel)getModel();
-		Filter filter = (Filter)mod.getValueAt(row, 0);
+		Filter filter = (Filter)this.getValueAt(row, 0);
 	    String oldFilterStr = filter.getFilterStr();
 		Vector<String> list = getFilterList();
 		FilterDlg dlg = new FilterDlg("Edit - " + this.mFileName, oldFilterStr, list);
@@ -313,12 +309,11 @@ public class FilterTable extends JTable {
 		if(rows.length<=0){
 			return null;
 		}
-		DefaultTableModel modF = (DefaultTableModel)getModel();
 		Vector<Filter> activeList = new Vector<Filter>();
 		Filter filter = null;
-		int count = modF.getRowCount();
+		int count = this.getRowCount();
 		for(int i=0;i<count;i++){
-			filter = (Filter)modF.getValueAt(i, 0);
+			filter = (Filter)this.getValueAt(i, 0);
 		    filter.mActive = false;
             if(filter.getFilterStr().length()>0){
 	            for(int r : rows){

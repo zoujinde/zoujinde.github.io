@@ -190,7 +190,7 @@ public class Filter {
 	}
 
 	//Filter log
-	public boolean filterLog(LogIndexModel mod, int row){//Show filter logs result
+	public boolean filterLog(DataAllModel mod, int row){//Show filter logs result
 		if(row<0){
 			return false;
 		}
@@ -199,7 +199,7 @@ public class Filter {
 		
 		// Judge the level
 		if(this.mLevel!=null){
-			tmp = (String)mod.getValueAt(row, LogIndexModel.COL_LEVEL);
+			tmp = (String)mod.getValueAt(row, DataAllModel.COL_LEVEL);
 			if (this.mLevel.contains(tmp)==false){
 				return false;
 			}
@@ -209,7 +209,7 @@ public class Filter {
 		
 		// Judge pid
 		if(this.mPidExp!=null){//(mPidList!=null){
-			tmp = (String)mod.getValueAt(row, LogIndexModel.COL_PID);
+			tmp = (String)mod.getValueAt(row, DataAllModel.COL_PID);
 			//found = this.findKeyWord(tmp, mPidList);
 			found = mPidExp.matcher(tmp).find();
 			if(mPidIn!=found){
@@ -219,7 +219,7 @@ public class Filter {
 
 		// Judge tag
 		if(this.mTagExp!=null){//(mTagList!=null){
-			tmp = (String)mod.getValueAt(row, LogIndexModel.COL_TAG);
+			tmp = (String)mod.getValueAt(row, DataAllModel.COL_TAG);
 			//found = this.findKeyWord(tmp, mTagList);
             found = mTagExp.matcher(tmp).find();
 			if (mTagIn!=found) {
@@ -230,7 +230,7 @@ public class Filter {
 		//2012-8-31 ZouJinde changes the log filter logic
 		//Judge the key words in the log line, not only in message
 		if(this.mLogExp!=null){//(mLogList!=null){
-			tmp = mod.getRow(row);//The log line
+			tmp = (String)mod.getValueAt(row, DataAllModel.GET_LOG_LINE);
 	        found = this.mLogExp.matcher(tmp).find();
 			if (mLogIn!=found) {
 				return false;
@@ -286,7 +286,7 @@ public class Filter {
 	}
 	
 	//Get next row
-	public int getNextRow(LogIndexModel mod, int start){
+	public int getNextRow(DataAllModel mod, int start){
 		for(int i=start;i<=this.mMax;i++){
 			if(this.filterLog(mod, i)){
 				return i;
@@ -296,7 +296,7 @@ public class Filter {
 	}
 
 	//Get previous row
-	public int getPrevRow(LogIndexModel mod, int start){
+	public int getPrevRow(DataAllModel mod, int start){
 		for(int i=start;i>=this.mMin;i--){
 			if(this.filterLog(mod, i)){
 				return i;

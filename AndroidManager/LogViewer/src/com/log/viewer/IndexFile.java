@@ -140,4 +140,35 @@ public class IndexFile {
 	    return this.mReader != null;
 	}
 
+    // Get file
+    public int getFileId(String line) {
+        int id = -1;
+        if (line != null && line.length() == TRIM_LENGTH) {
+            id =  IndexFile.parseInt(line.substring(0,1));
+        }
+        return id;
+    }
+
+    // Get offset
+    public int getOffset(String line) {
+        int offset = -1;
+        if (line != null && line.length() == TRIM_LENGTH) {
+            offset = IndexFile.parseInt(line.substring(1, 9));
+        }
+        return offset;
+    }
+
+    // Parse INT
+    public static int parseInt(Object obj) {
+        int result = -1;
+        if (obj != null) {
+            try {
+                result = Integer.parseInt(obj.toString());
+            } catch (Exception e) {
+                // catch all exception
+            }
+        }
+        return result;
+    }
+
 }
