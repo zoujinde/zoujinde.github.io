@@ -41,7 +41,8 @@
 ./LogViewer/src/com/log/viewer/LogWin.java
 ./LogViewer/src/com/log/viewer/Filter.java
 ./LogViewer/src/com/log/viewer/TabComponent.java
-./LogViewer/src/com/log/viewer/LogIndexModel.java
 ./LogViewer/src/com/log/viewer/FileManager.java
 ./LogViewer/src/com/log/viewer/IndexFile.java
+./LogViewer/src/com/log/viewer/DataAllModel.java
+./LogViewer/src/com/log/viewer/DataSubModel.java
 
