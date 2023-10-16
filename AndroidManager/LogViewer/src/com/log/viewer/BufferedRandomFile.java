@@ -8,19 +8,17 @@ import java.util.ArrayList;
 public class BufferedRandomFile extends RandomAccessFile {
     private static final int SIZE = 8192;
     private byte[] mBuffer = new byte[SIZE];
-    /*
     private int mBufferStart = 0;
     private int mBufferEnd = 0;
     private int mLineStart = 0;
     private int mNextStart = 0;
-    */
 
     // Constructor
     public BufferedRandomFile(String name, String mode) throws FileNotFoundException {
         super(name, mode);
     }
 
-    // Read line
+    /* Disable the slow method
     public String readLine(int start, int length) throws IOException {
         String result = null;
         if (start >= 0 && length > 0 && length <= SIZE) {
@@ -36,7 +34,7 @@ public class BufferedRandomFile extends RandomAccessFile {
             }
         }
         return result;
-    }
+    }*/
 
     // Get the line end '\n' list
     public void getLineEndList(int start, int length, ArrayList<Integer> lineEndList) throws IOException {
@@ -55,7 +53,6 @@ public class BufferedRandomFile extends RandomAccessFile {
     // The old readLine read byte one by one, so it is very slow
     // The new readLine calls the read(buffer) to improve speed
     // Argument int           : the line start position
-    /* FIXME : Seems the method is wrong when someone call seek()
     public String readLine(final int lineStart) throws IOException {
         if (lineStart < 0) {
             return null; // Invalid position
@@ -71,9 +68,9 @@ public class BufferedRandomFile extends RandomAccessFile {
                 p0 =  pointer - mBufferStart;
                 read = mBufferEnd - mBufferStart;
             } else {
-                if (read == 0) { // Only the 1st read to seek
-                    this.seek(pointer);
-                }
+                // Because others call seek to change the position
+                // So we have to call seek before we read buffer
+                this.seek(pointer);
                 read = this.read(mBuffer);
                 if (read <= 0) {
                     mNextStart = -1;
@@ -121,5 +118,5 @@ public class BufferedRandomFile extends RandomAccessFile {
     public int getNextStrat() {
         return this.mNextStart;
     }
-    */
+
 }

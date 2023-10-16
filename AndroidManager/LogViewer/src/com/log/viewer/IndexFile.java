@@ -118,7 +118,7 @@ public class IndexFile {
 		int lineStart = row * LINE_LENGTH;
 		String line = null;
 		try {
-		    line = mReader.readLine(lineStart, LINE_LENGTH * 2);
+		    line = mReader.readLine(lineStart);
 		} catch (IOException e) {
 			System.err.println(mFilePath + " readLine : " + e);
 		}

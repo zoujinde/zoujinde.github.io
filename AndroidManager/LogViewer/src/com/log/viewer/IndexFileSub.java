@@ -100,7 +100,7 @@ public class IndexFileSub {
         int lineStart = row * LINE_LENGTH;
         String line = null;
         try {
-            line = mReader.readLine(lineStart, LINE_LENGTH);
+            line = mReader.readLine(lineStart);
         } catch (IOException e) {
             System.err.println("IndexFileSub readLine : " + e);
         }

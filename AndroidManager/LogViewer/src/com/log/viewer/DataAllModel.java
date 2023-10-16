@@ -111,11 +111,8 @@ public class DataAllModel extends AbstractTableModel {
                 if (fileId >=0 && fileId < mFiles.length) {
                     int offset = mIndex.getOffset(value);
                     if (offset >= 0) {
-                        int length = mIndex.getLength(value);
-                        if (length > 0) {
-                            mLine = mFiles[fileId].readLine(offset, length);
-                            mSimpleFile = mSimpleName[fileId];
-                        }
+                        mLine = mFiles[fileId].readLine(offset);
+                        mSimpleFile = mSimpleName[fileId];
                     }
                 }
                 mColorIndex = mIndex.getColorIndex(value);
