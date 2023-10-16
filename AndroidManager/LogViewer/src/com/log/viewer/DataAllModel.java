@@ -1,6 +1,7 @@
 package com.log.viewer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.table.AbstractTableModel;
@@ -29,16 +30,17 @@ public class DataAllModel extends AbstractTableModel {
 
     private BufferedRandomFile[] mFiles = null;
     private String[] mSimpleName = null;
+    private String mSimpleFile = null;
     private int mRowIndex = -1;
+    private int mColorIndex = -1;
     private String[] mValue = new String[7];
     private String mLine = "";
 
     // To save memory, only save index data, do not save log data
     // 2021-10-20 Save index data to file, do not use memory
     // private ArrayList<Index> mIndex = new ArrayList<Index>();
-    private IndexFile mIndex = null;
-    String mIndexFile = null;
-    DataSubModel mDataSub = null;
+    IndexFile mIndex = null;
+    String mIndexName = null;
 
     // The full data model
     public DataAllModel(String[] files) {
@@ -64,14 +66,14 @@ public class DataAllModel extends AbstractTableModel {
 
     // Clear the old index files and return the new index file
     private String getIndexFile() {
-        if (mIndexFile == null) {
+        if (mIndexName == null) {
             Date d = new Date();
             String date = String.format("%tF", d);
             String time = String.format("%tT", d).replace(":", "");
             String home = MyTool.getHome();
-            mIndexFile = String.format("%s%s_%s_A", home, date, time) + INDEX;
+            mIndexName = String.format("%s%s_%s_A", home, date, time) + INDEX;
         }
-        return mIndexFile;
+        return mIndexName;
     }
 
     @Override
@@ -99,23 +101,24 @@ public class DataAllModel extends AbstractTableModel {
         // If row changed, then set values
         if (this.mRowIndex != row) {
             this.mRowIndex = row;
-            String line = mIndex.readLine(row);
             try {
                 mLine = "";
                 for (int i = 0; i < mValue.length; i++) {
-                    mValue[i] = "";
+                    mValue[i] = null;
                 }
-                int fileId = mIndex.getFileId(line);
+                String value = mIndex.readLine(row);
+                int fileId = mIndex.getFileId(value);
                 if (fileId >=0 && fileId < mFiles.length) {
-                    int offset = mIndex.getOffset(line);
+                    int offset = mIndex.getOffset(value);
                     if (offset >= 0) {
-                        mLine = mFiles[fileId].readLine(offset);
-                        if (mLine != null) {
-                            setValues(mLine);
-                            mValue[COL_FILE] = mSimpleName[fileId];
+                        int length = mIndex.getLength(value);
+                        if (length > 0) {
+                            mLine = mFiles[fileId].readLine(offset, length);
+                            mSimpleFile = mSimpleName[fileId];
                         }
                     }
                 }
+                mColorIndex = mIndex.getColorIndex(value);
             } catch (IOException e) {
                 System.out.println("DataAllModel.getValueAt : " + e);
             }
@@ -125,25 +128,18 @@ public class DataAllModel extends AbstractTableModel {
         if (col == GET_LOG_LINE) {// return the full log line
             value = mLine;
         } else if (col == GET_COLOR) {
-            value = this.getColorIndex(row);
+            value = mColorIndex;
         } else if (col == COL_NUM) {
             value = String.valueOf(row + 1);
+        } else if (col == COL_FILE) {
+            value = mSimpleFile;
         } else {
+            if (mValue[COL_LOG] == null && mLine != null) {
+                setValues(mLine); // setValues is slow, so delay call here
+            }
             value = mValue[col];
         }
         return value == null ? "" : value;
-    }
-
-    // Get the color index by the originalIndex
-    private String getColorIndex(int row) {
-        String result = "";
-        if (row >= 0 && mDataSub != null) {
-            row = mDataSub.getFilterIndex(row);
-            if (row >= 0) {
-                result = mDataSub.getColorIndex(row);
-            }
-        }
-        return result;
     }
 
     // Set values
@@ -203,7 +199,7 @@ public class DataAllModel extends AbstractTableModel {
             }
         }
 
-        if (mValue[COL_LOG].equals("")) {
+        if (mValue[COL_LOG] == null) {
             mValue[COL_LOG] = line;
         }
         // Wrap the log
@@ -259,38 +255,41 @@ public class DataAllModel extends AbstractTableModel {
         if (fileCount > 10) {
             return "Only select 1 - 10 log files.";
         }
-        byte i = 0;
         String line = null;
 
         // 2014-1-29 Remember the list init rows
         int initRows = this.getRowCount();
         int offset = 0;
+        int start = 0;
+        int length = 0;
+        final int page = 8192;
+        ArrayList<Integer> lineEndList = new ArrayList<Integer>();
         try {
             // Read file one by one
-            for (i = 0; i < fileCount; i++) {
+            for (int file = 0; file < fileCount; file++) {
                 if (fileCount == 1 && initRows > 0) {
                     // Read the last line to refresh new logs
-                    line = mIndex.readLine(initRows - 1);
-                    mFiles[i].readLine(mIndex.getOffset(line));
-                    offset = mFiles[i].getNextStrat();
+                    line = mIndex.readLine(initRows);
+                    offset = mIndex.getOffset(line);
+                    start = -1; // ignore the last line
                 } else {
                     offset = 0;
+                    start = 0; // The 1st line start
                 }
                 while (true) {
-                    line = mFiles[i].readLine(offset);
-                    if (line  == null) {
+                    mFiles[file].getLineEndList(offset, page, lineEndList);
+                    int size = lineEndList.size();
+                    if (size <= 0) {
                         break; // EOF
                     }
-                    /* 2023-10-13  Because user can change time, so we can't sort by time.
-                    if (fileCount == 1) {
-                        this.mIndex.add("", i, offset);
-                    } else {
-                        line = this.getLogTime(line);
-                        //timeList.add(String.format("%s%d%8d", line, i, offset));
-                        this.mIndex.add(line, i, offset);
-                    }*/
-                    this.mIndex.add(i, offset, -1);
-                    offset = mFiles[i].getNextStrat();
+                    for (int i = 0; i < size; i++) {
+                        length = lineEndList.get(i) - start;
+                        if (start >= 0 && length >= 0) {
+                            mIndex.add(file, start, length);
+                        }
+                        start = lineEndList.get(i) + 1;
+                    }
+                    offset += page;
                 }
             }
 

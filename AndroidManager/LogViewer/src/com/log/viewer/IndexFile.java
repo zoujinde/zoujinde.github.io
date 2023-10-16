@@ -16,11 +16,13 @@ public class IndexFile {
 	private BufferedRandomFile mReader = null;
     @SuppressWarnings("unused")
     private boolean mTimeSort = false;
+    private final byte[] mColorBytes = new byte[1];
 
-    // Each line length is 12 = 1 + 8 + 2 + 1
+    // Each line length is 12 = 1 + 8 + 1 + 1 + 1
     // fileId : 1
     // offset : 8
-    // color  : 2
+    // length : 1 (A=100, B=200, C=300, ... Z=2600)
+    // color  : 1 (A=0, B=1,   C=2, ... Z=25)
     // end \n : 1
 	private static final int LINE_LENGTH = 12;
 	private static final int TIME_LENGTH = 18;
@@ -32,28 +34,16 @@ public class IndexFile {
 			mFilePath = file;
 			mWriter = new FileWriter(file);
 		} catch (IOException e) {
-			System.err.println(file + " : " + e);
+			System.err.println("IndexFile : " + e);
 		}
 	}
 
 	//public void add(Index index) {
-	public void add(int file, int offset, int color) throws IOException {
+	public void add(int file, int offset, int length) throws IOException {
 		mSize++; // Save data to index file
-		String line = String.format("%d%08d%02d\n", file, offset, color);
+		length = length / 100 + 'A';
+		String line = String.format("%d%08d%c \n", file, offset, length);
 		mWriter.write(line);
-	}
-
-	// InitFileWriter
-	public void initWriter() {
-		try {
-			if (mWriter == null) {
-				mWriter = new FileWriter(mFilePath);
-			} else {
-				throw new RuntimeException("initWriter : duplicated");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	// InitFileReader
@@ -69,12 +59,12 @@ public class IndexFile {
 				sortFile(mFilePath, tmpFile);
 			}*/
 			if (mReader == null) {
-				mReader = new BufferedRandomFile(mFilePath, "r");
+				mReader = new BufferedRandomFile(mFilePath, "rw");
 			} else {
-				throw new RuntimeException("initReader : duplicated");
+				throw new RuntimeException("IndexFile initReader again");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+            System.err.println("IndexFile initReader : " + e);
 		}
 	}
 
@@ -128,7 +118,7 @@ public class IndexFile {
 		int lineStart = row * LINE_LENGTH;
 		String line = null;
 		try {
-		    line = mReader.readLine(lineStart);
+		    line = mReader.readLine(lineStart, LINE_LENGTH * 2);
 		} catch (IOException e) {
 			System.err.println(mFilePath + " readLine : " + e);
 		}
@@ -144,7 +134,7 @@ public class IndexFile {
     public int getFileId(String line) {
         int id = -1;
         if (line != null && line.length() == TRIM_LENGTH) {
-            id =  IndexFile.parseInt(line.substring(0,1));
+            id =  IndexFile.parseInt(line.substring(0, 1));
         }
         return id;
     }
@@ -156,6 +146,42 @@ public class IndexFile {
             offset = IndexFile.parseInt(line.substring(1, 9));
         }
         return offset;
+    }
+
+    // Get line length
+    public int getLength(String line) {
+        int length = -1;
+        if (line != null && line.length() == TRIM_LENGTH) {
+            length = (line.charAt(9) - 'A' + 1) * 100;
+        }
+        return length;
+    }
+
+    // Get color index
+    public int getColorIndex(String line) {
+        int color = -1;
+        if (line != null && line.length() == TRIM_LENGTH && line.charAt(10) != ' ') {
+            color = line.charAt(10) - 'A';
+        }
+        return color;
+    }
+
+    // Set color index
+    public void setColorIndex(int row, int index) {
+        if (row >= 0 && row < mSize) {
+            try {
+                if (index >= 0 && index <= 25) { // A to Z
+                    mColorBytes[0] = (byte)('A' + index);
+                } else { // Clear color when index < 0
+                    mColorBytes[0] = ' ';
+                }
+                long pos = row * LINE_LENGTH + 10;
+                mReader.seek(pos);
+                mReader.write(mColorBytes, 0, 1);
+            } catch (IOException e) {
+                System.err.println("setColorIndex : " + e);
+            }
+        }
     }
 
     // Parse INT

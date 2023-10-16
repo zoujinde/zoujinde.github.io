@@ -227,7 +227,7 @@ public class LogWin extends JInternalFrame {
 		mMenu.addComponent(mTableSub);
 
 		// 2021-10-22 must initiate
-        mModSub.addRowToFilter(DataSubModel.TIP_ROW, -1);
+        mModSub.addRowToFilter(DataSubModel.TIP_ROW);
 		mModSub.initFilterReader();
 
 		this.addInternalFrameListener(new InternalFrameAdapter(){
@@ -538,7 +538,8 @@ public class LogWin extends JInternalFrame {
 		if (size > 0) {
 		    count = mModAll.getRowCount();
 		}
-        mModSub.clear();//Clear sub data
+		// Clear data and color index
+        mModSub.clear(mModAll.mIndex);
         mModSub.initFilterWriter();
 		for(int row = 0; row < count; row++){
 			int color = -1;
@@ -558,7 +559,8 @@ public class LogWin extends JInternalFrame {
 			if (color >= 0) {
 			    // DefaultTableModel.addRow() will trigger table event, so it is slow.
 			    // But mModSub.addRowToFilter will not trigger table event, so not slow.
-				mModSub.addRowToFilter(row, color);
+				mModSub.addRowToFilter(row);
+				mModAll.mIndex.setColorIndex(row, color);
 			}
 		}
         mModSub.initFilterReader();

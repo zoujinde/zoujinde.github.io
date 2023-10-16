@@ -11,8 +11,8 @@ public class DataSubModel extends AbstractTableModel {
     public static final String TIP = "Tips : \n\n  Right-Click-Menu to find text, add new filter and save log.\n\n"
             + "  Click the Left-Buttons to apply filters, add new filter and delete filter.";
 
-    private IndexFile mIndex = null;
-    private String mIndexFile = null;
+    private IndexFileSub mIndexSub = null;
+    private String mIndexSubName = null;
     private DataAllModel mDataAll = null;
     private int mRowIndex = -1;
     private int mOriginalRow = -1;
@@ -39,7 +39,7 @@ public class DataSubModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return mIndex.size();
+        return mIndexSub.size();
     }
 
     @Override
@@ -47,14 +47,12 @@ public class DataSubModel extends AbstractTableModel {
         // If row changed, then set values
         if (this.mRowIndex != row) {
             this.mRowIndex = row;
-            String line = mIndex.readLine(row);
-            this.mOriginalRow = mIndex.getOffset(line);
+            String line = mIndexSub.readLine(row);
+            this.mOriginalRow = IndexFile.parseInt(line);
         }
         // Get value
         Object value = "";
-        if (col == DataAllModel.GET_COLOR) {
-            value = this.getColorIndex(row);
-        } else if (mOriginalRow >= 0) {
+        if (mOriginalRow >= 0) {
             value = mDataAll.getValueAt(mOriginalRow, col);
         } else if (mOriginalRow == TIP_ROW && col == DataAllModel.COL_LOG) {
             value = TIP;
@@ -70,38 +68,25 @@ public class DataSubModel extends AbstractTableModel {
     // The filtered data model
     public DataSubModel(DataAllModel dataAll) {
         this.mDataAll = dataAll;
-        this.mIndex = new IndexFile(getIndexFile());
-        dataAll.mDataSub = this;
+        this.mIndexSub = new IndexFileSub(getIndexFile());
     }
 
     // Clear the old index files and return the new index file
     private String getIndexFile() {
-        if (mIndexFile == null) {
-            mIndexFile = mDataAll.mIndexFile.replace("_A.", "_B.");
+        if (mIndexSubName == null) {
+            mIndexSubName = mDataAll.mIndexName.replace("_A.", "_B.");
         }
-        return mIndexFile;
-    }
-
-    // Get the color index by the originalIndex
-    String getColorIndex(int row) {
-        String result = "";
-        if (row >= 0) {
-            String line = mIndex.readLine(row);
-            if (line != null && line.length() == IndexFile.TRIM_LENGTH) {
-                result = line.substring(9, IndexFile.TRIM_LENGTH);
-            }
-        }
-        return result;
+        return mIndexSubName;
     }
 
     // Dispose to close files
     public void dispose() {
-        this.mIndex.clear();
+        this.mIndexSub.clear(null);
     }
 
     // Delete all rows
-    public void clear() {
-        this.mIndex.clear();
+    public void clear(IndexFile indexFile) {
+        this.mIndexSub.clear(indexFile);
         this.mRowIndex = -1; // Must reset -1
         this.mIndexBegin = -1;
         this.mIndexCenter = -1;
@@ -112,18 +97,18 @@ public class DataSubModel extends AbstractTableModel {
 
     // Initiate the writer
     public void initFilterWriter() {
-        this.mIndex.initWriter();
+        this.mIndexSub.initWriter();
     }
 
     // Initiate the filter row and file
     public void initFilterReader() {
-        this.mIndex.initReader();
+        this.mIndexSub.initReader();
     }
 
-    // Add row number to filer data model
-    public void addRowToFilter(int rowNumber, int color) {
+    // Add the original row index to filer data model
+    public void addRowToFilter(int rowIndex) {
         try {
-            this.mIndex.add(0, rowNumber, color);
+            this.mIndexSub.add(rowIndex);
         } catch (IOException e) {
             System.err.println("addRowToFilter : " + e);
         }
@@ -131,15 +116,15 @@ public class DataSubModel extends AbstractTableModel {
 
     // Get the originalIndex by the filterIndex
     public int getOriginalIndex(final int filterIndex) {
-        String line = mIndex.readLine(filterIndex);
-        return mIndex.getOffset(line);
+        String line = mIndexSub.readLine(filterIndex);
+        return IndexFile.parseInt(line);
     }
 
     // Get the filterIndex by the originalRowIndex
     public int getFilterIndex(final int original){
         int begin = 0;
-        int end = mIndex.size() - 1;
-        if (end < 0 || !mIndex.isReaderOn()) { // Reader must be ON
+        int end = mIndexSub.size() - 1;
+        if (end < 0 || !mIndexSub.isReaderOn()) { // Reader must be ON
             return -1;
         }
         // Check and set the index
