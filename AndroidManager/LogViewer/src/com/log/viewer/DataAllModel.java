@@ -258,7 +258,6 @@ public class DataAllModel extends AbstractTableModel {
         int initRows = this.getRowCount();
         int offset = 0;
         int start = 0;
-        int length = 0;
         final int page = 8192;
         ArrayList<Integer> lineEndList = new ArrayList<Integer>();
         try {
@@ -280,9 +279,8 @@ public class DataAllModel extends AbstractTableModel {
                         break; // EOF
                     }
                     for (int i = 0; i < size; i++) {
-                        length = lineEndList.get(i) - start;
-                        if (start >= 0 && length >= 0) {
-                            mIndex.add(file, start, length);
+                        if (start >= 0) {
+                            mIndex.add(file, start);
                         }
                         start = lineEndList.get(i) + 1;
                     }

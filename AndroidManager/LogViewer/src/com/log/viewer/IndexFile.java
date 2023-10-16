@@ -38,11 +38,11 @@ public class IndexFile {
 		}
 	}
 
-	//public void add(Index index) {
-	public void add(int file, int offset, int length) throws IOException {
+	// Add method : don't need the length data
+	public void add(int file, int offset) throws IOException {
 		mSize++; // Save data to index file
-		length = length / 100 + 'A';
-		String line = String.format("%d%08d%c \n", file, offset, length);
+		// length = length / 100 + 'A';
+		String line = String.format("%d%08d. \n", file, offset);
 		mWriter.write(line);
 	}
 
