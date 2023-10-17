@@ -47,8 +47,7 @@ public class DataSubModel extends AbstractTableModel {
         // If row changed, then set values
         if (this.mRowIndex != row) {
             this.mRowIndex = row;
-            String line = mIndexSub.readLine(row);
-            this.mOriginalRow = IndexFile.parseInt(line);
+            this.mOriginalRow = this.getOriginalIndex(row);
         }
         // Get value
         Object value = "";
@@ -117,7 +116,7 @@ public class DataSubModel extends AbstractTableModel {
     // Get the originalIndex by the filterIndex
     public int getOriginalIndex(final int filterIndex) {
         String line = mIndexSub.readLine(filterIndex);
-        return IndexFile.parseInt(line);
+        return IndexFile.parseInt32(line);
     }
 
     // Get the filterIndex by the originalRowIndex

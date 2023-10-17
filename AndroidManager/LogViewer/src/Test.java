@@ -2,9 +2,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.regex.Pattern;
-
-
 
 public class Test { 
 	public static void main(String[] args) {
@@ -12,16 +9,17 @@ public class Test {
 		double data = 123456789.195;
 		System.out.println("double = " + data);
 		System.out.println("round2 = " + round2(data));
-		*/
-	    
 	    //String s = "06-15 20:20:22.000             D StatisticsDataImpl.getStatDataXML:LSF_DEVICE_PUSH:stat is :<StaData><DynaData><DataAccInfo><NetMode></NetMode><IP></IP><APN></APN><OperCode></OperCode><IMSI /></DataAccInfo></DynaData><FBData><DisMessages>rinter2_ff80808145fa95470145fa987bd40002,rinter2_ff80808145fa95470145fa987bd40002_d,rinter2_ff80808145fa95470145fa987bd40002_INS_e</DisMessages><ClicMessages>rinter2_ff80808145fa95470145fa987bd40002,rinter2_ff80808145fa95470145fa987bd40002_c,rinter2_ff80808145fa95470145fa987bd40002_ATI,rinter2_ff80808145fa95470145fa987bd40002_ATI,</ClicMessages><AppInstalls><App><MessageFBID>rinter2_ff80808145fa95470145fa987bd40002</MessageFBID><PackName>com.baidu.appsearch</PackName><CurrVer>null</CurrVer><TargetVer>16782103</TargetVer><Result>Success</Result><ErrCode>null</ErrCode></App></AppInstalls><AppDownloads><DownloadApp><MessageFBID>rinter2_ff80808145fa95470145fa987bd40002</MessageFBID><PackName>com.baidu.appsearch</PackName><CurrVer>16782103</CurrVer><Result>Success</Result></DownloadApp></AppDownloads><EngUpgrades /><NacDataList /></FBData></StaData>";
         String s = "<StaData><DynaData><DataAccInfo><NetMode></NetMode><IP></IP><APN></APN><OperCode></OperCode><IMSI /></DataAccInfo></DynaData><FBData><DisMessages>rinter2_ff80808145fa95470145fa987bd40002,rinter2_ff80808145fa95470145fa987bd40002_d,rinter2_ff80808145fa95470145fa987bd40002_INS_e</DisMessages><ClicMessages>rinter2_ff80808145fa95470145fa987bd40002,rinter2_ff80808145fa95470145fa987bd40002_c,rinter2_ff80808145fa95470145fa987bd40002_ATI,rinter2_ff80808145fa95470145fa987bd40002_ATI,</ClicMessages><AppInstalls><App><MessageFBID>rinter2_ff80808145fa95470145fa987bd40002</MessageFBID><PackName>com.baidu.appsearch</PackName><CurrVer>null</CurrVer><TargetVer>16782103</TargetVer><Result>Success</Result><ErrCode>null</ErrCode></App></AppInstalls><AppDownloads><DownloadApp><MessageFBID>rinter2_ff80808145fa95470145fa987bd40002</MessageFBID><PackName>com.baidu.appsearch</PackName><CurrVer>16782103</CurrVer><Result>Success</Result></DownloadApp></AppDownloads><EngUpgrades /><NacDataList /></FBData></StaData>";
 	    Pattern p = Pattern.compile("_ff80808145fa95470145fa987bd40002_INS_e");
 	    System.out.println(p.matcher(s).find());
-
 	    //testJdbcExcel();
+        */
+	    String s32 = String.format("%4s", Integer.toString(999999999, 32));
+	    System.out.println("s32=" + s32);
+        System.out.println("s32=" + Integer.parseInt(s32.trim(), 32));
 	}
-	
+
 	//JDBC excel test
 	public static void testJdbcExcel(){
 	    Connection con = null;   

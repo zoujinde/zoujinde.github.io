@@ -526,6 +526,7 @@ public class LogWin extends JInternalFrame {
 		    System.out.println("applyFilter : newList is null");
 			return;
 		}
+        long time = System.currentTimeMillis();
 		this.mFilterList.removeAllElements(); // Clear data
         this.mFilterList.addAll(newList); // Add new filters
 
@@ -560,7 +561,6 @@ public class LogWin extends JInternalFrame {
 			    // DefaultTableModel.addRow() will trigger table event, so it is slow.
 			    // But mModSub.addRowToFilter will not trigger table event, so not slow.
 				mModSub.addRowToFilter(row);
-				mModAll.mIndex.setColorIndex(row, color);
 			}
 		}
         mModSub.initFilterReader();
@@ -571,6 +571,8 @@ public class LogWin extends JInternalFrame {
 		if(this.mFilterList.size()>0){
 	        this.toLogRow(mFilterList.get(0), FilterTable.COL_TOP);
 		}
+        time = System.currentTimeMillis() - time;
+        mBtnApply.setToolTipText("Apply seconds : " + time / 1000);
 	}
 
 	//Filter table MouseLSN
@@ -976,16 +978,17 @@ public class LogWin extends JInternalFrame {
 		public Component getTableCellRendererComponent(JTable table,Object value,
 				boolean isSelected, boolean hasFocus, int row,int column) {
             // If row change or 0 must get color again
-		    if (mRow != row || row == 0){
+		    if (mRow != row){
 				mRow = row;
-				Object obj = table.getValueAt(row, DataAllModel.GET_COLOR);
-				int i = IndexFile.parseInt(obj);
-				if (i >= 0 && i < mFilterList.size()) {
-				    mRowColor = mFilterList.get(i).mColor;
-				} else {
-	                mRowColor = Color.black;
-				}
-			}
+				mRowColor = Color.black;
+				TableModel model = table.getModel();
+                for (Filter filter : mFilterList) {
+                    if (filter.filterLog(model, row)) {
+                        mRowColor = filter.mColor;
+                        break;
+                    }
+                }
+		    }
             // Get the value
             String tmp = "";
             if (value == null) {

@@ -11,10 +11,10 @@ public class IndexFileSub {
     private FileWriter mWriter = null;
     private BufferedRandomFile mReader = null;
 
-    // Each line length is 8 = 7 + 1
-    // Original Row Index : 7
+    // Each line length is 5 = 4 + 1
+    // Original Row (0 - 999999) 32bit : 4
     // New Line String \n : 1
-    private static final int LINE_LENGTH = 8;
+    private static final int LINE_LENGTH = 5;
 
     // Constructor
     public IndexFileSub(String file) {
@@ -29,7 +29,7 @@ public class IndexFileSub {
     // Add the original rowIndex
     public void add(int rowIndex) throws IOException {
         mSize++;
-        String line = String.format("%07d\n", rowIndex);
+        String line = String.format("%4s\n", Integer.toString(rowIndex, 32));
         mWriter.write(line);
     }
 
@@ -73,19 +73,6 @@ public class IndexFileSub {
         mSize = 0;
         try {
             if (mReader != null) {
-                if (indexFile != null) { // clear all color data
-                    String line = null;
-                    int row = 0;
-                    mReader.seek(0);
-                    while (true) {
-                        line = mReader.readLine();
-                        if (line == null) {
-                            break;
-                        }
-                        row = IndexFile.parseInt(line);
-                        indexFile.setColorIndex(row, -1);
-                    }
-                }
                 mReader.close(); //Remove file
                 mReader = null;
                 new File(mFilePath).delete();

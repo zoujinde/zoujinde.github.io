@@ -20,7 +20,6 @@ public class DataAllModel extends AbstractTableModel {
     public static final int COL_FILE = 6;
 
     public static final int GET_LOG_LINE = -1;
-    public static final int GET_COLOR = -2;
 
     private static final int TIME_LEN = 18;
     private static final int HEAD_LEN = 39;
@@ -32,7 +31,6 @@ public class DataAllModel extends AbstractTableModel {
     private String[] mSimpleName = null;
     private String mSimpleFile = null;
     private int mRowIndex = -1;
-    private int mColorIndex = -1;
     private String[] mValue = new String[7];
     private String mLine = "";
 
@@ -115,7 +113,6 @@ public class DataAllModel extends AbstractTableModel {
                         mSimpleFile = mSimpleName[fileId];
                     }
                 }
-                mColorIndex = mIndex.getColorIndex(value);
             } catch (IOException e) {
                 System.out.println("DataAllModel.getValueAt : " + e);
             }
@@ -124,8 +121,6 @@ public class DataAllModel extends AbstractTableModel {
         Object value = "";
         if (col == GET_LOG_LINE) {// return the full log line
             value = mLine;
-        } else if (col == GET_COLOR) {
-            value = mColorIndex;
         } else if (col == COL_NUM) {
             value = String.valueOf(row + 1);
         } else if (col == COL_FILE) {
