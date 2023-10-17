@@ -983,7 +983,8 @@ public class LogWin extends JInternalFrame {
 				mRowColor = Color.black;
 				TableModel model = table.getModel();
                 for (Filter filter : mFilterList) {
-                    if (filter.filterLog(model, row)) {
+                    // Check mRowCount to avoid filterLog
+                    if (filter.mRowCount > 0 && filter.filterLog(model, row)) {
                         mRowColor = filter.mColor;
                         break;
                     }

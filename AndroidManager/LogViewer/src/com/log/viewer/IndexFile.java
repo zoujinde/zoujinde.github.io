@@ -55,7 +55,7 @@ public class IndexFile {
 				sortFile(mFilePath, tmpFile);
 			}*/
 			if (mReader == null) {
-				mReader = new BufferedRandomFile(mFilePath, "rw");
+				mReader = new BufferedRandomFile(mFilePath, "r");
 			} else {
 				throw new RuntimeException("IndexFile initReader again");
 			}

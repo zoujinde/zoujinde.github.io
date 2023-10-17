@@ -1,6 +1,5 @@
 package com.log.viewer;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -10,44 +9,32 @@ public class BufferedRandomFile extends RandomAccessFile {
     private byte[] mBuffer = new byte[SIZE];
     private int mBufferStart = 0;
     private int mBufferEnd = 0;
-    private int mLineStart = 0;
-    private int mNextStart = 0;
+    private long mFileLength = 0;
 
     // Constructor
-    public BufferedRandomFile(String name, String mode) throws FileNotFoundException {
+    public BufferedRandomFile(String name, String mode) throws IOException {
         super(name, mode);
+        // The this.length() is very slow, so we have to only call it once.
+        this.mFileLength = this.length();
     }
 
-    /* Disable the slow method
-    public String readLine(int start, int length) throws IOException {
-        String result = null;
-        if (start >= 0 && length > 0 && length <= SIZE) {
+    // Get the line end '\n' list
+    public int getLineEndList(int start, ArrayList<Integer> lineEndList) throws IOException {
+        int next = -1;
+        lineEndList.clear();
+        if (start >= 0) {
             this.seek(start);
-            int read = this.read(mBuffer, 0, length);
+            int read = this.read(mBuffer);
             if (read > 0) {
+                next = start + read; // next position
                 for (int i = 0; i < read; i++) {
                     if (mBuffer[i] == '\n') {
-                        result = new String(mBuffer, 0, i);
-                        break;
+                        lineEndList.add(start + i);
                     }
                 }
             }
         }
-        return result;
-    }*/
-
-    // Get the line end '\n' list
-    public void getLineEndList(int start, int length, ArrayList<Integer> lineEndList) throws IOException {
-        lineEndList.clear();
-        if (start >= 0 && length > 0 && length <= SIZE) {
-            this.seek(start);
-            int read = this.read(mBuffer, 0, length);
-            for (int i = 0; i < read; i++) {
-                if (mBuffer[i] == '\n') {
-                    lineEndList.add(start + i);
-                }
-            }
-        }
+        return next; // return the next position
     }
 
     // The old readLine read byte one by one, so it is very slow
@@ -62,7 +49,7 @@ public class BufferedRandomFile extends RandomAccessFile {
         boolean findNewLine = false;
 
         String result = "";
-        while (true) {
+        while (pointer < mFileLength) { // Check file length
             // Check if the pointer is in the buffer
             if (pointer >= mBufferStart && pointer < mBufferEnd) {
                 p0 =  pointer - mBufferStart;
@@ -73,9 +60,7 @@ public class BufferedRandomFile extends RandomAccessFile {
                 this.seek(pointer);
                 read = this.read(mBuffer);
                 if (read <= 0) {
-                    mNextStart = -1;
-                    mLineStart = -1;
-                    return null; // EOF
+                    break; // EOF
                 }
                 this.mBufferStart = pointer;
                 this.mBufferEnd = pointer + read;
@@ -85,7 +70,6 @@ public class BufferedRandomFile extends RandomAccessFile {
             // Find the new line
             for (p1 = p0; p1 < read; p1++) {
                 if (mBuffer[p1] == '\n') {
-                    mNextStart = mBufferStart + p1 + 1;
                     findNewLine = true;
                     break;
                 }
@@ -107,16 +91,7 @@ public class BufferedRandomFile extends RandomAccessFile {
                 pointer = mBufferEnd;
             }
         }
-        this.mLineStart = lineStart;
         return result;
-    }
-
-    public int getLineStrat() {
-        return this.mLineStart;
-    }
-
-    public int getNextStrat() {
-        return this.mNextStart;
     }
 
 }
