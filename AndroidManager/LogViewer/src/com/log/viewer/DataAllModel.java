@@ -100,7 +100,7 @@ public class DataAllModel extends AbstractTableModel {
         if (this.mRowIndex != row) {
             this.mRowIndex = row;
             try {
-                mLine = "";
+                mLine = null;
                 for (int i = 0; i < mValue.length; i++) {
                     mValue[i] = null;
                 }

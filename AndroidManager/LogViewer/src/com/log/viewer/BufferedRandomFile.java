@@ -24,10 +24,10 @@ public class BufferedRandomFile extends RandomAccessFile {
         lineEndList.clear();
         if (start >= 0) {
             this.seek(start);
-            int read = this.read(mBuffer);
-            if (read > 0) {
-                next = start + read; // next position
-                for (int i = 0; i < read; i++) {
+            int size = this.read(mBuffer);
+            if (size > 0) {
+                next = start + size; // next position
+                for (int i = 0; i < size; i++) {
                     if (mBuffer[i] == '\n') {
                         lineEndList.add(start + i);
                     }
@@ -40,35 +40,41 @@ public class BufferedRandomFile extends RandomAccessFile {
     // The old readLine read byte one by one, so it is very slow
     // The new readLine calls the read(buffer) to improve speed
     // Argument int           : the line start position
-    public String readLine(final int lineStart) throws IOException {
-        if (lineStart < 0) {
+    public String readLine(int point) throws IOException {
+        if (point < 0) {
             return null; // Invalid position
         }
-        int pointer = lineStart;
-        int p0 = 0, p1 = 0, read = 0;
+        int p0 = 0, p1 = 0;
+        int seek = 0, size = 0;
         boolean findNewLine = false;
 
         String result = "";
-        while (pointer < mFileLength) { // Check file length
+        while (point < mFileLength) { // Check file length
             // Check if the pointer is in the buffer
-            if (pointer >= mBufferStart && pointer < mBufferEnd) {
-                p0 =  pointer - mBufferStart;
-                read = mBufferEnd - mBufferStart;
+            if (point >= mBufferStart && point < mBufferEnd) {
+                p0 =  point - mBufferStart;
+                size = mBufferEnd - mBufferStart;
             } else {
                 // Because others call seek to change the position
                 // So we have to call seek before we read buffer
-                this.seek(pointer);
-                read = this.read(mBuffer);
-                if (read <= 0) {
+                // To reduce the reading count, we should calculate the seek point.
+                // For example, current buffer SIZE = 8192, so we should read as below:
+                // buffer 0 : [8192*0 , 8192*1)
+                // buffer 1 : [8192*1 , 8192*2)
+                // buffer 2 : [8192*2 , 8192*3)
+                seek = SIZE * (point / SIZE);
+                this.seek(seek);
+                size = this.read(mBuffer);
+                if (size <= 0) {
                     break; // EOF
                 }
-                this.mBufferStart = pointer;
-                this.mBufferEnd = pointer + read;
-                p0 = 0; // Reset position of buffer
+                this.mBufferStart = seek;
+                this.mBufferEnd = seek + size;
+                p0 = point - seek; // Reset position of buffer
             }
 
             // Find the new line
-            for (p1 = p0; p1 < read; p1++) {
+            for (p1 = p0; p1 < size; p1++) {
                 if (mBuffer[p1] == '\n') {
                     findNewLine = true;
                     break;
@@ -88,7 +94,7 @@ public class BufferedRandomFile extends RandomAccessFile {
             if (findNewLine) {
                 break;
             } else {
-                pointer = mBufferEnd;
+                point = mBufferEnd;
             }
         }
         return result;

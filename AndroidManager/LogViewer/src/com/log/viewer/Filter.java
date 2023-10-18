@@ -2,6 +2,7 @@ package com.log.viewer;
 
 import java.awt.Color;
 import java.util.Vector;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.table.TableModel;
@@ -37,17 +38,15 @@ public class Filter {
 	private String mFilterStr = "";
 	private String mLevel = null;
 	
-	//private Vector<String> mTagList = null;
-	//private Vector<String> mPidList = null;
-	//private Vector<String> mLogList = null;
-    private Pattern mTagExp = null;
-    private Pattern mPidExp = null;
-    private Pattern mLogExp = null;
-	
+	// 2023-10-17 Reuse the 3 Matcher
+	private Matcher mTagExp = null;
+    private Matcher mPidExp = null;
+    private Matcher mLogExp = null;
+
     private boolean mTagIn = true;
 	private boolean mPidIn = true;
 	private boolean mLogIn = true;
-	
+
 	//Private constructor
 	public Filter(String filterStr) throws Exception{
 		this.setFilterStr(filterStr);
@@ -117,7 +116,7 @@ public class Filter {
 		this.mTagExp=null;
 		this.mPidExp=null;
 		this.mLogExp=null;
-		
+
 		//Set levels
 		tmp = FilterDlg.substr(newStr, FilterDlg.LEVEL_IN);
 		if(tmp.length()>0){
@@ -175,16 +174,16 @@ public class Filter {
 	}
 
 	//The method maybe throw Exception such as: java.util.regex.PatternSyntaxException
-	public static Pattern regPattern(String regExp, boolean caseInsensitive) throws Exception{
+	public static Matcher regPattern(String regExp, boolean caseInsensitive) throws Exception{
 	    try{
 //	        if(lowerFlag){ 
 //	            regExp = regExp.toLowerCase();
 //	        }
 //	        return Pattern.compile(regExp);
           if(caseInsensitive){ 
-              return Pattern.compile(regExp, Pattern.CASE_INSENSITIVE);
+              return Pattern.compile(regExp, Pattern.CASE_INSENSITIVE).matcher("");
           }else{
-              return Pattern.compile(regExp);
+              return Pattern.compile(regExp).matcher("");
           }
 	    }catch(Exception e){
 	        throw new Exception("Invalid filter : " + e);
@@ -213,7 +212,7 @@ public class Filter {
 		if(this.mPidExp!=null){//(mPidList!=null){
 			tmp = (String)mod.getValueAt(row, DataAllModel.COL_PID);
 			//found = this.findKeyWord(tmp, mPidList);
-			found = mPidExp.matcher(tmp).find();
+			found = mPidExp.reset(tmp).find();
 			if(mPidIn!=found){
 				return false;
 			}
@@ -223,7 +222,7 @@ public class Filter {
 		if(this.mTagExp!=null){//(mTagList!=null){
 			tmp = (String)mod.getValueAt(row, DataAllModel.COL_TAG);
 			//found = this.findKeyWord(tmp, mTagList);
-            found = mTagExp.matcher(tmp).find();
+            found = mTagExp.reset(tmp).find();
 			if (mTagIn!=found) {
 				return false;
 			}
@@ -233,7 +232,7 @@ public class Filter {
 		//Judge the key words in the log line, not only in message
 		if(this.mLogExp!=null){//(mLogList!=null){
 			tmp = (String)mod.getValueAt(row, DataAllModel.GET_LOG_LINE);
-	        found = this.mLogExp.matcher(tmp).find();
+	        found = this.mLogExp.reset(tmp).find();
 			if (mLogIn!=found) {
 				return false;
 			}

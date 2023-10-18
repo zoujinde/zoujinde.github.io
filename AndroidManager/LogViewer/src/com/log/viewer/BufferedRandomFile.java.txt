@@ -1,0 +1,153 @@
+package com.log.viewer;
+
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+
+// The mBufferList version is slower (time +50%), so can't be used for now.
+public class BufferedRandomFile extends RandomAccessFile {
+    private static final int SIZE = 8192;
+
+    // private class
+    private class Buffer {
+        private int mBegin = 0;
+        private int mEnd = 0;
+        private byte[] mData = new byte[SIZE];
+    }
+
+    // User usually repeats reading on PageUp/PageDown
+    // If we only have 1 buffer, we have to read 2 pages again.
+    // If we have 2 buffers, we can reuse them and not read again.
+    // In feature maybe we will have multiple buffers in the list.
+    private ArrayList<Buffer> mBufferList = null;
+    private long mFileLength = 0;
+
+    // Constructor
+    public BufferedRandomFile(String name, String mode) throws IOException {
+        super(name, mode);
+        // this.length() is very slow, so we have to only call it once.
+        this.mFileLength = this.length();
+    }
+
+    // Get the line end '\n' list
+    public int getLineEndList(int start, ArrayList<Integer> lineEndList) throws IOException {
+        int next = -1;
+        lineEndList.clear();
+        Buffer buffer = this.getBufferByPoint(start);
+        if (buffer != null) {
+            this.seek(start);
+            byte[] data = buffer.mData;
+            int size = this.read(data);
+            if (size > 0) {
+                next = start + size; // next position
+                buffer.mBegin = start;
+                buffer.mEnd = next;
+                for (int i = 0; i < read; i++) {
+                    if (data[i] == '\n') {
+                        lineEndList.add(start + i);
+                    }
+                }
+            } else { // No data
+                buffer.mBegin = 0;
+                buffer.mEnd = 0;
+            }
+        }
+        return next; // return the next position
+    }
+
+    // The old readLine read byte one by one, so it is very slow
+    // The new readLine calls the read(buffer) to improve speed
+    // Argument : the line start position
+    public String readLine(int point) throws IOException {
+        if (point < 0) {
+            return null; // Invalid position
+        }
+        int p0 = 0, p1 = 0;
+        int seek = 0, size = 0;
+        boolean findNewLine = false;
+
+        String result = "";
+        byte[] data = null;
+        while (point < mFileLength) { // Check file length
+            // Check if the point is in the buffer
+            Buffer buffer = this.getBufferByPoint(point);
+            if (buffer == null) {
+                break;
+            } else {
+                data = buffer.mData;
+                // Because others call seek to change the position
+                // So we have to call seek before we read buffer
+                // To reduce the reading count, we should calculate the seek point.
+                // For example, current buffer SIZE = 8192, so we should read as below:
+                // buffer 0 : [8192*0 , 8192*1)
+                // buffer 1 : [8192*1 , 8192*2)
+                // buffer 2 : [8192*2 , 8192*3)
+                seek = SIZE * (point / SIZE);
+                this.seek(seek);
+                size = this.read(data);
+                if (read <= 0) {
+                    buffer.mBegin = 0;
+                    buffer.mEnd = 0;
+                    break; // EOF
+                }
+                buffer.mBegin = seek;
+                buffer.mEnd = seek + size;
+                p0 = point - seek; // Reset position
+            }
+
+            // Find the new line
+            for (p1 = p0; p1 < size; p1++) {
+                if (data[p1] == '\n') {
+                    findNewLine = true;
+                    break;
+                }
+            }
+
+            if (p1 > p0) {
+                // Though String+= slower than StringBuider.append, but very few lines call it.
+                // So we use the String+= to avoid the multiple thread error of StringBuilder.
+                if (result.length() == 0) {
+                    result = new String(data, p0, p1 - p0);
+                } else {
+                    result += new String(data, p0, p1 - p0);
+                }
+            }
+
+            if (findNewLine) {
+                break;
+            } else {
+                point = buffer.mEnd;
+            }
+        }
+        return result;
+    }
+
+    // Get buffer by the begin and end point
+    private Buffer getBufferByPoint(int point) {
+        Buffer buffer  = null;
+        Buffer another = null;
+        if (point >= 0 && point < mFileLength) {
+            if (mBufferList == null) {
+                mBufferList =  new ArrayList<>();
+                mBufferList.add(new Buffer());
+                mBufferList.add(new Buffer());
+                // Only 2 buffers in list for now
+            }
+            // Check the point between mBegin and mEnd
+            for (Buffer b : mBufferList) {
+                if (point >= b.mBegin && point < b.mEnd) {
+                    buffer = b;
+                    break;
+                } else if (point < b.mBegin || point > b.mEnd || b.mEnd == 0) {
+                    another = b;
+                }
+            }
+            // If buffer not found, then use another one
+            if (buffer == null) {
+                buffer = another;
+            }
+        }
+        return buffer;
+    }
+
+}
