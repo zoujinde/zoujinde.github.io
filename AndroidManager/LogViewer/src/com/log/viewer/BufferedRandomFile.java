@@ -1,8 +1,8 @@
 package com.log.viewer;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 
 public class BufferedRandomFile extends RandomAccessFile {
     private static final int SIZE = 8192;
@@ -14,27 +14,47 @@ public class BufferedRandomFile extends RandomAccessFile {
     // Constructor
     public BufferedRandomFile(String name, String mode) throws IOException {
         super(name, mode);
-        // The this.length() is very slow, so we have to only call it once.
+        // this.length() is slow, so we call it in constructor.
         this.mFileLength = this.length();
     }
 
-    // Get the line end '\n' list
-    public int getLineEndList(int start, ArrayList<Integer> lineEndList) throws IOException {
-        int next = -1;
-        lineEndList.clear();
-        if (start >= 0) {
-            this.seek(start);
-            int size = this.read(mBuffer);
-            if (size > 0) {
-                next = start + size; // next position
-                for (int i = 0; i < size; i++) {
-                    if (mBuffer[i] == '\n') {
-                        lineEndList.add(start + i);
+    // Write
+    public int writeIndexFile(FileWriter writer, int file, final int offset) throws IOException {
+        int size = 0;
+        int lines = 0;
+        int lineStart = 0;
+        String line = null;
+        // If offset = 0, read new file, should add the 1st line.
+        if (offset == 0) {
+            lines++;
+            line = String.format("%d%6s\n", file, Integer.toString(0, 32));
+            writer.write(line);
+        } else {
+            // If offset > 0, refresh file, we need to update
+            // the mFileLength, though this.length() is slow.
+            this.mFileLength = this.length();
+        }
+        mBufferStart = offset;
+        mBufferEnd = 0; // Must set end 0
+        this.seek(offset);
+        while (true) {
+            size = this.read(mBuffer);
+            if (size <= 0) {
+                break;
+            }
+            for (int i = 0; i < size; i++) {
+                if (mBuffer[i] == '\n') {
+                    lineStart = mBufferStart + i + 1;// Set the lineStart
+                    if (lineStart < mFileLength) {
+                        lines++;
+                        line = String.format("%d%6s\n", file, Integer.toString(lineStart, 32));
+                        writer.write(line);
                     }
                 }
             }
+            mBufferStart += size;
         }
-        return next; // return the next position
+        return lines;
     }
 
     // The old readLine read byte one by one, so it is very slow
@@ -55,10 +75,10 @@ public class BufferedRandomFile extends RandomAccessFile {
                 p0 =  point - mBufferStart;
                 size = mBufferEnd - mBufferStart;
             } else {
-                // Because others call seek to change the position
-                // So we have to call seek before we read buffer
+                // Because others maybe change the position
+                // So we have to seek(position) before we read buffer
                 // To reduce the reading count, we should calculate the seek point.
-                // For example, current buffer SIZE = 8192, so we should read as below:
+                // For example, when buffer SIZE = 8192, we should read as below:
                 // buffer 0 : [8192*0 , 8192*1)
                 // buffer 1 : [8192*1 , 8192*2)
                 // buffer 2 : [8192*2 , 8192*3)
@@ -82,12 +102,11 @@ public class BufferedRandomFile extends RandomAccessFile {
             }
 
             if (p1 > p0) {
-                // Though String+= slower than StringBuider.append, but very few lines call it.
-                // So we use the String+= to avoid the multiple thread error of StringBuilder.
                 if (result.length() == 0) {
                     result = new String(mBuffer, p0, p1 - p0);
-                } else {
+                } else { // Only very few line call result +=
                     result += new String(mBuffer, p0, p1 - p0);
+                    break; // break at once
                 }
             }
 

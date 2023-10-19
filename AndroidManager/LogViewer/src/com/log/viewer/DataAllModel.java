@@ -1,7 +1,7 @@
 package com.log.viewer;
 
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.table.AbstractTableModel;
@@ -252,35 +252,21 @@ public class DataAllModel extends AbstractTableModel {
         // 2014-1-29 Remember the list init rows
         int initRows = this.getRowCount();
         int offset = 0;
-        int start = 0;
-        ArrayList<Integer> lineEndList = new ArrayList<Integer>();
         try {
+            FileWriter writer = new FileWriter(getIndexFile());
             // Read file one by one
             for (int file = 0; file < fileCount; file++) {
                 if (fileCount == 1 && initRows > 0) {
                     // Read the last line to refresh new logs
                     line = mIndex.readLine(initRows);
                     offset = mIndex.getOffset(line);
-                    start = -1; // ignore the last line
                 } else {
                     offset = 0;
-                    start = 0; // The 1st line start
                 }
-                while (true) {
-                    offset = mFiles[file].getLineEndList(offset, lineEndList);
-                    int size = lineEndList.size();
-                    if (size <= 0) {
-                        break; // EOF
-                    }
-                    for (int i = 0; i < size; i++) {
-                        if (start >= 0) {
-                            mIndex.add(file, start);
-                        }
-                        start = lineEndList.get(i) + 1;
-                    }
-                }
+                int lines = mFiles[file].writeIndexFile(writer, file, offset);
+                mIndex.addLines(lines);
             }
-
+            writer.close();
             // 2021-10-22 The timeList sort uses huge memory
             // So do not use Collections.sort(timeList);
             mIndex.initReader();

@@ -12,7 +12,6 @@ public class IndexFile {
 
 	String mFilePath = null;
 	private int mSize = 0;
-	private FileWriter mWriter = null;
 	private BufferedRandomFile mReader = null;
     @SuppressWarnings("unused")
     private boolean mTimeSort = false;
@@ -27,28 +26,12 @@ public class IndexFile {
 
 	// Constructor
 	public IndexFile(String file) {
-		try {
-			mFilePath = file;
-			mWriter = new FileWriter(file);
-		} catch (IOException e) {
-			System.err.println("IndexFile : " + e);
-		}
-	}
-
-	// Add method : don't need the length data
-	public void add(int file, int offset) throws IOException {
-		mSize++; // Save data to index file
-		String line = String.format("%d%6s\n", file, Integer.toString(offset, 32));
-		mWriter.write(line);
+	    mFilePath = file;
 	}
 
 	// InitFileReader
 	public void initReader() {
 		try {
-		    if (mWriter != null) {
-	            mWriter.close();
-	            mWriter = null;
-		    }
 			/* 2023-10-13 Because user can change time, so we can't sort by time
 			if (mTimeSort) { // When open multiple files
 				String tmpFile = mFilePath.replace("_A.", "_T.");
@@ -98,6 +81,12 @@ public class IndexFile {
 		return mSize;
 	}
 
+	// Add lines
+	public void addLines(int lines) {
+	    mSize += lines;
+	}
+
+	// Clear
 	public void clear() {
 		mSize = 0;
 		try {
