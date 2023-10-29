@@ -1,6 +1,5 @@
 package com.log.viewer;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -18,43 +17,17 @@ public class BufferedRandomFile extends RandomAccessFile {
         this.mFileLength = this.length();
     }
 
-    // Write
-    public int writeIndexFile(FileWriter writer, int file, final int offset) throws IOException {
-        int size = 0;
-        int lines = 0;
-        int lineStart = 0;
-        String line = null;
-        // If offset = 0, read new file, should add the 1st line.
-        if (offset == 0) {
-            lines++;
-            line = String.format("%d%6s\n", file, Integer.toString(0, 32));
-            writer.write(line);
-        } else {
-            // If offset > 0, refresh file, we need to update
-            // the mFileLength, though this.length() is slow.
-            this.mFileLength = this.length();
-        }
-        mBufferStart = offset;
-        mBufferEnd = 0; // Must set end 0
-        this.seek(offset);
-        while (true) {
-            size = this.read(mBuffer);
-            if (size <= 0) {
-                break;
-            }
-            for (int i = 0; i < size; i++) {
-                if (mBuffer[i] == '\n') {
-                    lineStart = mBufferStart + i + 1;// Set the lineStart
-                    if (lineStart < mFileLength) {
-                        lines++;
-                        line = String.format("%d%6s\n", file, Integer.toString(lineStart, 32));
-                        writer.write(line);
-                    }
-                }
-            }
-            mBufferStart += size;
-        }
-        return lines;
+    // Update file length
+    public long updateFileLength() throws IOException {
+        this.mFileLength = this.length();
+        return this.mFileLength;
+    }
+
+    // Get buffer
+    public byte[] getBuffer() {
+        this.mBufferStart = 0; // Must reset 0
+        this.mBufferEnd = 0;   // Must reset 0
+        return this.mBuffer;
     }
 
     // The old readLine read byte one by one, so it is very slow

@@ -263,8 +263,7 @@ public class DataAllModel extends AbstractTableModel {
                 } else {
                     offset = 0;
                 }
-                int lines = mFiles[file].writeIndexFile(writer, file, offset);
-                mIndex.addLines(lines);
+                writeIndexFile(writer, file, offset);
             }
             writer.close();
             // 2021-10-22 The timeList sort uses huge memory
@@ -276,6 +275,44 @@ public class DataAllModel extends AbstractTableModel {
         time = System.currentTimeMillis() - time;
         System.out.println("DataAllModel.readLogFiles : ms=" + time);
         return null;// error is null
+    }
+
+    // Write
+    private void writeIndexFile(FileWriter writer, int file, final int offset) throws IOException {
+        int size = 0;
+        int lines = 0;
+        int lineStart = 0;
+        String line = null;
+        // If offset = 0, read new file, should add the 1st line.
+        if (offset == 0) {
+            lines++;
+            line = String.format("%d%6s\n", file, Integer.toString(0, 32));
+            writer.write(line);
+        }
+        // If offset > 0, refresh file, we need to update
+        // the mFileLength, though this.length() is slow.
+        long fileLength = mFiles[file].updateFileLength();
+        byte[] buffer = mFiles[file].getBuffer();
+        int bufferStart = offset;
+        mFiles[file].seek(offset);
+        while (true) {
+            size = mFiles[file].read(buffer);
+            if (size <= 0) {
+                break;
+            }
+            for (int i = 0; i < size; i++) {
+                if (buffer[i] == '\n') {
+                    lineStart = bufferStart + i + 1;// Set the lineStart
+                    if (lineStart < fileLength) {
+                        lines++;
+                        line = String.format("%d%6s\n", file, Integer.toString(lineStart, 32));
+                        writer.write(line);
+                    }
+                }
+            }
+            bufferStart += size;
+        }
+        mIndex.addLines(lines);
     }
 
     // Get log time

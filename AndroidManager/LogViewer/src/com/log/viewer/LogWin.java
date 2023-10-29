@@ -802,8 +802,8 @@ public class LogWin extends JInternalFrame {
                 }
 			}else if(act.equals(menuSaveLog)){
 				int rows = table.getRowCount();
-				if (rows > 10000) {
-					MsgDlg.showOk("Cannot save log when rows > 10000");
+				if (rows > 100000) {
+					MsgDlg.showOk("Cannot save log when rows > 100000");
 					return;
 				}
 				String file = FileDlg.showSaveDlg("Save "+title, mPath, null);
@@ -812,14 +812,14 @@ public class LogWin extends JInternalFrame {
 				}
 				try {
 					FileOutputStream out = new FileOutputStream(file);
-					StringBuilder sb = new StringBuilder(rows * 80);
+					String line = null;
 					for (int i = 0; i < rows; ++i) {
-						sb.append(table.getValueAt(i, DataAllModel.GET_LOG_LINE)).append("\r\n");
+						line = String.format("%s\r\n", table.getValueAt(i, DataAllModel.GET_LOG_LINE));
+						out.write(line.getBytes());
 					}
-					out.write(sb.toString().getBytes());
 					out.close();
 				} catch (IOException ex) {
-					ex.printStackTrace();
+					System.err.println(menuSaveLog + " : " + ex);
 				}
 				FileManager.showLocalTab();
 			}else if(act.equals(MyMenu.menuFind)){//Click the find menu or ctrl_F

@@ -15,9 +15,9 @@ public class Test {
 	    System.out.println(p.matcher(s).find());
 	    //testJdbcExcel();
         */
-	    String s32 = String.format("%4s", Integer.toString(999999999, 32));
-	    System.out.println("s32=" + s32);
-        System.out.println("s32=" + Integer.parseInt(s32.trim(), 32));
+	    String value = null;
+	    String result = String.format("(%s\r\n)", value);
+	    System.out.println("result=" + result);
 	}
 
 	//JDBC excel test
