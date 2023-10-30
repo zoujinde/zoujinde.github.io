@@ -13,14 +13,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractCellEditor;
-import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -476,47 +475,33 @@ public class LogWin extends JInternalFrame {
 		//tab.getInputMap()
 		ActionMap actMap = tab.getActionMap();
 		actMap.put("copy", mCopyAction);//actMap.getParent().remove("copy");
+		// The JComponent defines InputMap : ctrl pressed C -> copy
+		// On  JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT
 		return tab;
 	}
 
-
 	//Action copy
-	private Action mCopyAction = new Action(){
-		public void addPropertyChangeListener(PropertyChangeListener listener) {
-		}
-		public Object getValue(String key) {
-			return null;
-		}
-		public boolean isEnabled() {
-			////////////////////////////////////////////
-			return true;//Must enable the action in here
-			////////////////////////////////////////////
-		}
-		public void putValue(String key, Object value) {
-		}
-		public void removePropertyChangeListener(PropertyChangeListener listener) {
-		}
-		public void setEnabled(boolean b) {
-		}
-		public void actionPerformed(ActionEvent e) {
-			Object src = e.getSource();
-			if (src instanceof JTable==false) {
-				return;
-			}
-			JTable tab = (JTable) src;
-			int[] rows=tab.getSelectedRows();
-			if(rows.length<=0 || rows.length>10000){
-				MsgDlg.showOk("Please select 1 - 10000 rows to copy.");
-				return;
-			}
-			StringBuilder sb = new StringBuilder();
-			for(int i=0;i<rows.length;i++){
-			    sb.append(tab.getValueAt(rows[i], DataAllModel.GET_LOG_LINE)).append("\r\n");
-			}
-			StringSelection trans = new StringSelection(sb.toString());
-			Clipboard clip = tab.getToolkit().getSystemClipboard();
+	private AbstractAction mCopyAction = new AbstractAction(){
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Object src = e.getSource();
+            if (src instanceof JTable == false) {
+                return;
+            }
+            JTable tab = (JTable) src;
+            int[] rows = tab.getSelectedRows();
+            if (rows.length <= 0 || rows.length > 10000) {
+                MsgDlg.showOk("Please select 1 - 10000 rows to copy.");
+                return;
+            }
+            StringBuilder sb = new StringBuilder(rows.length * 100);
+            for (int i = 0; i < rows.length; i++) {
+                sb.append(tab.getValueAt(rows[i], DataAllModel.GET_LOG_LINE)).append("\n");
+            }
+            StringSelection trans = new StringSelection(sb.toString());
+            Clipboard clip = tab.getToolkit().getSystemClipboard();
             clip.setContents(trans, null);
-		}
+        }
 	};
 
 	//Refresh the filtered log table, when the filters change, call this method
@@ -811,13 +796,13 @@ public class LogWin extends JInternalFrame {
 					return;
 				}
 				try {
-					FileOutputStream out = new FileOutputStream(file);
+					FileWriter writer = new FileWriter(file);
 					String line = null;
 					for (int i = 0; i < rows; ++i) {
-						line = String.format("%s\r\n", table.getValueAt(i, DataAllModel.GET_LOG_LINE));
-						out.write(line.getBytes());
+						line = String.format("%s\n", table.getValueAt(i, DataAllModel.GET_LOG_LINE));
+						writer.write(line);
 					}
-					out.close();
+					writer.close();
 				} catch (IOException ex) {
 					System.err.println(menuSaveLog + " : " + ex);
 				}

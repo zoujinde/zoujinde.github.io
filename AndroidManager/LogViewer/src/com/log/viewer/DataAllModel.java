@@ -242,38 +242,37 @@ public class DataAllModel extends AbstractTableModel {
 
     // Read log files
     public String readLogFiles() {
-        long time = System.currentTimeMillis();
         int fileCount = this.mFiles.length;
         if (fileCount > 10) {
             return "Only select 1 - 10 log files.";
         }
         String line = null;
-
         // 2014-1-29 Remember the list init rows
         int initRows = this.getRowCount();
         int offset = 0;
         try {
-            FileWriter writer = new FileWriter(getIndexFile());
+            FileWriter writer = new FileWriter(getIndexFile(), true);
             // Read file one by one
             for (int file = 0; file < fileCount; file++) {
                 if (fileCount == 1 && initRows > 0) {
                     // Read the last line to refresh new logs
-                    line = mIndex.readLine(initRows);
+                    line = mIndex.readLine(initRows - 1);
                     offset = mIndex.getOffset(line);
                 } else {
                     offset = 0;
                 }
-                writeIndexFile(writer, file, offset);
+                // System.out.println("readLogFiles : offset=" + offset);
+                if (offset >= 0) {
+                    writeIndexFile(writer, file, offset);
+                }
             }
             writer.close();
             // 2021-10-22 The timeList sort uses huge memory
             // So do not use Collections.sort(timeList);
             mIndex.initReader();
         } catch (IOException e) {
-            return e.toString();
+            return "readLogFiles : " + e;
         }
-        time = System.currentTimeMillis() - time;
-        System.out.println("DataAllModel.readLogFiles : ms=" + time);
         return null;// error is null
     }
 
@@ -291,12 +290,13 @@ public class DataAllModel extends AbstractTableModel {
         }
         // If offset > 0, refresh file, we need to update
         // the mFileLength, though this.length() is slow.
-        long fileLength = mFiles[file].updateFileLength();
-        byte[] buffer = mFiles[file].getBuffer();
+        BufferedRandomFile reader = mFiles[file];
+        long fileLength = reader.updateFileLength();
+        byte[] buffer = reader.getBuffer();
         int bufferStart = offset;
-        mFiles[file].seek(offset);
+        reader.seek(offset);
         while (true) {
-            size = mFiles[file].read(buffer);
+            size = reader.read(buffer);
             if (size <= 0) {
                 break;
             }

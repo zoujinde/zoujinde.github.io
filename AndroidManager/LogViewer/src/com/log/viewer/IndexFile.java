@@ -40,7 +40,7 @@ public class IndexFile {
 			if (mReader == null) {
 				mReader = new BufferedRandomFile(mFilePath, "r");
 			} else {
-				throw new RuntimeException("IndexFile initReader again");
+			    mReader.updateFileLength();
 			}
 		} catch (IOException e) {
             System.err.println("IndexFile initReader : " + e);

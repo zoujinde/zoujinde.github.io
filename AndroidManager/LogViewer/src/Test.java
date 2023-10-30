@@ -16,7 +16,7 @@ public class Test {
 	    //testJdbcExcel();
         */
 	    String value = null;
-	    String result = String.format("(%s\r\n)", value);
+	    String result = String.format("(%s\n)", value);
 	    System.out.println("result=" + result);
 	}
 
