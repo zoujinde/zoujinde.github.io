@@ -317,13 +317,13 @@ public class DataManager {
     }
 
     // Build SQL insert
-    private PreparedStatement buildInsertSql(Connection cn, DataObject T,
+    private PreparedStatement buildInsertSql(Connection cn, DataObject obj,
             StringBuilder builder, long autoId) throws SQLException, IllegalAccessException {
-        String autoIdName = T.getAutoIdName();
+        String autoIdName = obj.getAutoIdName();
         builder.setLength(0);
         builder.append(WebUtil.ACT_INSERT).append(" into ");
-        builder.append(T.getTableName()).append(" (");
-        Field[] array = T.getClass().getFields();
+        builder.append(obj.getTableName()).append(" (");
+        Field[] array = obj.getClass().getFields();
         String name = null;
         for (Field f : array) {
             name = f.getName();
@@ -352,7 +352,7 @@ public class DataManager {
         }
 
         // Build values
-        String[] pk = T.getPrimaryKey();
+        String[] pk = obj.getPrimaryKey();
         int i = 1; // Starts from 1
         for (Field f : array) {
             name = f.getName();
@@ -363,10 +363,10 @@ public class DataManager {
                 // Because we don't know the autoId, so have to set id=0
                 // Then MySQL will use the LAST_INSERT_ID() to get  autoId
                 // Then below codes will set the item table PK[0] = autoId
-                if (autoId > 0 && f.get(T).equals(0) && contains(pk, name)) {
+                if (autoId > 0 && f.get(obj).equals(0) && name.equals(pk[0])) {
                     ps.setObject(i, autoId);
                 } else {
-                    ps.setObject(i, f.get(T));
+                    ps.setObject(i, f.get(obj));
                 }
                 i++;
             }

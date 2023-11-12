@@ -62,10 +62,46 @@ public class JsonUtil {
         return sBuilder.toString();
     }
 
-    // To Object from JSON string
-    public static void toObject(String jsonStr, Object object)
+    // Set Object by JSON string
+    public static void setObject(Object object, String jsonStr)
             throws ReflectiveOperationException {
         build(object, jsonStr, 0);
+    }
+
+    // Set Object by JSON string
+    public static boolean setObject(Object obj, String jsonStr, String[] items)
+            throws ReflectiveOperationException {
+        boolean changed = false;
+        Class<?> objClass = obj.getClass();
+        for (String name : items) {
+            Object value = null;
+            Field f = objClass.getField(name);
+            Class<?> type = f.getType();
+            // Check long to avoid integer exception
+            if (type == Long.class || type == long.class) {
+                value = getLong(jsonStr, name);
+            } else if (type == Integer.class || type == int.class) {
+                value = getInt(jsonStr, name);
+            } else if (type == Float.class || type == float.class) {
+                value = getFloat(jsonStr, name);
+            } else if (type == Double.class || type == double.class) {
+                value = getDouble(jsonStr, name);
+            } else if (type == Boolean.class || type == boolean.class) {
+                value = getBoolean(jsonStr, name);
+            } else if (type == String.class) {
+                value = getString(jsonStr, name);
+            } else if (type == java.sql.Timestamp.class) {
+                value = getTimestamp(jsonStr, name);
+            } else {
+                throw new RuntimeException("setObject : " + name + " : unknown type : " + type);
+            }
+            // Check value
+            if (value != null && !value.equals(f.get(obj))) {
+                f.set(obj, value);
+                changed = true;
+            }
+        }
+        return changed;
     }
 
     // Build JSON string from object

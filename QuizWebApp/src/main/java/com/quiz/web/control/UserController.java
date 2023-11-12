@@ -5,12 +5,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quiz.web.model.DataManager;
-import com.quiz.web.model.DataObject;
 import com.quiz.web.model.User;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
 import com.quiz.web.util.WebUtil;
-
 
 public class UserController {
 
@@ -37,19 +35,17 @@ public class UserController {
             String pass = JsonUtil.getString(body, "password");
             pass = LogUtil.encrypt(pass);
             //LogUtil.log(TAG, "signIn : " + pass);
-            String[] values = new String[]{user, pass};
+            String[] args = new String[]{user, pass};
             String sql = "select * from user where user_name=? and password=?";
-            User[] users = DataManager.instance().select(sql, values, User.class);
+            User[] users = DataManager.instance().select(sql, args, User.class);
             if (users != null && users.length == 1) {
                 // Update the sign in time and token
-                for (User u : users) {
-                    u.setAction(WebUtil.ACT_UPDATE);
-                    u.signin_time = WebUtil.getTime();
-                    //u.token = getToken(req);
-                }
+                User u = users[0];
+                u.setAction(WebUtil.ACT_UPDATE);
+                u.signin_time = WebUtil.getTime();
+                //u.token = getToken(req);
                 result = DataManager.instance().runSql(users);
                 if (WebUtil.OK.equals(result)) {
-                    User u = users[0];
                     // Use encrypt to support Chinese etc.
                     String id = LogUtil.encrypt(getReqId(req, u));
                     resp.addCookie(new Cookie(WebUtil.REQ_ID, id));
@@ -76,7 +72,7 @@ public class UserController {
         String result = WebUtil.OK;
         User user = new User();
         try {
-            JsonUtil.toObject(body, user);
+            JsonUtil.setObject(user, body);
             if (user.user_type == WebUtil.USER_VOLUNTEER || user.user_type == WebUtil.USER_PARENTS) {
                 if (user.parent_id != 0) {
                     result = "Invalid parent id for volunteer or parents";
@@ -166,23 +162,26 @@ public class UserController {
         try {
             int userId = WebUtil.getUserId(req);
             String sql = "select * from user where user_id = ?";
-            Object[] values = new Object[]{userId};
-            DataManager dm = DataManager.instance();
-            User[] oldData = dm.select(sql, values, User.class);
-            if (oldData != null && oldData.length == 1) {
-                User[] newData = new User[]{new User()};
-                JsonUtil.toObject(body, newData[0]);
-                String[] items = new String[] {"create_time", "parent_id", "signin_time",
-                        "token", "user_id", "user_name", "user_type"};
-                // Copy some items to remain the old values
-                WebUtil.copy(oldData, newData, items);
-                if (WebUtil.SECRET_DATA.equals(newData[0].password)) {
-                    newData[0].password = oldData[0].password; // remain password
-                } else {
-                    newData[0].password = LogUtil.encrypt(newData[0].password);
+            Object[] args = new Object[]{userId};
+            User[] users = DataManager.instance().select(sql, args, User.class);
+            if (users != null && users.length == 1) {
+                User user = users[0];
+                // We should only update below columns :
+                String[] items = new String[] {"address", "birth_year",
+                        "email", "gender", "nickname", "phone"};
+                boolean changed = JsonUtil.setObject(user, body, items);
+                // Check password
+                String pass = JsonUtil.getString(body, "password");
+                if (!WebUtil.SECRET_DATA.equals(pass)) {
+                    changed = true;
+                    user.password = LogUtil.encrypt(pass);
                 }
-                DataObject[] actions = dm.getActions(oldData, newData);
-                result = dm.runSql(actions);
+                if (changed) {
+                    user.setAction(WebUtil.ACT_UPDATE);
+                    result = DataManager.instance().runSql(users);
+                } else {
+                    result = "User data not changed";
+                }
             } else {
                 result = "Invalid user data";
             }
