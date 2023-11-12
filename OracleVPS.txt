@@ -1,0 +1,96 @@
+永久免费甲骨文VPS 零度解说
+https://www.youtube.com/watch?v=5a5tdJh8mKY
+https://oracle.com/cloud/free
+Public : 150.136.80.20  User: opc
+http://150.136.80.20:8080/hello/sign-in.jsp
+
+=============================================
+
+永久免费的甲骨文云服务器该怎么用？零度解说
+https://www.youtube.com/watch?v=X9sexl1wXyE
+The default is AMD, click EDIT button to select ARM or other.
+We can use WinSCP or Putty to connect server.
+
+PuTTY生成ppk文件并使用ssh私钥登录
+使用puttygen，点击Generate生成ssh公钥和私钥。
+若已有ssh公钥和私钥，选择load按钮，选择需要加载的私钥。
+Save to PPK file, 
+
+Run putty : set ssh IP and click SSH - AUTH - select ppk
+Then click open butto :  log using opc
+Set root user : sudo -i
+
+pscp -P 22 -i putty_private_key.ppk mysql-connector-java-8.0.27.jar opc@150.136.80.20:/home/opc/
+pscp -P 22 -i putty_private_key.ppk opc@150.136.80.20:/home/opc/test.txt .
+
+=================================
+
+Open instance - Virtual Cloud Network - Security Lists - Default Security List
+Add Ingress Rules - Source 0.0.0.0/0 - Dest Port 8080
+Add Ingress Rules - Source 0.0.0.0/0 - Dest Port 443
+
+netstat -anp | grep 8080
+
+firewall-cmd --list-all
+--add-port 设置允许的端口
+--permanent 将策略写入到永久生效表中
+--reload 立即加载永久生效策略，不重启服务
+--zone=public 没有使用这个参数，仍然可访问。 
+原文链接：https://www.linuxcool.com/firewall-cmd
+
+firewall-cmd --add-port 8080/tcp --permanent
+firewall-cmd --reload
+
+================================================
+
+Install Java: check the jdk
+dnf list jdk*
+dnf install -y jdk-1.8-headful
+
+Download tomcat 9.x and unzip to run.
+# Run : pscp mysql jar and hello.war to /home/opc/
+pscp -P 22 -i putty_private_key.ppk d:\data\web\apache-tomcat-9.0.56\webapps\hello.war opc@150.136.80.20:/home/opc/
+# Copy jar and war to tomcat
+cp /home/opc/mysql-connector-java-8.0.27.jar /root/tomcat/apache-tomcat-9.0.82/lib/
+cp /home/opc/hello.war /root/tomcat/apache-tomcat-9.0.82/webapps/
+
+Check linux version : 
+cat /etc/redhat-release
+cat /etc/oracle-release
+
+=================================================
+
+https://oracle-base.com/articles/mysql/mysql-installation-on-linux
+https://docs.oracle.com/cd/E17952_01/mysql-8.0-en/linux-installation-yum-repo.html
+
+# Don't use rpm and yum, directly use dnf.
+# DNF是Yum的升级版, 封装了rpm (redhat package manager) 
+dnf remove -y mysql-community-server
+dnf module disable mysql
+dnf install -y mysql-community-server
+
+
+# Start the MySQL Service on reboot Oracle Linux 7, 8 and 9.
+systemctl enable mysqld
+
+# Start on Oracle Linux 7, 8 and 9
+systemctl start mysqld
+
+# Stop on Oracle Linux 7, 8 and 9
+systemctl stop mysqld
+
+grep 数据库的初始密码。稍后需要更改. 
+grep 'temporary password' /var/log/mysqld.log
+
+
+登录 mysql --user=root --database=mydb --password
+Or : mysql -u root -p
+然后运行 ALTER 命令修改密码
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'MyPassword-1';
+
+Create a new database using the following command.cd
+mysql> create database mydatabase;
+mysql> show databases; 
+mysql> use mydatabase;
+mysql> select database();
+
