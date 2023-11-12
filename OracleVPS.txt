@@ -4,6 +4,10 @@ https://oracle.com/cloud/free
 Public : 150.136.80.20  User: opc
 http://150.136.80.20:8080/hello/sign-in.jsp
 
+We can set the http sign-in.jsp in server.txt
+The server.txt can't have the new line.
+If  server.txt has the new line, the AppleApp can't load it.
+
 =============================================
 
 永久免费的甲骨文云服务器该怎么用？零度解说
