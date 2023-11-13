@@ -25,7 +25,7 @@
     <input type="button" onclick="updateData()"  value="Modify Rows">
     <input type="button" onclick="deleteData()" value="Delete Rows">
     <input type="button" onclick="submitData()" value="Submit Data">
-    <label id="result_data" style="width:330;font-size:16px;" > * </label> <br>
+    <label id="result_data" style="width:330;font-size:20px;color:blue;" > * </label> <br>
     <textarea rows="20" cols="200" id="text_data" style="width:1500px;height=10px;font-size:15px;"></textarea><br>
   </div>
 </div>
