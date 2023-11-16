@@ -18,6 +18,7 @@ import com.quiz.web.util.WebUtil;
 
 public class DataManager {
 
+    public static final Byte PARENT_ID = Byte.MIN_VALUE;
     private static final String TAG = DataManager.class.getSimpleName();
 
     // volatile ensures the memory synchronized safely
@@ -178,23 +179,29 @@ public class DataManager {
         PreparedStatement ps = null;
         ResultSet rs = null;
         int autoId = 0;
+        int tmp = 0;
         try {
             cn = mDataSource.getConnection();
             cn.setAutoCommit(false); // Begin Transaction
             StringBuilder builder = new StringBuilder();
             // Run the sqlAct one by one
-            for (DataObject a : actions) {
-                if (a == null) continue; 
-                DataObject obj = a;
-                String act = a.getAction();
+            for (DataObject obj : actions) {
+                if (obj == null) continue; 
+                String act = obj.getAction();
                 if (act.equals(WebUtil.ACT_INSERT)) {
                     ps = buildInsertSql(cn, obj, builder, autoId);
                     ps.executeUpdate();
                     if (obj.getAutoIdName() != null) {
                         rs = ps.getGeneratedKeys();
-                        if (rs.next()) {autoId = rs.getInt(1);}
+                        if (rs.next()) {
+                            tmp = rs.getInt(1); // Can't get again
+                            obj.setAutoId(tmp);
+                            // Only remember the ParentObject autoId
+                            if (obj.isParentObject()) {
+                                autoId = tmp;
+                            }
+                        }
                         rs.close(); // Must close rs
-                        a.setAutoId(autoId); // Set auto ID
                     }
                 } else if (act.equals(WebUtil.ACT_UPDATE)) {
                     ps = buildUpdateSql(cn, obj, builder);
@@ -203,7 +210,7 @@ public class DataManager {
                     ps = buildDeleteSql(cn, obj, builder);
                     ps.executeUpdate();
                 } else { // Run SQl with values
-                    ps = buildSql(cn, a);
+                    ps = buildSql(cn, obj);
                     ps.executeUpdate();
                 }
                 ps.close(); // Must close ps
@@ -352,7 +359,6 @@ public class DataManager {
         }
 
         // Build values
-        String[] pk = obj.getPrimaryKey();
         int i = 1; // Starts from 1
         for (Field f : array) {
             name = f.getName();
@@ -360,15 +366,14 @@ public class DataManager {
                 // When we insert data to the main-item(1-N) tables
                 // The main table has the autoId(AutoIncrementId) as PK
                 // The item table has the (autoId, itemId) as PK
-                // Because we don't know the autoId, so have to set id=0
-                // Then MySQL will use the LAST_INSERT_ID() to get  autoId
-                // Then below codes will set the item table PK[0] = autoId
-                if (autoId > 0 && f.get(obj).equals(0) && name.equals(pk[0])) {
-                    ps.setObject(i, autoId);
+                // MySQL will use the LAST_INSERT_ID() to get autoId
+                Object value = f.get(obj);
+                if (autoId > 0 && PARENT_ID.equals(value)) {
+                    obj.setParentObject(false);
+                    ps.setObject(i++, autoId);
                 } else {
-                    ps.setObject(i, f.get(obj));
+                    ps.setObject(i++, value);
                 }
-                i++;
             }
         }
         return ps;

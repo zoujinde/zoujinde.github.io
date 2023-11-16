@@ -5,6 +5,7 @@ public class DataObject {
     private String mSqlAction = null;
     private Object[] mSqlValues = null;
     private DataObject mLast = null;
+    private boolean mParentObject = true;
 
     // Constructor
     public DataObject() {
@@ -58,6 +59,16 @@ public class DataObject {
 
     // Set the AutoId
     public void setAutoId(int autoId){
+    }
+
+    // isParentObject
+    public boolean isParentObject(){
+        return mParentObject;
+    }
+
+    // setParentObject
+    public void setParentObject(boolean state){
+        mParentObject = state;
     }
 
 }
