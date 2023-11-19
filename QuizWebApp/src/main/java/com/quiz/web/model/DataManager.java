@@ -21,6 +21,7 @@ public class DataManager {
 
     public static final Byte PARENT_ID = Byte.MIN_VALUE;
     private static final String TAG = DataManager.class.getSimpleName();
+    private static final int STRING_LENGTH = 200;
 
     // volatile ensures the memory synchronized safely
     private static volatile DataManager sInstance = null;
@@ -113,6 +114,7 @@ public class DataManager {
             checkSqlSelect(sql, values);
             cn = mDataSource.getConnection();
             ps = cn.prepareStatement(sql);
+            ps.setMaxRows(WebUtil.ROWS_LIMIT); // Must set limit
             for (int i = 0; i < values.length; i++) {
                 ps.setObject(i + 1, values[i]); // setObject(i + 1, xxx)
             }
@@ -120,15 +122,10 @@ public class DataManager {
             // Read lines
             ArrayList<Object> list = this.getThreadLocalList();
             list.clear();
-            int count = 0;
             while (rs.next()) {
                 list.add(buildObject(rs, type));
-                count++;
-                if (count >= WebUtil.ROWS_LIMIT) {
-                    LogUtil.log(TAG, "break on ROWS : " +  count);
-                    break;
-                }
             }
+            int count = list.size();
             if (count > 0) {
                 result = (T[])Array.newInstance(type, count);
                 list.toArray(result);
@@ -153,33 +150,21 @@ public class DataManager {
         try {
             checkSqlSelect(sql, values);
             cn = mDataSource.getConnection();
-            ps = cn.prepareStatement(sql);
+            ps = cn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            ps.setMaxRows(WebUtil.ROWS_LIMIT); // Must set limit
             for (int i = 0; i < values.length; i++) {
                 ps.setObject(i + 1, values[i]); // setObject(i + 1, xxx)
             }
             rs = ps.executeQuery();
             // Read lines
-            StringBuilder builder = new StringBuilder();
-            ArrayList<Object> list = this.getThreadLocalList();
-            list.clear();
-            int count = 0;
-            while (rs.next()) {
-                list.add(buildJson(rs, builder));
-                count++;
-                if (count >= WebUtil.ROWS_LIMIT) {
-                    LogUtil.log(TAG, "break on ROWS : " + count);
-                    break;
-                }
-            }
-            // Set length to avoid builder array copy
-            builder.setLength(builder.length() * count);
-            builder.setLength(0);  // Must clear
+            rs.last();
+            int count = rs.getRow();
+            // Set length * count to avoid builder array copy
+            StringBuilder builder = new StringBuilder(STRING_LENGTH * count);
             builder.append("[ \n");// Must add 1 space;
-            if (count > 0) {
-                for (Object o : list) {
-                    builder.append(o);
-                }
-                list.clear(); // Must clear
+            rs.beforeFirst();
+            while (rs.next()) {
+                buildJson(rs, builder);
             }
             builder.setLength(builder.length() - 2);
             builder.append("\n]\n");
@@ -206,12 +191,13 @@ public class DataManager {
         try {
             cn = mDataSource.getConnection();
             cn.setAutoCommit(false); // Begin Transaction
+            StringBuilder builder = new StringBuilder(STRING_LENGTH);
             // Run the sqlAct one by one
             for (DataObject obj : actions) {
                 if (obj == null) continue; 
                 String act = obj.getAction();
                 if (act.equals(WebUtil.ACT_INSERT)) {
-                    ps = buildInsertSql(cn, obj, autoId);
+                    ps = buildInsertSql(cn, obj, builder, autoId);
                     ps.executeUpdate();
                     if (obj.getAutoIdName() != null) {
                         rs = ps.getGeneratedKeys();
@@ -226,10 +212,10 @@ public class DataManager {
                         rs.close(); // Must close rs
                     }
                 } else if (act.equals(WebUtil.ACT_UPDATE)) {
-                    ps = buildUpdateSql(cn, obj);
+                    ps = buildUpdateSql(cn, obj, builder);
                     ps.executeUpdate();
                 } else if (act.equals(WebUtil.ACT_DELETE)) {
-                    ps = buildDeleteSql(cn, obj);
+                    ps = buildDeleteSql(cn, obj, builder);
                     ps.executeUpdate();
                 } else { // Run SQl with values
                     ps = buildSql(cn, obj);
@@ -252,13 +238,12 @@ public class DataManager {
     }
 
     // Build the JSON String
-    private String buildJson(ResultSet rs, StringBuilder builder) throws SQLException {
+    private void buildJson(ResultSet rs, StringBuilder builder) throws SQLException {
         ResultSetMetaData data = rs.getMetaData();
         int count = data.getColumnCount();
         int type = 0;
         String name = null;
         String tmp = null;
-        builder.setLength(0);
         builder.append("{");
         for (int c = 1; c <= count; c++) {
             type = data.getColumnType(c);
@@ -284,7 +269,6 @@ public class DataManager {
             }
         }
         builder.append("},\n");
-        return builder.toString();
     }
 
     // Build the object
@@ -344,10 +328,10 @@ public class DataManager {
     }
 
     // Build SQL insert
-    private PreparedStatement buildInsertSql(Connection cn, DataObject obj,
+    private PreparedStatement buildInsertSql(Connection cn, DataObject obj, StringBuilder builder,
             long autoId) throws SQLException, IllegalAccessException {
         String autoIdName = obj.getAutoIdName();
-        StringBuilder builder = new StringBuilder();
+        builder.setLength(0);
         builder.append(WebUtil.ACT_INSERT).append(" into ");
         builder.append(obj.getTableName()).append(" (");
         Field[] array = obj.getClass().getFields();
@@ -400,9 +384,9 @@ public class DataManager {
     }
 
     // Build SQL update
-    private PreparedStatement buildUpdateSql(Connection cn, DataObject T)
+    private PreparedStatement buildUpdateSql(Connection cn, DataObject T, StringBuilder builder)
             throws SQLException, IllegalAccessException{
-        StringBuilder builder = new StringBuilder();
+        builder.setLength(0);
         builder.append(WebUtil.ACT_UPDATE).append(" ");
         builder.append(T.getTableName()).append(" set ");
         Field[] array = T.getClass().getFields();
@@ -449,9 +433,9 @@ public class DataManager {
     }
 
     // Build SQL delete
-    private PreparedStatement buildDeleteSql(Connection cn, DataObject T)
+    private PreparedStatement buildDeleteSql(Connection cn, DataObject T, StringBuilder builder)
             throws SQLException, IllegalAccessException{
-        StringBuilder builder = new StringBuilder();
+        builder.setLength(0);
         builder.append(WebUtil.ACT_DELETE).append(" from ");
         builder.append(T.getTableName()).append(" where ");
         Field[] array = T.getClass().getFields();
@@ -539,7 +523,7 @@ public class DataManager {
             if (cn == null) {
                 cn = mDataSource.getConnection();
             }
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder(STRING_LENGTH);
             for (String line : array) {
                 line = line.trim();
                 if (line.length() <= 0 || line.startsWith("-- ")) {
