@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -25,6 +26,7 @@ public class DataManager {
     private static volatile DataManager sInstance = null;
     private DataSource mDataSource = null;
     private String mUrl = "";
+    private ThreadLocal<ArrayList<Object>> mLocalList = new ThreadLocal<>();
 
     // Single instance
     public static DataManager instance() {
@@ -90,6 +92,16 @@ public class DataManager {
         mDataSource.setPoolProperties(p);
     }
 
+    // Get thread local list
+    private ArrayList<Object> getThreadLocalList() {
+        ArrayList<Object> list = mLocalList.get();
+        if (list == null) {
+            list = new ArrayList<Object>();
+            mLocalList.set(list);
+        }
+        return list;
+    } 
+
     // Run SQL select -> Return JSON string
     @SuppressWarnings("unchecked")
     public <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type) throws Exception {
@@ -106,27 +118,24 @@ public class DataManager {
             }
             rs = ps.executeQuery();
             // Read lines
+            ArrayList<Object> list = this.getThreadLocalList();
+            list.clear();
             int count = 0;
-            T obj = type.newInstance();
             while (rs.next()) {
-                obj = buildObject(rs, obj);
+                list.add(buildObject(rs, type));
                 count++;
-                if (count > WebUtil.ROWS_LIMIT) {
-                    LogUtil.log(TAG, "break on ROWS > " +  WebUtil.ROWS_LIMIT);
+                if (count >= WebUtil.ROWS_LIMIT) {
+                    LogUtil.log(TAG, "break on ROWS : " +  count);
                     break;
                 }
             }
             if (count > 0) {
                 result = (T[])Array.newInstance(type, count);
-                for (int i = count - 1; i >= 0; i--) {
-                    result[i] = obj;
-                    obj = (T) obj.getLast();
-                    result[i].setLast(null); // For GC
-                }
+                list.toArray(result);
+                list.clear(); // Must clear memory
             }
         } catch (Exception e) {
-            //e.printStackTrace();
-            throw new WebException("select : " + e);
+            throw new WebException("DataManager.select object : " + e);
         } finally {
             WebUtil.close(rs);
             WebUtil.close(ps);
@@ -137,10 +146,10 @@ public class DataManager {
 
     // Run SQL select -> Return JSON string
     public String select(String sql, Object[] values) throws WebException {
-        StringBuilder builder = new StringBuilder("[ \n");//Must add 1 space;
         Connection cn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+        String result = null;
         try {
             checkSqlSelect(sql, values);
             cn = mDataSource.getConnection();
@@ -150,25 +159,39 @@ public class DataManager {
             }
             rs = ps.executeQuery();
             // Read lines
+            StringBuilder builder = new StringBuilder();
+            ArrayList<Object> list = this.getThreadLocalList();
+            list.clear();
             int count = 0;
             while (rs.next()) {
-                buildJson(rs, builder);
+                list.add(buildJson(rs, builder));
                 count++;
-                if (count > WebUtil.ROWS_LIMIT) {
-                    LogUtil.log(TAG, "break on ROWS > " +  WebUtil.ROWS_LIMIT);
+                if (count >= WebUtil.ROWS_LIMIT) {
+                    LogUtil.log(TAG, "break on ROWS : " + count);
                     break;
                 }
             }
+            // Set length to avoid builder array copy
+            builder.setLength(builder.length() * count);
+            builder.setLength(0);  // Must clear
+            builder.append("[ \n");// Must add 1 space;
+            if (count > 0) {
+                for (Object o : list) {
+                    builder.append(o);
+                }
+                list.clear(); // Must clear
+            }
             builder.setLength(builder.length() - 2);
             builder.append("\n]\n");
+            result = builder.toString();
         } catch (Exception e) {
-            throw new WebException("select : " + e);
+            throw new WebException("DataManager.select string : " + e);
         } finally {
             WebUtil.close(rs);
             WebUtil.close(ps);
             WebUtil.close(cn);
         }
-        return builder.toString();
+        return result;
     }
 
     // Run SqlActions one by one
@@ -183,13 +206,12 @@ public class DataManager {
         try {
             cn = mDataSource.getConnection();
             cn.setAutoCommit(false); // Begin Transaction
-            StringBuilder builder = new StringBuilder();
             // Run the sqlAct one by one
             for (DataObject obj : actions) {
                 if (obj == null) continue; 
                 String act = obj.getAction();
                 if (act.equals(WebUtil.ACT_INSERT)) {
-                    ps = buildInsertSql(cn, obj, builder, autoId);
+                    ps = buildInsertSql(cn, obj, autoId);
                     ps.executeUpdate();
                     if (obj.getAutoIdName() != null) {
                         rs = ps.getGeneratedKeys();
@@ -204,10 +226,10 @@ public class DataManager {
                         rs.close(); // Must close rs
                     }
                 } else if (act.equals(WebUtil.ACT_UPDATE)) {
-                    ps = buildUpdateSql(cn, obj, builder);
+                    ps = buildUpdateSql(cn, obj);
                     ps.executeUpdate();
                 } else if (act.equals(WebUtil.ACT_DELETE)) {
-                    ps = buildDeleteSql(cn, obj, builder);
+                    ps = buildDeleteSql(cn, obj);
                     ps.executeUpdate();
                 } else { // Run SQl with values
                     ps = buildSql(cn, obj);
@@ -236,6 +258,7 @@ public class DataManager {
         int type = 0;
         String name = null;
         String tmp = null;
+        builder.setLength(0);
         builder.append("{");
         for (int c = 1; c <= count; c++) {
             type = data.getColumnType(c);
@@ -265,11 +288,8 @@ public class DataManager {
     }
 
     // Build the object
-    private <T extends DataObject> T buildObject(ResultSet rs, T last) throws Exception {
-        @SuppressWarnings("unchecked")
-        Class<T> type = (Class<T>) last.getClass();
+    private <T extends DataObject> T buildObject(ResultSet rs, Class<T> type) throws Exception {
         T result = type.newInstance();
-        result.setLast(last);
         Field[] fields = type.getFields();
         String name = null;
         Class<?> t = null;
@@ -325,9 +345,9 @@ public class DataManager {
 
     // Build SQL insert
     private PreparedStatement buildInsertSql(Connection cn, DataObject obj,
-            StringBuilder builder, long autoId) throws SQLException, IllegalAccessException {
+            long autoId) throws SQLException, IllegalAccessException {
         String autoIdName = obj.getAutoIdName();
-        builder.setLength(0);
+        StringBuilder builder = new StringBuilder();
         builder.append(WebUtil.ACT_INSERT).append(" into ");
         builder.append(obj.getTableName()).append(" (");
         Field[] array = obj.getClass().getFields();
@@ -380,9 +400,9 @@ public class DataManager {
     }
 
     // Build SQL update
-    private PreparedStatement buildUpdateSql(Connection cn, DataObject T,
-            StringBuilder builder) throws SQLException, IllegalAccessException{
-        builder.setLength(0);
+    private PreparedStatement buildUpdateSql(Connection cn, DataObject T)
+            throws SQLException, IllegalAccessException{
+        StringBuilder builder = new StringBuilder();
         builder.append(WebUtil.ACT_UPDATE).append(" ");
         builder.append(T.getTableName()).append(" set ");
         Field[] array = T.getClass().getFields();
@@ -429,9 +449,9 @@ public class DataManager {
     }
 
     // Build SQL delete
-    private PreparedStatement buildDeleteSql(Connection cn, DataObject T,
-            StringBuilder builder) throws SQLException, IllegalAccessException{
-        builder.setLength(0);
+    private PreparedStatement buildDeleteSql(Connection cn, DataObject T)
+            throws SQLException, IllegalAccessException{
+        StringBuilder builder = new StringBuilder();
         builder.append(WebUtil.ACT_DELETE).append(" from ");
         builder.append(T.getTableName()).append(" where ");
         Field[] array = T.getClass().getFields();
@@ -493,7 +513,7 @@ public class DataManager {
             LogUtil.log(TAG, "mysql class is OK");
         } catch (ClassNotFoundException e) {
             LogUtil.log(TAG, "mysql class not found then download");
-            WebUtil.downloadMySql();
+            // WebUtil.downloadMySql();
         }
         Connection cn = null;
         try {
@@ -528,7 +548,7 @@ public class DataManager {
                 builder.append(line);
                 if (line.endsWith(";")) {
                     line = builder.toString();
-                    builder.setLength(0);
+                    builder.setLength(0); // Must clear memory
                     LogUtil.log(TAG, line);
                     ps = cn.prepareStatement(line);
                     ps.execute();
@@ -624,116 +644,14 @@ public class DataManager {
     }
 
     // Dump table data
-    public String dump() {
-        StringBuilder builder = new StringBuilder();
-        String[] tables = new String[]{
-                "user",
-                "activity",
-                "event",
-                "quiz",
-                "quiz_item",
-                "quiz_result",
-        };
-        for (String tab : tables) {
-            try {
-                this.dump(builder, tab);
-            } catch (WebException e) {
-                builder.setLength(0);
-                builder.append(e.toString());
-                break;
-            }
-        }
-        return builder.toString();
-    }
-
-    // SQL for dump
-    private static final String SQL_DUMP = "SELECT COLUMN_NAME " +
-            " FROM INFORMATION_SCHEMA.COLUMNS " +
-            " WHERE TABLE_SCHEMA='quiz' and TABLE_NAME=? " +
-            " order by ordinal_position "; 
- 
-    // build dump SQL
-    private void dump(StringBuilder builder, String table) throws WebException {
-        Connection cn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            cn = mDataSource.getConnection();
-            ps = cn.prepareStatement(SQL_DUMP);
-            ps.setObject(1, table);
-            rs = ps.executeQuery();
-            // Build : insert into table(x,x,x);
-            builder.append("insert into ").append(table).append("(");
-            int count = 0;
-            while (rs.next()) {
-                count++;
-                if (count > 1) {
-                    builder.append(",");
-                }
-                builder.append(rs.getString(1));
-            }
-            builder.append("),\n");
-            rs.close();
-            ps.close();
-            // Run select x,x,x from table
-            int p1 = builder.lastIndexOf("(");
-            int p2 = builder.lastIndexOf(")");
-            if (p1 > 0 && p2 > p1) {
-                String columns = builder.substring(p1 + 1, p2);
-                String select = String.format("select %s from %s", columns, table);
-                ps = cn.prepareStatement(select);
-                rs = ps.executeQuery();
-                ResultSetMetaData data = rs.getMetaData();
-                // int count = data.getColumnCount();
-                // Build : values(x,x,x);
-                int type = 0;
-                while (rs.next()) {
-                    builder.append("values(");
-                    for (int c = 1; c <= count; c++) {
-                        if (c > 1) {
-                            builder.append(",");
-                        }
-                        type = data.getColumnType(c);
-                        if (type == java.sql.Types.BIGINT) {
-                            builder.append(rs.getLong(c));
-                        } else if (type == java.sql.Types.TINYINT || type == java.sql.Types.INTEGER) {
-                            builder.append(rs.getInt(c));
-                        } else if (type == java.sql.Types.BOOLEAN || type == java.sql.Types.BIT) {
-                            builder.append(rs.getBoolean(c));
-                        } else if (type == java.sql.Types.VARCHAR) {
-                            this.build(builder, rs.getString(c));
-                        } else if (type == java.sql.Types.TIMESTAMP) {
-                            this.build(builder, rs.getTimestamp(c));
-                        } else {
-                            String log = "invalid types : " + table;
-                            LogUtil.log(TAG, log);
-                            builder.setLength(0);
-                            builder.append(log);
-                            break;
-                        }
-                    }
-                    builder.append("),\n");
-                }
-            } else {
-                throw new WebException("invalid columns : " + table);
-            }
-        } catch (Exception e) {
-            // e.printStackTrace();
-            throw new WebException("dump : " + e);
-        } finally {
-            WebUtil.close(rs);
-            WebUtil.close(ps);
-            WebUtil.close(cn);
-        }
-    }
-
-    // Builder object string
-    private void build(StringBuilder builder, Object obj) {
-        if (obj == null) {
-            builder.append("\"\"");
-        } else {
-            builder.append("\"").append(obj).append("\"");
-        }
+    public String dump(String file) {
+        String result = WebUtil.OK;
+        /* SQL for dump
+        String SQL_DUMP = "SELECT COLUMN_NAME " +
+                " FROM INFORMATION_SCHEMA.COLUMNS " +
+                " WHERE TABLE_SCHEMA='quiz' and TABLE_NAME=? " +
+                " order by ordinal_position ";*/ 
+        return result;
     }
 
 }

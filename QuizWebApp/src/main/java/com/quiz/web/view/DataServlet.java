@@ -3,7 +3,6 @@ package com.quiz.web.view;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -42,18 +41,9 @@ public class DataServlet extends HttpServlet {
         } else if (act.equals("show_path")) {
             result = showPath(req);
         } else if (act.equals("dump")) {
-            result = DataManager.instance().dump();
             final String file = this.getServletContext().getRealPath("dump.txt");
             LogUtil.log("DataServlet", "dump " + file);
-            WebUtil.writeFile(file, result);
-            result = file;
-            WebUtil.getThreadPool().schedule(new Runnable(){
-                @Override
-                public void run() {
-                    LogUtil.log("DataServlet", "delete " + file);
-                    new File(file).delete();
-                }
-            }, 60, TimeUnit.SECONDS);
+            result = DataManager.instance().dump(file);
         }
 
         // Write response
