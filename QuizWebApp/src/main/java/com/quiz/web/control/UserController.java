@@ -218,4 +218,80 @@ public class UserController {
         return users;
     }
 
+    // Add new users
+    public String addNewUsers(String body, HttpServletRequest req) {
+        String result = WebUtil.OK;
+
+        /* When users array only has 1 row, the user_type must be 1 : VOLUNTEER
+        {
+          "act":"signUp",
+          "users":[
+            {"user_type":"1","user_name":"zoujinde","password":"11111111","email":"","nickname":"","phone":""}
+          ]
+        }
+        */
+
+        /* When users array has 2 or more rows,
+         * The 1st user_type must be 2          : Guardian PARENTS
+         * The 2nd and more user_type must be 3 : Child PARTICIPANT
+        {
+          "act":"signUp",
+          "users":[
+            {"user_type":"2","user_name":"Guardian", "password":"xxx","email":"","nickname":"","phone":""}
+            {"user_type":"3","user_name":"Child 1",  "password":"xxx"},
+            {"user_type":"3","user_name":"Child 2",  "password":"xxx"},
+          ]
+        }
+        */
+
+        // We should get the users JSON data
+        String[] jsonData = JsonUtil.getArray(body, "users");
+        if (jsonData.length <= 0) {
+            result = "Invalid data : users.length <= 0";
+        } else { // Save the users data
+            try {
+                User[] users = new User[jsonData.length];
+                if (users.length == 1) { /// Only 1 row : must be VOLUNTEER
+                    User user = new User();
+                    JsonUtil.setObject(user, jsonData[0]);
+                    if (user.user_type != WebUtil.USER_VOLUNTEER) {
+                        result = "Invalid user type : not VOLUNTEER";
+                    }
+                } else { // 2 or more rows : must be PARENTS and children
+                    for (int i = 0; i < jsonData.length; i++) {
+                        User user = new User();
+                        JsonUtil.setObject(user, jsonData[i]);
+                        if (i == 0) {
+                            if (user.user_type != WebUtil.USER_PARENTS) {
+                                result = "Invalid user type : not PARENTS";
+                                break;
+                            }
+                        } else {
+                            if (user.user_type != WebUtil.USER_PARTICIPANT) {
+                                result = "Invalid user type : not PARTICIPANT";
+                                break;
+                            }
+                            user.parent_id = DataManager.PARENT_ID;
+                        }
+                    }
+                }
+                // Run SQL to add users
+                if (WebUtil.OK.equals(result)) {
+                    for (User u : users) {
+                        u.setAction(WebUtil.ACT_INSERT);
+                        u.user_name = u.user_name.toLowerCase();
+                        u.create_time = WebUtil.getTime();
+                        u.signin_time = WebUtil.getTime();
+                        u.token = "";
+                        u.password = LogUtil.encrypt(u.password);
+                    }
+                    result = DataManager.instance().runSql(users);
+                }
+            } catch (Exception e) {
+                result = "addNewUsers : " + e;
+            }
+        }
+        return result;
+    }
+
 }
