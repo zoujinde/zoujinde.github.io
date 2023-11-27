@@ -226,7 +226,7 @@ public class UserController {
         {
           "act":"signUp",
           "users":[
-            {"user_type":"1","user_name":"zoujinde","password":"11111111","email":"","nickname":"","phone":""}
+            {"user_type":"1","user_name":"zoujinde","password":"11111111","email":"","nickname":"",,,,,,"phone":""}
           ]
         }
         */
@@ -237,21 +237,21 @@ public class UserController {
         {
           "act":"signUp",
           "users":[
-            {"user_type":"2","user_name":"Guardian", "password":"xxx","email":"","nickname":"","phone":""}
+            {"user_type":"2","user_name":"Guardian", "password":"xxx","email":"","nickname":"",,,,,,"phone":""},
             {"user_type":"3","user_name":"Child 1",  "password":"xxx"},
             {"user_type":"3","user_name":"Child 2",  "password":"xxx"},
           ]
         }
         */
 
-        // We should get the users JSON data
+        // Get the users JSON data
         String[] jsonData = JsonUtil.getArray(body, "users");
-        if (jsonData.length <= 0) {
+        if (jsonData == null || jsonData.length <= 0) {
             result = "Invalid data : users.length <= 0";
         } else { // Save the users data
             try {
                 User[] users = new User[jsonData.length];
-                if (users.length == 1) { /// Only 1 row : must be VOLUNTEER
+                if (users.length == 1) { // Only 1 row : must be VOLUNTEER
                     User user = new User();
                     JsonUtil.setObject(user, jsonData[0]);
                     if (user.user_type != WebUtil.USER_VOLUNTEER) {
@@ -261,12 +261,12 @@ public class UserController {
                     for (int i = 0; i < jsonData.length; i++) {
                         User user = new User();
                         JsonUtil.setObject(user, jsonData[i]);
-                        if (i == 0) {
+                        if (i == 0) { // The 1st row must be parents
                             if (user.user_type != WebUtil.USER_PARENTS) {
                                 result = "Invalid user type : not PARENTS";
                                 break;
                             }
-                        } else {
+                        } else { // The 2nd and more rows must be children
                             if (user.user_type != WebUtil.USER_PARTICIPANT) {
                                 result = "Invalid user type : not PARTICIPANT";
                                 break;
