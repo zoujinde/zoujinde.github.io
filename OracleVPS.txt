@@ -2,8 +2,8 @@
 https://www.youtube.com/watch?v=5a5tdJh8mKY
 https://oracle.com/cloud/free
 Account : zoujinde : z@gmail / Zjd-11111111
-Old : 132.145.182.154   Old : 150.136.80.20  User: opc
-New : http://150.136.114.237:8080/hello/sign-in.jsp
+Old : 150.136.114.237 ， 132.145.182.154 ， 150.136.80.20  User: opc
+New : http://132.145.133.109:8080/hello/sign-in.jsp        User: ubuntu
 
 =============================================
 
@@ -48,14 +48,12 @@ dnf install -y jdk-1.8-headful
 Download tomcat 9.x and unzip to run.
 
 # Run : pscp to /home/opc/
-pscp -P 22 -i putty_private_key.ppk mysql-connector-java-8.0.27.jar opc@150.136.114.237:/home/opc/
-pscp -P 22 -i putty_private_key.ppk d:\data\web\apache-tomcat-9.0.56\webapps\hello.war opc@150.136.114.237:/home/opc/
-pscp -P 22 -i putty_private_key.ppk *.png opc@150.136.114.237:/home/opc/
+pscp -P 22 -i putty_private_key.ppk mysql-connector-java-8.0.27.jar ubuntu@132.145.133.109:/home/ubuntu/
+pscp -P 22 -i putty_private_key.ppk d:\data\web\apache-tomcat-9.0.56\webapps\hello.war ubuntu@132.145.133.109:/home/ubuntu/
 
 # Copy jar and war to tomcat
-cp /home/opc/mysql-connector-java-8.0.27.jar /root/tomcat/lib/
-cp /home/opc/hello.war /root/tomcat/webapps/
-cp /home/opc/*.png /root/tomcat/webapps/hello/
+cp /home/ubuntu/mysql-connector-java-8.0.27.jar /root/tomcat/lib/
+cp /home/ubuntu/hello.war /root/tomcat/webapps/
 
 Check linux version : 
 cat /etc/redhat-release
@@ -73,6 +71,9 @@ dnf remove -y mysql-community-server
 dnf module -y disable mysql
 dnf install -y mysql-community-server
 
+# On Ubuntu
+apt install mysql-server
+
 # Don't : Start the MySQL Service on reboot Oracle Linux 7, 8 and 9.
 # Don't : systemctl enable mysqld
 
@@ -82,8 +83,10 @@ systemctl start mysqld
 # Stop on Oracle Linux 7, 8 and 9
 systemctl stop mysqld
 
-grep 数据库的初始密码。稍后需要更改. 
-grep 'temporary password' /var/log/mysqld.log
+Ubuntu : we can run mysql, no need password.
+
+Other linux grep 数据库的初始密码。稍后需要更改. 
+      grep 'temporary password' /var/log/mysqld.log
 
 登录 mysql --user=root --database=mydb --password
 Or : mysql -u root -p
