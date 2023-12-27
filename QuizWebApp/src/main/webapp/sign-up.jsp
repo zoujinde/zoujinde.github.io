@@ -185,11 +185,11 @@
 
   // Save Callback
   function saveResult() {
-    if(httpRequest.readyState==4) {
+    if(httpRequest.readyState===4) {
       let text = httpRequest.responseText;
-      if(httpRequest.status==200) { // 200 OK
-        if (text == 'OK') {
-          if (action == "create") {
+      if(httpRequest.status===200) { // 200 OK
+        if (text === 'OK') {
+          if (action === "create") {
             text = 'Sign up new user OK. Please Sign In.';
           } else {
             text = "Save user data OK.";
