@@ -67,48 +67,6 @@ public class UserController {
         return result;
     }
 
-    // SignUp
-    public String signUp(String body, HttpServletRequest req) {
-        String result = WebUtil.OK;
-        User user = new User();
-        try {
-            JsonUtil.setObject(user, body);
-            if (user.user_type == WebUtil.USER_VOLUNTEER || user.user_type == WebUtil.USER_PARENTS) {
-                if (user.parent_id != 0) {
-                    result = "Invalid parent id for volunteer or parents";
-                }
-            } else if (user.user_type == WebUtil.USER_PARTICIPANT) {
-                int parentId = WebUtil.getUserId(req);
-                if (parentId <= 0) {
-                    result = "Invalid parent id for participant";
-                /* 2022-8-5 Remove the year checking
-                 * } else if (user.birth_year < 1900 || user.birth_year > 2100) {
-                 *   result = "Invalid birth year for participant";
-                 */
-                } else if (WebUtil.getUserType(req) != WebUtil.USER_PARENTS) {
-                    result = "Invalid parent type for participant";
-                } else {
-                    user.parent_id = parentId;
-                }
-            } else { // Can't add ADMIN by web page
-                result = "Invalid user type";
-            }
-            if (result.equals(WebUtil.OK)) {
-                user.setAction(WebUtil.ACT_INSERT);
-                user.user_name = user.user_name.toLowerCase();
-                user.create_time = WebUtil.getTime();
-                user.signin_time = WebUtil.getTime();
-                user.token = "";
-                user.password = LogUtil.encrypt(user.password);
-                //LogUtil.log(TAG, "signUp : " + user.password);
-                result = DataManager.instance().runSql(new User[]{user});
-            }
-        } catch (Exception e) {
-            result = "signUp : " + e;
-        }
-        return result;
-    }
-
     // Get user data
     public String getUser(String body, HttpServletRequest req) {
         String result = WebUtil.OK;
@@ -253,15 +211,22 @@ public class UserController {
                 User[] users = new User[jsonData.length];
                 if (users.length == 1) { // Only 1 row : must be VOLUNTEER
                     User user = new User();
+                    users[0] = user;
                     JsonUtil.setObject(user, jsonData[0]);
                     if (user.user_type != WebUtil.USER_VOLUNTEER) {
                         result = "Invalid user type : not VOLUNTEER";
+                    } else if (user.user_name.contains(" ")) {
+                        result = "Invalid user name : contains space";
                     }
                 } else { // 2 or more rows : must be PARENTS and children
                     for (int i = 0; i < jsonData.length; i++) {
                         User user = new User();
+                        users[i] = user;
                         JsonUtil.setObject(user, jsonData[i]);
-                        if (i == 0) { // The 1st row must be parents
+                        if (user.user_name.contains(" ")) {
+                            result = "Invalid user name : contains space";
+                            break;
+                        } else if (i == 0) { // The 1st row must be parents
                             if (user.user_type != WebUtil.USER_PARENTS) {
                                 result = "Invalid user type : not PARENTS";
                                 break;
@@ -281,7 +246,6 @@ public class UserController {
                         u.setAction(WebUtil.ACT_INSERT);
                         u.user_name = u.user_name.toLowerCase();
                         u.create_time = WebUtil.getTime();
-                        u.signin_time = WebUtil.getTime();
                         u.token = "";
                         u.password = LogUtil.encrypt(u.password);
                     }

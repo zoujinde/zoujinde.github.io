@@ -47,7 +47,7 @@
   }
 
   input{
-    margin: 1px 1px 20px 10px;
+    margin: 1px 1px 10px 10px;
     padding: 1px;
     width: 680px;
     height: 80px;

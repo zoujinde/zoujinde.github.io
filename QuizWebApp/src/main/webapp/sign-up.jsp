@@ -9,16 +9,24 @@
   <select name="user_type">
     <option value="1">Volunteer</option>
     <option value="2">Parents</option>
-    <option value="3">Participant</option>
   </select><br>
   <label>User name </label><input name="user_name"/><br>
   <label>Password  </label><input type="password" name="password"/><br>
+
+  <table id="children" border="1" style="display:block;width:920px;" >
+    <tr>
+      <th width="350" >Child Name</th>
+      <th width="350" >Password</th>
+      <th width="220"><input type="button" value="add child" onclick="addChild()" style="width:220px;"/></th>
+    </tr>
+  </table>
+
   <label style="width:900px;font-weight:bold;">The following items are optional : </label><br>
   <label>Email    </label><input name="email"/><br>
   <label>Nickname  </label><input name="nickname"/><br>
-  <label>Birth year</label><input type="number" name="birth_year"/><br>
-  <label>Gender    </label>
-  <select name="gender">
+  <label>Birth year</label><input type="number" name="birth_year" style="width:200px;"/>
+  <label style="width:160px;" >Gender    </label>
+  <select name="gender" style="width:280px;">
     <option value="1">Male</option>
     <option value="0">Female</option>
   </select><br>
@@ -55,7 +63,8 @@
     var label_top = document.getElementById("label_top");
     if (action == "create") { // create a new user
       label_top.innerText = "Please input the new user info :";
-      user_type.value = "3"; // Set participant to avoid wrong user type
+      user_type.value = "2"; // set parents type
+      addChild();
     } else { // modify current user
       label_top.innerText = "Modify the current user info :";
       var label_user_type = document.getElementById("label_user_type");
@@ -171,6 +180,33 @@
         text = httpRequest.status + text;
         result.innerText = text;
         alert(text);
+      }
+    }
+  }
+
+  // Add child row
+  function addChild() {
+    var table = document.getElementById("children");
+    var row = table.insertRow();
+    var c1 = row.insertCell();
+    var c2 = row.insertCell();
+    var c3 = row.insertCell();
+    c1.innerHTML = '<input name="child_name" style="width:300px;"/>';
+    c2.innerHTML = '<input type="password" name="child_pass" style="width:300px;"/>';
+    c3.innerHTML = '<input type="button" value="delete" onclick="deleteChild(this)" style="width:220px;"/>';
+  }
+
+  // Delete child row
+  function deleteChild(button) {
+    var table = document.getElementById("children");
+    if (table.rows.length <= 2) {
+      alert("Can't delete the only 1 child.");
+    } else {
+      var index = button.parentNode.parentNode.rowIndex;
+      if (confirm("Would you delete the child data?")) {
+        // If it is a old child data, send request to server.
+        // If it is a new child data, delete it directly.
+        table.deleteRow(index);
       }
     }
   }
