@@ -182,7 +182,7 @@ public class UserController {
 
         /* When users array only has 1 row, the user_type must be 1 : VOLUNTEER
         {
-          "act":"signUp",
+          "act":"addUser",
           "users":[
             {"user_type":"1","user_name":"zoujinde","password":"11111111","email":"","nickname":"",,,,,,"phone":""}
           ]
@@ -193,7 +193,7 @@ public class UserController {
          * The 1st user_type must be 2          : Guardian PARENTS
          * The 2nd and more user_type must be 3 : Child PARTICIPANT
         {
-          "act":"signUp",
+          "act":"addUser",
           "users":[
             {"user_type":"2","user_name":"Guardian", "password":"xxx","email":"","nickname":"",,,,,,"phone":""},
             {"user_type":"3","user_name":"Child 1",  "password":"xxx"},
@@ -212,7 +212,7 @@ public class UserController {
                 if (users.length == 1) { // Only 1 row : must be VOLUNTEER
                     User user = new User();
                     users[0] = user;
-                    JsonUtil.setObject(user, jsonData[0]);
+                    JsonUtil.setObject(user, jsonData[0], false);
                     if (user.user_type != WebUtil.USER_VOLUNTEER) {
                         result = "Invalid user type : not VOLUNTEER";
                     } else if (user.user_name.contains(" ")) {
@@ -222,7 +222,7 @@ public class UserController {
                     for (int i = 0; i < jsonData.length; i++) {
                         User user = new User();
                         users[i] = user;
-                        JsonUtil.setObject(user, jsonData[i]);
+                        JsonUtil.setObject(user, jsonData[i], true);
                         if (user.user_name.contains(" ")) {
                             result = "Invalid user name : contains space";
                             break;
@@ -246,6 +246,7 @@ public class UserController {
                         u.setAction(WebUtil.ACT_INSERT);
                         u.user_name = u.user_name.toLowerCase();
                         u.create_time = WebUtil.getTime();
+                        u.signin_time = WebUtil.getTime();
                         u.token = "";
                         u.password = LogUtil.encrypt(u.password);
                     }

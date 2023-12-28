@@ -19,7 +19,7 @@ import com.quiz.web.util.WebUtil;
 
 public class DataManager {
 
-    public static final Byte PARENT_ID = Byte.MIN_VALUE;
+    public static final int PARENT_ID = Byte.MIN_VALUE;
     private static final String TAG = DataManager.class.getSimpleName();
     private static final int STRING_LENGTH = 200;
 
@@ -197,6 +197,7 @@ public class DataManager {
                 if (obj == null) continue; 
                 String act = obj.getAction();
                 if (act.equals(WebUtil.ACT_INSERT)) {
+                    // LogUtil.log(TAG, "autoId = " + autoId);
                     ps = buildInsertSql(cn, obj, builder, autoId);
                     ps.executeUpdate();
                     if (obj.getAutoIdName() != null) {
@@ -204,6 +205,7 @@ public class DataManager {
                         if (rs.next()) {
                             tmp = rs.getInt(1); // Can't get again
                             obj.setAutoId(tmp);
+                            // LogUtil.log(TAG, "tmp = " + tmp);
                             // Only remember the ParentObject autoId
                             if (obj.isParentObject()) {
                                 autoId = tmp;
@@ -372,7 +374,8 @@ public class DataManager {
                 // The item table has the (autoId, itemId) as PK
                 // MySQL will use the LAST_INSERT_ID() to get autoId
                 Object value = f.get(obj);
-                if (autoId > 0 && PARENT_ID.equals(value)) {
+                // LogUtil.log(TAG, "autoId = " + autoId + " value=" + value + " name=" + name);
+                if (autoId > 0 && value != null && value.equals(PARENT_ID)) {
                     obj.setParentObject(false);
                     ps.setObject(i++, autoId);
                 } else {

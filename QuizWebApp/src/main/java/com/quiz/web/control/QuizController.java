@@ -74,7 +74,7 @@ public class QuizController {
                 r.user_id = userId;
                 r.item_row = 0;
                 r.answer_time = WebUtil.getTime();
-                JsonUtil.setObject(r, data[i]);
+                JsonUtil.setObject(r, data[i], false);
                 newData[i] = r;
             }
             String sql = "select * from quiz_result where quiz_id = ? and user_id = ?";

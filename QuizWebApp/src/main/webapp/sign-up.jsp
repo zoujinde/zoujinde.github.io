@@ -6,7 +6,7 @@
 <form id="form">
   <label id="label_top" style="width:900px;font-weight:bold;">Please input the new user info : </label><br>
   <label id="label_user_type">User type</label>
-  <select name="user_type">
+  <select name="user_type" onchange="onUserTypeChange()">
     <option value="1">Volunteer</option>
     <option value="2">Parents</option>
   </select><br>
@@ -145,21 +145,40 @@
     }
     var data = new FormData(document.getElementById("form"));
     var json = getJson(data);
-    if (action == "create") { // create new user
-      json['act'] = 'signUp';
-    } else { // modify current user data
-      json['act'] = 'setUser';
-    }
     json['phone'] = json['phone1'] + json['phone2'] + json['phone3']
     json['address'] = json['address'] + ',' + json['city'] + ',' + json['state'] + ',' + json['zip']
-    json = JSON.stringify(json);
+
+    // Set the request data
+    var request = {"act":"addUser", "users":[json]};
+    if (action == "modify") {
+        request = {"act":"setUser", "users":[json]};
+    }
+
+    // If user type is parents, then add children data
+    if (user_type.value == "2") { // parents
+      var child_name = document.getElementsByName("child_name");
+      var child_pass = document.getElementsByName("child_pass");
+      var size = child_name.length;
+      for (var i = 0; i < size; i++) {
+        var name = child_name[i].value.trim();
+        var pass = child_pass[i].value.trim();
+        if (name.length < 6 || pass.length < 6) {
+          alert("Please input child name and password : length >= 6");
+          return;
+        }
+        request["users"][i + 1] = {"user_type":"3", "user_name":name, "password":pass};
+      }
+    }
+
+    request = JSON.stringify(request);
+    alert(request);
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", "user", true);
     // Only post method needs to set header
     httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // Set callback
     httpRequest.onreadystatechange = saveResult;
-    httpRequest.send(json);
+    httpRequest.send(request);
   }
 
   // Save Callback
@@ -181,6 +200,16 @@
         result.innerText = text;
         alert(text);
       }
+    }
+  }
+
+  // On user type change
+  function onUserTypeChange() {
+    var table = document.getElementById("children");
+    if (user_type.value == '1') { // volunteer
+      table.style.display = "none";
+    } else { // parents
+      table.style.display = "block";
     }
   }
 

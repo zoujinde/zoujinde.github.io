@@ -63,9 +63,9 @@ public class JsonUtil {
     }
 
     // Set Object by JSON string
-    public static void setObject(Object object, String jsonStr)
+    public static void setObject(Object object, String jsonStr, boolean setEmptyValue)
             throws ReflectiveOperationException {
-        build(object, jsonStr, 0);
+        build(object, jsonStr, 0, setEmptyValue);
     }
 
     // Set Object by JSON string
@@ -181,7 +181,7 @@ public class JsonUtil {
     }
 
     // Build object from JSONObject
-    private static void build(Object object, String jsonStr, int level)
+    private static void build(Object object, String jsonStr, int level, boolean setEmptyValue)
             throws ReflectiveOperationException {
         String objName = object.getClass().getSimpleName();
         Field[] fields = object.getClass().getFields();
@@ -208,6 +208,9 @@ public class JsonUtil {
 
             } else if (type == String.class) {
                 value = getString(jsonStr, name);
+                if (value == null && setEmptyValue) {
+                    value = "";
+                }
 
             } else if (type == java.sql.Timestamp.class) {
                 value = getTimestamp(jsonStr, name);
@@ -224,7 +227,7 @@ public class JsonUtil {
                         ja[i] = ja[i].trim();
                         if (ja[i].startsWith("{")) {
                             item = arg.newInstance(); // New object
-                            build(item, ja[i], level + 1);
+                            build(item, ja[i], level + 1, setEmptyValue);
                             list.add(item);
                         } else if (arg == String.class) {
                             list.add(ja[i]);
@@ -248,7 +251,7 @@ public class JsonUtil {
                 String jo = getString(jsonStr, name);
                 if (jo != null && jo.startsWith("{") && jo.length() > 10) {
                     value = type.newInstance(); // New object
-                    build(value, jo, level + 1);
+                    build(value, jo, level + 1, setEmptyValue);
                 }
             }
             // Set object value
