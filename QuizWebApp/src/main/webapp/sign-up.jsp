@@ -54,6 +54,7 @@
   var password  = document.getElementsByName("password")[0];
   var email  = document.getElementsByName("email")[0];
   var result = document.getElementById("result");
+  var delete_child_index = 0;
 
   // Delay load
   setTimeout("load()", 1);
@@ -204,11 +205,8 @@
       var text = httpRequest.responseText;
       if(httpRequest.status==200) { // 200 OK
         if (text == 'OK') {
-          if (action == "create") {
-            text = 'Sign up new user OK. Please Sign In.';
-          } else {
             text = "Save user data OK.";
-          }
+            window.location.href = "sign-in.jsp?act=input";
         }
         result.innerText = text;
         alert(text);
@@ -271,11 +269,44 @@
         if (user_id == "0") {
           table.deleteRow(index);
         } else { // Old data, send request to server.
-          // TODO
+          delete_child_index = index;
+          deleteUser(user_id);
         }
       }
     } else {
       alert("Can't delete or modify the used data.");
+    }
+  }
+
+  // Delete user data
+  function deleteUser(user_id) {
+    var json = {"act":"deleteUser", "user_id":user_id};
+    json = JSON.stringify(json);
+    // Post URL is Servlet, the sync is true
+    httpRequest.open("POST", "user", true);
+    // Only post method needs to set header
+    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    // Set callback
+    httpRequest.onreadystatechange = deleteResult;
+    httpRequest.send(json);
+  }
+
+  // Delete result
+  function deleteResult() {
+    if (httpRequest.readyState==4) {
+      var text = httpRequest.responseText;
+      if (httpRequest.status==200) { // 200 OK
+        if (text == 'OK') {
+          var table = document.getElementById("children");
+          table.deleteRow(delete_child_index);
+        }
+        result.innerText = text;
+        alert(text);
+      } else {
+        text = httpRequest.status + text;
+        result.innerText = text;
+        alert(text);
+      }
     }
   }
 

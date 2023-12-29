@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quiz.web.model.DataManager;
+import com.quiz.web.model.DataObject;
 import com.quiz.web.model.User;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
@@ -300,7 +301,6 @@ public class UserController {
     // Add new users
     public String addNewUsers(String body, HttpServletRequest req) {
         String result = WebUtil.OK;
-
         /* When users array only has 1 row, the user_type must be 1 : VOLUNTEER
         {
           "act":"addUser",
@@ -383,4 +383,21 @@ public class UserController {
         u.password = LogUtil.encrypt(u.password);
     }
 
+    // Delete user data
+    public String deleteUser(String body, HttpServletRequest req) {
+        String result = WebUtil.OK;
+        /* The request body format as below: 
+        {"act":"deleteUser", "user_id":123}
+        */
+        Integer user_id = JsonUtil.getInt(body, "user_id");
+        if (user_id == null || user_id <= 0) {
+            result = "Can't delete user id : " + user_id;
+        } else {
+            String sql = "delete from user where user_id = ?";
+            Integer[] arg = new Integer[]{user_id};
+            DataObject o = new DataObject(sql, arg);
+            result = DataManager.instance().runSql(new DataObject[]{o});
+        }
+        return result;
+    }
 }
