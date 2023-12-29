@@ -15,9 +15,9 @@
 
   <table id="children" border="1" style="display:block;width:920px;" >
     <tr>
-      <th width="350" >Child Name</th>
-      <th width="350" >Password</th>
-      <th width="220"><input type="button" value="add child" onclick="addChild(null)" style="width:220px;"/></th>
+      <th width="350" >student name</th>
+      <th width="350" >password</th>
+      <th width="220"><input type="button" value="add student" onclick="addChild(null)" style="width:260px;"/></th>
     </tr>
   </table>
 
@@ -235,7 +235,7 @@
     var c3 = row.insertCell();
     c1.innerHTML = '<input class="child_name" style="width:300px;"/>';
     c2.innerHTML = '<input type="password" class="child_pass" style="width:300px;"/>';
-    c3.innerHTML = '<input type="button" value="delete" onclick="deleteChild(this)" style="width:220px;"/>';
+    c3.innerHTML = '<input type="button" value="delete" onclick="deleteChild(this)" style="width:260px;"/>';
     var name = c1.children[0];
     var pass = c2.children[0];
     var button = c3.children[0];
@@ -261,7 +261,7 @@
       var row = button.parentNode.parentNode;
       var index = row.rowIndex;
       var user_id = row.alt;
-      if (confirm("Would you delete the child data?")) {
+      if (confirm("Would you delete the student data?")) {
         // If it is a new child data, delete it directly.
         if (user_id == "0") {
           m_table.deleteRow(index);
