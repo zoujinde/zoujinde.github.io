@@ -450,11 +450,11 @@ public class JsonUtil {
     public static Boolean getBoolean(String json, String key) {
         Boolean value = null;
         String s = getString(json, key);
-        if (s != null && !s.equals("null")) {
+        if (s != null && !s.equals("null") && s.length() > 0) {
             try {
                 value = Boolean.parseBoolean(s);
             } catch (RuntimeException e) {
-                System.err.println("json.get : " + e);
+                System.err.println("json : " + key + " : " + e);
             }
         }
         return value;
@@ -464,11 +464,11 @@ public class JsonUtil {
     public static Integer getInt(String json, String key) {
         Integer value = null;
         String s = getString(json, key);
-        if (s != null && !s.equals("null")) {
+        if (s != null && !s.equals("null") && s.length() > 0) {
             try {
                 value = Integer.parseInt(s);
             } catch (RuntimeException e) {
-                System.err.println("json.get : " + e);
+                System.err.println("json : " + key + " : " + e);
             }
         }
         return value;
@@ -478,11 +478,11 @@ public class JsonUtil {
     public static Long getLong(String json, String key) {
         Long value = null;
         String s = getString(json, key);
-        if (s != null && !s.equals("null")) {
+        if (s != null && !s.equals("null") && s.length() > 0) {
             try {
                 value = Long.parseLong(s);
             } catch (RuntimeException e) {
-                System.err.println("json.get : " + e);
+                System.err.println("json : " + key + " : " + e);
             }
         }
         return value;
@@ -492,11 +492,11 @@ public class JsonUtil {
     public static Float getFloat(String json, String key) {
         Float value = null;
         String s = getString(json, key);
-        if (s != null && !s.equals("null")) {
+        if (s != null && !s.equals("null") && s.length() > 0) {
             try {
                 value = Float.parseFloat(s);
             } catch (RuntimeException e) {
-                System.err.println("json.get : " + e);
+                System.err.println("json : " + key + " : " + e);
             }
         }
         return value;
@@ -506,11 +506,11 @@ public class JsonUtil {
     public static Double getDouble(String json, String key) {
         Double value = null;
         String s = getString(json, key);
-        if (s != null && !s.equals("null")) {
+        if (s != null && !s.equals("null") && s.length() > 0) {
             try {
                 value = Double.parseDouble(s);
             } catch (RuntimeException e) {
-                System.err.println("json.get : " + e);
+                System.err.println("json : " + key + " : " + e);
             }
         }
         return value;
@@ -520,11 +520,11 @@ public class JsonUtil {
     public static java.sql.Timestamp getTimestamp(String json, String key) {
         java.sql.Timestamp value = null;
         String s = getString(json, key);
-        if (s != null && !s.equals("null")) {
+        if (s != null && !s.equals("null") && s.length() > 0) {
             try {
                 value = java.sql.Timestamp.valueOf(s);
             } catch (RuntimeException e) {
-                System.err.println("json.get : " + e);
+                System.err.println("json : " + key + " : " + e);
             }
         }
         return value;

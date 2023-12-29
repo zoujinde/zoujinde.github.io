@@ -17,7 +17,7 @@
     <tr>
       <th width="350" >Child Name</th>
       <th width="350" >Password</th>
-      <th width="220"><input type="button" value="add child" onclick="addChild()" style="width:220px;"/></th>
+      <th width="220"><input type="button" value="add child" onclick="addChild(null)" style="width:220px;"/></th>
     </tr>
   </table>
 
@@ -63,13 +63,12 @@
     var label_top = document.getElementById("label_top");
     if (action == "create") { // create a new user
       label_top.innerText = "Please input the new user info :";
-      user_type.value = "2"; // set parents type
-      addChild();
+      user_type.value = "2"; // Set the default type as 2 : PARENTS
+      addChild(null);
     } else { // modify current user
       label_top.innerText = "Modify the current user info :";
       var label_user_type = document.getElementById("label_user_type");
       label_user_type.style.width = "900px";
-      label_user_type.style.fontSize = "39px";
       user_type.style.display = "none";
       user_name.disabled = "true";
       // Get current user data when user_id is 0
@@ -87,9 +86,11 @@
       var text = httpRequest.responseText;
       if(httpRequest.status==200) { // 200 OK
         if (text.startsWith("{")) {
-          var json = JSON.parse(text);
+          var users = JSON.parse(text)["users"];
           // Set UI data
+          var json = users[0];
           label_user_type.innerText = json["token"];
+          user_type.value = json["user_type"];
           user_name.value = json["user_name"];
           password.value  = json["password"];
           email.value     = json["email"];
@@ -97,16 +98,26 @@
           document.getElementsByName("birth_year")[0].value = json["birth_year"];
           document.getElementsByName("gender")[0].value     = json["gender"];
           var a = json["address"].split(",");
-          //alert("address=" + a[0] + "&" + a[1] + "&" + a[2] + "&" + a[3])
           document.getElementsByName("address")[0].value = a[0];
-          document.getElementsByName("city")[0].value    = a[1];
-          document.getElementsByName("state")[0].value   = a[2];
-          document.getElementsByName("zip")[0].value     = a[3];
+          if (a.length == 4) {
+            document.getElementsByName("city")[0].value    = a[1];
+            document.getElementsByName("state")[0].value   = a[2];
+            document.getElementsByName("zip")[0].value     = a[3];
+          }
           var phone = json["phone"];
           //alert("phone=" + phone + " : " + phone.substr(100,200))
           document.getElementsByName("phone1")[0].value = phone.substring(0, 3);
           document.getElementsByName("phone2")[0].value = phone.substring(3, 6);
           document.getElementsByName("phone3")[0].value = phone.substring(6, 10);
+          // Show children table when user_type is 2 : PARENT
+          var table = document.getElementById("children");
+          if (json["user_type"] == 2) {
+            for (var i = 1; i < users.length; i++) {
+              addChild(users[i]);
+            }
+          } else { // Hide children table
+            table.style.display = "none";
+          }
         } else {
           result.innerText = text;
           alert(text);
@@ -156,22 +167,28 @@
 
     // If user type is parents, then add children data
     if (user_type.value == "2") { // parents
-      var child_name = document.getElementsByName("child_name");
-      var child_pass = document.getElementsByName("child_pass");
+      var child_name = document.getElementsByClassName("child_name");
+      var child_pass = document.getElementsByClassName("child_pass");
       var size = child_name.length;
       for (var i = 0; i < size; i++) {
-        var name = child_name[i].value.trim();
-        var pass = child_pass[i].value.trim();
-        if (name.length < 6 || pass.length < 6) {
-          alert("Please input child name and password : length >= 6");
-          return;
+        // alert("child_name[i].disabled=" + child_name[i].disabled);
+        if (child_name[i].disabled) {
+          // Can't modify the used data
+        } else {
+          var name = child_name[i].value.trim();
+          var pass = child_pass[i].value.trim();
+          var user_id = child_name[i].parentNode.parentNode.alt;
+          if (name.length < 6 || pass.length < 6) {
+            alert("Please input child name and password : length >= 6");
+            return;
+          }
+          request["users"][i + 1] = {"user_id":user_id, "user_type":3, "user_name":name, "password":pass};
         }
-        request["users"][i + 1] = {"user_type":"3", "user_name":name, "password":pass};
       }
     }
 
     request = JSON.stringify(request);
-    alert(request);
+    // alert(request);
     // Post URL is Servlet, the sync is true
     httpRequest.open("POST", "user", true);
     // Only post method needs to set header
@@ -214,15 +231,30 @@
   }
 
   // Add child row
-  function addChild() {
+  function addChild(json) {
     var table = document.getElementById("children");
     var row = table.insertRow();
     var c1 = row.insertCell();
     var c2 = row.insertCell();
     var c3 = row.insertCell();
-    c1.innerHTML = '<input name="child_name" style="width:300px;"/>';
-    c2.innerHTML = '<input type="password" name="child_pass" style="width:300px;"/>';
+    c1.innerHTML = '<input class="child_name" style="width:300px;"/>';
+    c2.innerHTML = '<input type="password" class="child_pass" style="width:300px;"/>';
     c3.innerHTML = '<input type="button" value="delete" onclick="deleteChild(this)" style="width:220px;"/>';
+    var name = c1.children[0];
+    var pass = c2.children[0];
+    var button = c3.children[0];
+    row.alt = 0; // Set new user_id = 0
+    if (json != null) {
+      row.alt    = json["user_id"];
+      name.value = json["user_name"];
+      pass.value = json["password"];
+      // If user set data, then can't modify or delete the used data 
+      if (json["email"]!="" || json["phone"]!="") {
+        name.disabled = "true";
+        pass.disabled = "true";
+        button.value  = "used";
+      }
+    }
   }
 
   // Delete child row
@@ -230,13 +262,20 @@
     var table = document.getElementById("children");
     if (table.rows.length <= 2) {
       alert("Can't delete the only 1 child.");
-    } else {
-      var index = button.parentNode.parentNode.rowIndex;
+    } else if (button.value == "delete") {
+      var row = button.parentNode.parentNode;
+      var index = row.rowIndex;
+      var user_id = row.alt;
       if (confirm("Would you delete the child data?")) {
-        // If it is a old child data, send request to server.
         // If it is a new child data, delete it directly.
-        table.deleteRow(index);
+        if (user_id == "0") {
+          table.deleteRow(index);
+        } else { // Old data, send request to server.
+          // TODO
+        }
       }
+    } else {
+      alert("Can't delete or modify the used data.");
     }
   }
 

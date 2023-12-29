@@ -69,6 +69,34 @@ public class UserController {
 
     // Get user data
     public String getUser(String body, HttpServletRequest req) {
+        /* When user_type is 1 : VOLUNTEER, the return users will only 1 row
+        {
+          "users":[
+            {"user_type":"1","user_name":"Jacking","password":"xxx","email":"","nickname":"",,,,,,"phone":""}
+          ]
+        }
+        */
+
+        /* When user_type is 2 : PARENT, the return users will have 2 or more rows
+         * The 1 row is PARENT (user_type is 2)
+         * The 2 and more rows are children (user_type is 3)
+        {
+          "users":[
+            {"user_type":"2","user_name":"Guardian", "password":"xxx","email":"","nickname":"",,,,,,"phone":""},
+            {"user_type":"3","user_name":"Child 1",  "password":"xxx"},
+            {"user_type":"3","user_name":"Child 2",  "password":"xxx"},
+          ]
+        }
+        */
+
+        /* When user_type is 3 : CHILD, the return users will only 1 row, and set token with ParentName
+        {
+          "users":[
+            {"user_type":"3","user_name":"Child-A","password":"xxx", "token":"ParentName",,,,,,"phone":""}
+          ]
+        }
+        */
+
         String result = WebUtil.OK;
         try {
             int userId = JsonUtil.getInt(body, "user_id");
@@ -81,30 +109,30 @@ public class UserController {
             User[] users = dm.select(sql, values, User.class);
             if (users != null && users.length == 1) {
                 User u = users[0];
-                u.password = WebUtil.SECRET_DATA;
+                u.password = WebUtil.SECRET;
                 u.token = "";
+                User[] children = null;
                 if (u.user_type == WebUtil.USER_PARENTS) {
-                    users = getChildren(u.user_id);
-                    if (users != null) {
-                        for (User child : users) {
-                            if (u.token.length() == 0) {
-                                u.token += " Your child : " + child.user_name;
-                            } else {
-                                u.token += " , " + child.user_name;
-                            }
-                        }
-                    }
-                    u.token = "You are a parent. " + u.token;
+                    children = getChildren(u.user_id);
                 } else if (u.user_type == WebUtil.USER_PARTICIPANT) {
-                    u.token = "You are a participant. Your parent : ";
-                    users = dm.select(sql, new Object[]{u.parent_id}, User.class);
-                    if (users != null && users.length == 1) {
-                        u.token += users[0].user_name;
+                    User[] parent = dm.select(sql, new Object[]{u.parent_id}, User.class);
+                    if (parent != null && parent.length == 1) {
+                        u.token = "Parent Name : " + parent[0].user_name;
                     }
-                } else {
-                    u.token = "You are a volunteer.";
                 }
-                result = JsonUtil.toJson(u);
+                // Return the users with children JSON
+                StringBuilder s = new StringBuilder(WebUtil.ROWS_LIMIT);
+                s.append("{\"users\":[\n");
+                s.append(JsonUtil.toJson(u));
+                if (children != null && children.length > 0) {
+                    for (User child : children) {
+                        child.password = WebUtil.SECRET;
+                        s.append(",\n");
+                        s.append(JsonUtil.toJson(child));
+                    }
+                }
+                s.append("]}");
+                result = s.toString();
             } else {
                 result = "Invalid users data";
             }
@@ -116,35 +144,128 @@ public class UserController {
 
     // Set current user data
     public String setUser(String body, HttpServletRequest req) {
+        /* When user_type is 1 : VOLUNTEER, the users only 1 row for UPDATE SQL
+        {
+          "users":[
+            {"user_type":"1","user_name":"Jacking","password":"xxx","email":"","nickname":"",,,,,,"phone":""}
+          ]
+        }
+        */
+
+        /* When user_type is 2 : PARENT, the users will have 1 or more rows. For example:
+         * The 1st row is PARENT (user_type is 2), then run UPDATE SQL
+         * The 2nd row is a child, user_id > 0, it is an old data, then run UPDATE SQL
+         * The 3rd row is a child, user_id = 0, it is  a new data, then run INSERT SQL 
+        {
+          "users":[
+            {"user_type":"2","user_name":"Guardian", "password":"xxx","email":"","nickname":"",,,,,,"phone":""},
+            {"user_id":9, "user_type":"3","user_name":"Child 1",  "password":"xxx"},
+            {"user_id":0, "user_type":"3","user_name":"Child 2",  "password":"xxx"},
+          ]
+        }
+        */
+
+        /* When user_type is 3 : CHILD, the users will only 1 row for UPDATE SQL
+        {
+          "users":[
+            {"user_type":"3","user_name":"Child-A","password":"xxx",,,,,,"phone":""}
+          ]
+        }
+        */
+
         String result = WebUtil.OK;
-        try {
-            int userId = WebUtil.getUserId(req);
-            String sql = "select * from user where user_id = ?";
-            Object[] args = new Object[]{userId};
-            User[] users = DataManager.instance().select(sql, args, User.class);
-            if (users != null && users.length == 1) {
-                User user = users[0];
-                // We should only update below columns :
-                String[] items = new String[] {"address", "birth_year",
-                        "email", "gender", "nickname", "phone"};
-                boolean changed = JsonUtil.setObject(user, body, items);
-                // Check password
-                String pass = JsonUtil.getString(body, "password");
-                if (!WebUtil.SECRET_DATA.equals(pass)) {
-                    changed = true;
-                    user.password = LogUtil.encrypt(pass);
-                }
-                if (changed) {
-                    user.setAction(WebUtil.ACT_UPDATE);
-                    result = DataManager.instance().runSql(users);
+        // Get the users JSON data
+        final String[] json = JsonUtil.getArray(body, "users");
+        if (json == null || json.length <= 0) {
+            result = "Invalid data : users.length <= 0";
+        } else {
+            try {
+                final User[] users = new User[json.length];
+                final int userId = WebUtil.getUserId(req);
+                final String sql = "select * from user where user_id = ?";
+                Object[] args = new Object[]{userId};
+                User[] tmp = DataManager.instance().select(sql, args, User.class);
+                if (tmp == null || tmp.length != 1) {
+                    result = "Invalid user data : " + userId;
                 } else {
-                    result = "User data not changed";
+                    boolean changed = false;
+                    // Handle the 1st user data
+                    users[0] = tmp[0];
+                    // We should only update below columns :
+                    String[] items = new String[] {"address", "birth_year", "email", "gender", "nickname", "phone"};
+                    if (JsonUtil.setObject(users[0], json[0], items)) { // changed
+                        users[0].setAction(WebUtil.ACT_UPDATE);
+                        changed = true;
+                    }
+                    // Check password
+                    String pass = JsonUtil.getString(json[0], "password");
+                    if (!WebUtil.SECRET.equals(pass)) {
+                        pass = LogUtil.encrypt(pass);
+                        if (!users[0].password.equals(pass)) {
+                            users[0].password = pass;
+                            users[0].setAction(WebUtil.ACT_UPDATE);
+                            changed = true;
+                        }
+                    }
+
+                    // If user is parent, then handle children data
+                    if (users[0].user_type == WebUtil.USER_PARENTS) {
+                        for (int i = 1; i < json.length; i++) {
+                            users[i] = new User();
+                            JsonUtil.setObject(users[i], json[i], true);
+                            String name = users[i].user_name.toLowerCase();
+                            if (name.contains(" ")) {
+                                result = "Invalid user name : contains space";
+                                break;
+                            }
+                            if (users[i].user_type != WebUtil.USER_PARTICIPANT) {
+                                result = "Invalid user type : not PARTICIPANT";
+                                break;
+                            }
+                            if (users[i].user_id < 0) {
+                                result = "Invalid user data : id < 0";
+                                break;
+                            } else if (users[i].user_id == 0) { // Insert new child data
+                                users[i].parent_id = userId;
+                                setNewUserData(users[i]);
+                                changed = true;
+                            } else { // Update old child data
+                                pass = users[i].password;
+                                args = new Object[]{users[i].user_id};
+                                tmp = DataManager.instance().select(sql, args, User.class);
+                                if (tmp == null || tmp.length != 1) {
+                                    result = "No child data : " + users[i].user_id;
+                                    break;
+                                }
+                                users[i] = tmp[0]; // Set user again
+                                if (!users[i].user_name.equals(name)) {
+                                    users[i].user_name = name;
+                                    users[i].setAction(WebUtil.ACT_UPDATE);
+                                    changed = true;
+                                }
+                                if (!WebUtil.SECRET.equals(pass)) {
+                                    pass = LogUtil.encrypt(pass);
+                                    if (!users[i].password.equals(pass)) {
+                                        users[i].password = pass;
+                                        users[i].setAction(WebUtil.ACT_UPDATE);
+                                        changed = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Check the result
+                    if (WebUtil.OK.equals(result)) {
+                        if (changed) {
+                            result = DataManager.instance().runSql(users);
+                        } else {
+                            result = "User data not changed";
+                        }
+                    }
                 }
-            } else {
-                result = "Invalid user data";
+            } catch (Exception e) {
+                result = "getUser : " + e;
             }
-        } catch (Exception e) {
-            result = "getUser : " + e;
         }
         return result;
     }
@@ -210,45 +331,38 @@ public class UserController {
             try {
                 User[] users = new User[jsonData.length];
                 if (users.length == 1) { // Only 1 row : must be VOLUNTEER
-                    User user = new User();
-                    users[0] = user;
-                    JsonUtil.setObject(user, jsonData[0], false);
-                    if (user.user_type != WebUtil.USER_VOLUNTEER) {
+                    users[0] = new User();
+                    JsonUtil.setObject(users[0], jsonData[0], false);
+                    if (users[0].user_type != WebUtil.USER_VOLUNTEER) {
                         result = "Invalid user type : not VOLUNTEER";
-                    } else if (user.user_name.contains(" ")) {
+                    } else if (users[0].user_name.contains(" ")) {
                         result = "Invalid user name : contains space";
                     }
                 } else { // 2 or more rows : must be PARENTS and children
                     for (int i = 0; i < jsonData.length; i++) {
-                        User user = new User();
-                        users[i] = user;
-                        JsonUtil.setObject(user, jsonData[i], true);
-                        if (user.user_name.contains(" ")) {
+                        users[i] = new User();
+                        JsonUtil.setObject(users[i], jsonData[i], true);
+                        if (users[i].user_name.contains(" ")) {
                             result = "Invalid user name : contains space";
                             break;
                         } else if (i == 0) { // The 1st row must be parents
-                            if (user.user_type != WebUtil.USER_PARENTS) {
+                            if (users[i].user_type != WebUtil.USER_PARENTS) {
                                 result = "Invalid user type : not PARENTS";
                                 break;
                             }
                         } else { // The 2nd and more rows must be children
-                            if (user.user_type != WebUtil.USER_PARTICIPANT) {
+                            if (users[i].user_type != WebUtil.USER_PARTICIPANT) {
                                 result = "Invalid user type : not PARTICIPANT";
                                 break;
                             }
-                            user.parent_id = DataManager.PARENT_ID;
+                            users[i].parent_id = DataManager.PARENT_ID;
                         }
                     }
                 }
                 // Run SQL to add users
                 if (WebUtil.OK.equals(result)) {
                     for (User u : users) {
-                        u.setAction(WebUtil.ACT_INSERT);
-                        u.user_name = u.user_name.toLowerCase();
-                        u.create_time = WebUtil.getTime();
-                        u.signin_time = WebUtil.getTime();
-                        u.token = "";
-                        u.password = LogUtil.encrypt(u.password);
+                        setNewUserData(u);
                     }
                     result = DataManager.instance().runSql(users);
                 }
@@ -257,6 +371,16 @@ public class UserController {
             }
         }
         return result;
+    }
+
+    // Set new user data
+    private void setNewUserData(User u) {
+        u.setAction(WebUtil.ACT_INSERT);
+        u.user_name = u.user_name.toLowerCase();
+        u.create_time = WebUtil.getTime();
+        u.signin_time = WebUtil.getTime();
+        u.token = "";
+        u.password = LogUtil.encrypt(u.password);
     }
 
 }

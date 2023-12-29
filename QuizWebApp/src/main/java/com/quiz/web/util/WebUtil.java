@@ -39,7 +39,7 @@ public class WebUtil {
     public static final String ACT_UPDATE = "update";
 
     public static final String DATA = "data";
-    public static final String SECRET_DATA = "SECRET_DATA";
+    public static final String SECRET = "SECRET";
     public static final String OK = "OK";
     public static final int ROWS_LIMIT = 500;
     //The old driver is com.mysql.jdbc.Driver
@@ -351,14 +351,16 @@ public class WebUtil {
             if (obj instanceof Connection) {
                 Connection cn = (Connection) obj;
                 try {
-                    if (!cn.getAutoCommit()) {
+                    if (!cn.isClosed() && !cn.getAutoCommit()) {
                         cn.rollback(); // RollBack
                     }
                 } catch (Exception e) {
                     LogUtil.log(TAG, "cn.rollback : " + e);
                 }
                 try {
-                    cn.setAutoCommit(true); // Set AutoCommit
+                    if (!cn.isClosed()) {
+                        cn.setAutoCommit(true); // Set AutoCommit
+                    }
                 } catch (Exception e) {
                     LogUtil.log(TAG, "cn.setAutoC : " + e);
                 }

@@ -19,7 +19,7 @@ import com.quiz.web.util.WebUtil;
 
 public class DataManager {
 
-    public static final int PARENT_ID = Byte.MIN_VALUE;
+    public static final int PARENT_ID = -1;
     private static final String TAG = DataManager.class.getSimpleName();
     private static final int STRING_LENGTH = 200;
 
@@ -194,9 +194,10 @@ public class DataManager {
             StringBuilder builder = new StringBuilder(STRING_LENGTH);
             // Run the sqlAct one by one
             for (DataObject obj : actions) {
-                if (obj == null) continue; 
-                String act = obj.getAction();
-                if (act.equals(WebUtil.ACT_INSERT)) {
+                String act = (obj == null ? null : obj.getAction());
+                if (act == null) {
+                    continue;
+                } else if (act.equals(WebUtil.ACT_INSERT)) {
                     // LogUtil.log(TAG, "autoId = " + autoId);
                     ps = buildInsertSql(cn, obj, builder, autoId);
                     ps.executeUpdate();
