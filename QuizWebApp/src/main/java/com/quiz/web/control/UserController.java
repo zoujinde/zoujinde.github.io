@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quiz.web.model.DataManager;
-import com.quiz.web.model.DataObject;
 import com.quiz.web.model.User;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
@@ -189,14 +188,12 @@ public class UserController {
                 if (tmp == null || tmp.length != 1) {
                     result = "Invalid user data : " + userId;
                 } else {
-                    boolean changed = false;
                     // Handle the 1st user data
                     users[0] = tmp[0];
                     // We should only update below columns :
                     String[] items = new String[] {"address", "birth_year", "email", "gender", "nickname", "phone"};
                     if (JsonUtil.setObject(users[0], json[0], items)) { // changed
                         users[0].setAction(WebUtil.ACT_UPDATE);
-                        changed = true;
                     }
                     // Check password
                     String pass = JsonUtil.getString(json[0], "password");
@@ -205,7 +202,6 @@ public class UserController {
                         if (!users[0].password.equals(pass)) {
                             users[0].password = pass;
                             users[0].setAction(WebUtil.ACT_UPDATE);
-                            changed = true;
                         }
                     }
 
@@ -229,7 +225,6 @@ public class UserController {
                             } else if (users[i].user_id == 0) { // Insert new child data
                                 users[i].parent_id = userId;
                                 setNewUserData(users[i]);
-                                changed = true;
                             } else { // Update old child data
                                 pass = users[i].password;
                                 args = new Object[]{users[i].user_id};
@@ -242,14 +237,12 @@ public class UserController {
                                 if (!users[i].user_name.equals(name)) {
                                     users[i].user_name = name;
                                     users[i].setAction(WebUtil.ACT_UPDATE);
-                                    changed = true;
                                 }
                                 if (!WebUtil.SECRET.equals(pass)) {
                                     pass = LogUtil.encrypt(pass);
                                     if (!users[i].password.equals(pass)) {
                                         users[i].password = pass;
                                         users[i].setAction(WebUtil.ACT_UPDATE);
-                                        changed = true;
                                     }
                                 }
                             }
@@ -257,11 +250,7 @@ public class UserController {
                     }
                     // Check the result
                     if (WebUtil.OK.equals(result)) {
-                        if (changed) {
-                            result = DataManager.instance().runSql(users);
-                        } else {
-                            result = "User data not changed";
-                        }
+                        result = DataManager.instance().runSql(users);
                     }
                 }
             } catch (Exception e) {
@@ -393,10 +382,10 @@ public class UserController {
         if (user_id == null || user_id <= 0) {
             result = "Can't delete user id : " + user_id;
         } else {
-            String sql = "delete from user where user_id = ?";
-            Integer[] arg = new Integer[]{user_id};
-            DataObject o = new DataObject(sql, arg);
-            result = DataManager.instance().runSql(new DataObject[]{o});
+            User u = new User();
+            u.user_id = user_id;
+            u.setAction(WebUtil.ACT_DELETE);
+            result = DataManager.instance().runSql(new User[]{u});
         }
         return result;
     }

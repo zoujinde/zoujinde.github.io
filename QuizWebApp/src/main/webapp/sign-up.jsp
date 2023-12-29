@@ -47,14 +47,16 @@
 </HTML>
 
 <script type="text/javascript">
-  var httpRequest = getHttpRequest();
-  var action = getUrlValue("act");
-  var user_type = document.getElementsByName("user_type")[0];
-  var user_name = document.getElementsByName("user_name")[0];
-  var password  = document.getElementsByName("password")[0];
-  var email  = document.getElementsByName("email")[0];
-  var result = document.getElementById("result");
-  var delete_child_index = 0;
+  const m_http = getHttpRequest();
+  const m_action = getUrlValue("act");
+  const m_label_type = document.getElementById("label_user_type");
+  const m_user_type = document.getElementsByName("user_type")[0];
+  const m_user_name = document.getElementsByName("user_name")[0];
+  const m_password  = document.getElementsByName("password")[0];
+  const m_email  = document.getElementsByName("email")[0];
+  const m_result = document.getElementById("result");
+  const m_table = document.getElementById("children");
+  var m_child_index = 0;
 
   // Delay load
   setTimeout("load()", 1);
@@ -62,39 +64,38 @@
   // Load
   function load() {
     var label_top = document.getElementById("label_top");
-    if (action == "create") { // create a new user
+    if (m_action == "create") { // create a new user
       label_top.innerText = "Please input the new user info :";
-      user_type.value = "2"; // Set the default type as 2 : PARENTS
+      m_user_type.value = "2"; // Set the default type as 2 : PARENTS
       addChild(null);
     } else { // modify current user
       label_top.innerText = "Modify the current user info :";
-      var label_user_type = document.getElementById("label_user_type");
-      label_user_type.style.width = "900px";
-      user_type.style.display = "none";
-      user_name.disabled = "true";
+      m_label_type.style.width = "900px";
+      m_user_type.style.display = "none";
+      m_user_name.disabled = "true";
       // Get current user data when user_id is 0
       var json = '{"act":"getUser", "user_id":0}';
-      httpRequest.open("POST", "user", true);
-      httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      httpRequest.onreadystatechange = loadResult;
-      httpRequest.send(json);
+      m_http.open("POST", "user", true);
+      m_http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      m_http.onreadystatechange = loadResult;
+      m_http.send(json);
     }
   }
 
   // Load result
   function loadResult() {
-    if (httpRequest.readyState==4) {
-      var text = httpRequest.responseText;
-      if(httpRequest.status==200) { // 200 OK
+    if (m_http.readyState==4) {
+      var text = m_http.responseText;
+      if(m_http.status==200) { // 200 OK
         if (text.startsWith("{")) {
           var users = JSON.parse(text)["users"];
           // Set UI data
           var json = users[0];
-          label_user_type.innerText = json["token"];
-          user_type.value = json["user_type"];
-          user_name.value = json["user_name"];
-          password.value  = json["password"];
-          email.value     = json["email"];
+          m_label_type.innerText = json["token"];
+          m_user_type.value = json["user_type"];
+          m_user_name.value = json["user_name"];
+          m_password.value  = json["password"];
+          m_email.value     = json["email"];
           document.getElementsByName("nickname")[0].value   = json["nickname"];
           document.getElementsByName("birth_year")[0].value = json["birth_year"];
           document.getElementsByName("gender")[0].value     = json["gender"];
@@ -111,21 +112,20 @@
           document.getElementsByName("phone2")[0].value = phone.substring(3, 6);
           document.getElementsByName("phone3")[0].value = phone.substring(6, 10);
           // Show children table when user_type is 2 : PARENT
-          var table = document.getElementById("children");
           if (json["user_type"] == 2) {
             for (var i = 1; i < users.length; i++) {
               addChild(users[i]);
             }
           } else { // Hide children table
-            table.style.display = "none";
+            m_table.style.display = "none";
           }
         } else {
-          result.innerText = text;
+          m_result.innerText = text;
           alert(text);
         }
       } else {
-        text = httpRequest.status + text;
-        result.innerText = text;
+        text = m_http.status + text;
+        m_result.innerText = text;
         alert(text);
       }
     }
@@ -143,15 +143,15 @@
   // Save data
   function save() {
     // Check the data
-    if (user_name.value.trim().length < 6) {
+    if (m_user_name.value.trim().length < 6) {
       var text = "Please input the user name. (length>=6)";
-      result.innerText = text;
+      m_result.innerText = text;
       alert(text);
       return;
     }
-    if (password.value.trim().length < 6) {
+    if (m_password.value.trim().length < 6) {
       var text = "Please input the password. (length>=6)";
-      result.innerText = text;
+      m_result.innerText = text;
       alert(text);
       return;
     }
@@ -162,12 +162,12 @@
 
     // Set the request data
     var request = {"act":"addUser", "users":[json]};
-    if (action == "modify") {
+    if (m_action == "modify") {
         request = {"act":"setUser", "users":[json]};
     }
 
     // If user type is parents, then add children data
-    if (user_type.value == "2") { // parents
+    if (m_user_type.value == "2") { // parents
       var child_name = document.getElementsByClassName("child_name");
       var child_pass = document.getElementsByClassName("child_pass");
       var size = child_name.length;
@@ -191,28 +191,28 @@
     request = JSON.stringify(request);
     // alert(request);
     // Post URL is Servlet, the sync is true
-    httpRequest.open("POST", "user", true);
+    m_http.open("POST", "user", true);
     // Only post method needs to set header
-    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    m_http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // Set callback
-    httpRequest.onreadystatechange = saveResult;
-    httpRequest.send(request);
+    m_http.onreadystatechange = saveResult;
+    m_http.send(request);
   }
 
   // Save Callback
   function saveResult() {
-    if(httpRequest.readyState==4) {
-      var text = httpRequest.responseText;
-      if(httpRequest.status==200) { // 200 OK
+    if(m_http.readyState==4) {
+      var text = m_http.responseText;
+      if(m_http.status==200) { // 200 OK
         if (text == 'OK') {
             text = "Save user data OK.";
             window.location.href = "sign-in.jsp?act=input";
         }
-        result.innerText = text;
+        m_result.innerText = text;
         alert(text);
       } else {
-        text = httpRequest.status + text;
-        result.innerText = text;
+        text = m_http.status + text;
+        m_result.innerText = text;
         alert(text);
       }
     }
@@ -220,18 +220,16 @@
 
   // On user type change
   function onUserTypeChange() {
-    var table = document.getElementById("children");
-    if (user_type.value == '1') { // volunteer
-      table.style.display = "none";
+    if (m_user_type.value == '1') { // volunteer
+      m_table.style.display = "none";
     } else { // parents
-      table.style.display = "block";
+      m_table.style.display = "block";
     }
   }
 
   // Add child row
   function addChild(json) {
-    var table = document.getElementById("children");
-    var row = table.insertRow();
+    var row = m_table.insertRow();
     var c1 = row.insertCell();
     var c2 = row.insertCell();
     var c3 = row.insertCell();
@@ -257,8 +255,7 @@
 
   // Delete child row
   function deleteChild(button) {
-    var table = document.getElementById("children");
-    if (table.rows.length <= 2) {
+    if (m_table.rows.length <= 2) {
       alert("Can't delete the only 1 child.");
     } else if (button.value == "delete") {
       var row = button.parentNode.parentNode;
@@ -267,9 +264,9 @@
       if (confirm("Would you delete the child data?")) {
         // If it is a new child data, delete it directly.
         if (user_id == "0") {
-          table.deleteRow(index);
+          m_table.deleteRow(index);
         } else { // Old data, send request to server.
-          delete_child_index = index;
+          m_child_index = index;
           deleteUser(user_id);
         }
       }
@@ -283,28 +280,27 @@
     var json = {"act":"deleteUser", "user_id":user_id};
     json = JSON.stringify(json);
     // Post URL is Servlet, the sync is true
-    httpRequest.open("POST", "user", true);
+    m_http.open("POST", "user", true);
     // Only post method needs to set header
-    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    m_http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     // Set callback
-    httpRequest.onreadystatechange = deleteResult;
-    httpRequest.send(json);
+    m_http.onreadystatechange = deleteResult;
+    m_http.send(json);
   }
 
   // Delete result
   function deleteResult() {
-    if (httpRequest.readyState==4) {
-      var text = httpRequest.responseText;
-      if (httpRequest.status==200) { // 200 OK
+    if (m_http.readyState==4) {
+      var text = m_http.responseText;
+      if (m_http.status==200) { // 200 OK
         if (text == 'OK') {
-          var table = document.getElementById("children");
-          table.deleteRow(delete_child_index);
+          m_table.deleteRow(m_child_index);
         }
-        result.innerText = text;
+        m_result.innerText = text;
         alert(text);
       } else {
-        text = httpRequest.status + text;
-        result.innerText = text;
+        text = m_http.status + text;
+        m_result.innerText = text;
         alert(text);
       }
     }

@@ -182,7 +182,7 @@ public class DataManager {
     // Run SqlActions one by one
     // Return : result
     public String runSql(DataObject[] actions) {
-        String result = null;
+        String result = "Data Not Changed";
         Connection cn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -225,9 +225,9 @@ public class DataManager {
                     ps.executeUpdate();
                 }
                 ps.close(); // Must close ps
+                result = WebUtil.OK;
             }
             cn.commit(); // Commit Transaction
-            result = WebUtil.OK;
         } catch (Exception e) {
             //e.printStackTrace();
             result = "runSql : " + e.getMessage();
