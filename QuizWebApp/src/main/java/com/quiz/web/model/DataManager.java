@@ -180,9 +180,26 @@ public class DataManager {
     }
 
     // Run SqlActions one by one
-    // Return : result
     public String runSql(DataObject[] actions) {
-        String result = "Data Not Changed";
+        String result = null;
+        boolean changed = false;
+        for (DataObject obj : actions) {
+            if (obj != null && obj.getAction() != null) {
+                changed = true;
+                break;
+            }
+        }
+        if (changed) {
+            result = this.runSqlActions(actions);
+        } else { // Avoid getConnection
+            result = "Data Not Changed";
+        }
+        return result;
+    }
+
+    // Run SqlActions one by one
+    private String runSqlActions(DataObject[] actions) {
+        String result = WebUtil.OK;
         Connection cn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -225,7 +242,6 @@ public class DataManager {
                     ps.executeUpdate();
                 }
                 ps.close(); // Must close ps
-                result = WebUtil.OK;
             }
             cn.commit(); // Commit Transaction
         } catch (Exception e) {
