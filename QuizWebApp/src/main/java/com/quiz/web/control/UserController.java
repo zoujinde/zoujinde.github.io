@@ -13,10 +13,10 @@ import com.quiz.web.util.WebUtil;
 public class UserController {
 
     private static final String TAG = UserController.class.getSimpleName();
+    private static final int SIZE = 200;
 
     // Single instance
     private static final UserController INSTANCE = new UserController();
-    private StringBuilder mBuilder = new StringBuilder();
 
     // Private constructor
     private UserController() {
@@ -121,7 +121,7 @@ public class UserController {
                     }
                 }
                 // Return the users with children JSON
-                StringBuilder s = new StringBuilder(WebUtil.ROWS_LIMIT);
+                StringBuilder s = new StringBuilder(SIZE);
                 s.append("{\"users\":[\n");
                 s.append(JsonUtil.toJson(u));
                 if (children != null && children.length > 0) {
@@ -180,60 +180,40 @@ public class UserController {
             result = "Invalid data : users.length <= 0";
         } else {
             try {
+                // Handle the 1st user data
                 final User[] users = new User[json.length];
                 final int userId = WebUtil.getUserId(req);
-                final String sql = "select * from user where user_id = ?";
-                Object[] args = new Object[]{userId};
-                User[] tmp = DataManager.instance().select(sql, args, User.class);
-                if (tmp == null || tmp.length != 1) {
-                    result = "Invalid user data : " + userId;
-                } else {
-                    // Handle the 1st user data
-                    users[0] = tmp[0];
-                    // We should only update below columns :
-                    String[] items = new String[] {"address", "birth_year", "email", "gender", "nickname", "phone"};
-                    if (JsonUtil.setObject(users[0], json[0], items)) { // changed
-                        users[0].setAction(WebUtil.ACT_UPDATE);
-                    }
-                    // Check password
-                    String pass = JsonUtil.getString(json[0], "password");
-                    if (!WebUtil.SECRET.equals(pass)) {
-                        pass = LogUtil.encrypt(pass);
-                        if (!users[0].password.equals(pass)) {
-                            users[0].password = pass;
-                            users[0].setAction(WebUtil.ACT_UPDATE);
-                        }
-                    }
+                String[] items = new String[] {"address", "birth_year", "email", "gender", "nickname", "phone"};
+                users[0] = this.updateUserData(userId, json[0], items);
 
-                    // If user is parent, then handle children data
-                    if (users[0].user_type == WebUtil.USER_PARENTS) {
-                        for (int i = 1; i < json.length; i++) {
-                            Integer child_id = JsonUtil.getInt(json[i], "user_id");
-                            Integer user_type = JsonUtil.getInt(json[i], "user_type");
-                            String child_name = JsonUtil.getString(json[i], "user_name");
-                            pass = JsonUtil.getString(json[i], "password");
-                            if (user_type == null || user_type != WebUtil.USER_PARTICIPANT) {
-                                result = "Invalid child type : " + user_type;
-                                break;
-                            }
-                            if (child_name == null || child_name.contains(" ") || pass == null) {
-                                result = "Invalid child name or pass : " + child_name + " , " + pass;
-                                break;
-                            }
-                            if (child_id == null || child_id < 0) {
-                                result = "Invalid child id : " + child_id;
-                                break;
-                            } else if (child_id == 0) {
-                                users[i] = this.insertChildData(json[i], userId);
-                            } else {
-                                users[i] = this.updateChildData(child_id, child_name, pass, sql);
-                            }
-                        }
+                // Handle children data
+                items = new String[] {"user_name"};
+                for (int i = 1; i < json.length; i++) {
+                    String name = JsonUtil.getString(json[i], "user_name");
+                    String pass = JsonUtil.getString(json[i], "password");
+                    if (name == null || name.contains(" ") || pass == null) {
+                        result = "Invalid user name or pass : " + name + " , " + pass;
+                        break;
                     }
-                    // Check the result
-                    if (WebUtil.OK.equals(result)) {
-                        result = DataManager.instance().runSql(users);
+                    Integer user_type = JsonUtil.getInt(json[i], "user_type");
+                    if (user_type == null || user_type != WebUtil.USER_PARTICIPANT) {
+                        result = "Invalid user type : not PARTICIPANT";
+                        break;
                     }
+                    Integer child_id = JsonUtil.getInt(json[i], "user_id");
+                    if (child_id == null || child_id < 0) {
+                        result = "Invalid child id : " + child_id;
+                        break;
+                    } else if (child_id == 0) {
+                        users[i] = this.insertChildData(json[i], userId);
+                    } else {
+                        users[i] = this.updateUserData(child_id, json[i], items);
+                    }
+                }
+
+                // Check the result
+                if (WebUtil.OK.equals(result)) {
+                    result = DataManager.instance().runSql(users);
                 }
             } catch (Exception e) {
                 result = "getUser : " + e;
@@ -251,19 +231,20 @@ public class UserController {
         return user;
     }
 
-    // Update child data
-    private User updateChildData(int child_id, String child_name, String pass, String sql) throws Exception {
-        Object[] args = new Object[]{child_id};
+    // Update user data
+    private User updateUserData(int userId, String json, String[] items) throws Exception {
+        String sql = "select * from user where user_id = ?";
+        Object[] args = new Object[]{userId};
         User[] tmp = DataManager.instance().select(sql, args, User.class);
         if (tmp == null || tmp.length != 1) {
-            throw new RuntimeException("No child data : " + child_id);
+            throw new RuntimeException("Can't updateUserData : " + userId);
         }
         User user = tmp[0];
-        child_name = child_name.toLowerCase();
-        if (!user.user_name.equals(child_name)) {
-            user.user_name = child_name;
+        if (JsonUtil.setObject(user, json, items)) { // changed
             user.setAction(WebUtil.ACT_UPDATE);
         }
+        // Check password
+        String pass = JsonUtil.getString(json, "password");
         if (!WebUtil.SECRET.equals(pass)) {
             pass = LogUtil.encrypt(pass);
             if (!user.password.equals(pass)) {
@@ -275,22 +256,22 @@ public class UserController {
     }
 
     // Get request info
-    private synchronized String getReqId(HttpServletRequest req, User u) {
-        mBuilder.setLength(0);
-        mBuilder.append(u.user_id).append("#").append(u.user_type).append("#");
+    private String getReqId(HttpServletRequest req, User u) {
+        StringBuilder s = new StringBuilder(SIZE);
+        s.append(u.user_id).append("#").append(u.user_type).append("#");
         if (u.user_type == WebUtil.USER_ADMIN) {
-            mBuilder.append("Admin : ");
+            s.append("Admin : ");
         } else if (u.user_type == WebUtil.USER_VOLUNTEER) {
-            mBuilder.append("Volunteer : ");
+            s.append("Volunteer : ");
         } else if (u.user_type== WebUtil.USER_PARENTS) {
-            mBuilder.append("Parents : ");
+            s.append("Parents : ");
         } else if (u.user_type == WebUtil.USER_PARTICIPANT) {
-            mBuilder.append("Student : ");
+            s.append("Student : ");
         }
-        mBuilder.append(u.user_name);
-        mBuilder.append("#").append(req.getRemoteHost());
-        mBuilder.append("#").append(req.getRemotePort());
-        return mBuilder.toString();
+        s.append(u.user_name);
+        s.append("#").append(req.getRemoteHost());
+        s.append("#").append(req.getRemotePort());
+        return s.toString();
     }
 
     // Get children
@@ -333,40 +314,35 @@ public class UserController {
         } else { // Save the users data
             try {
                 User[] users = new User[jsonData.length];
-                if (users.length == 1) { // Only 1 row : must be VOLUNTEER
-                    users[0] = new User();
-                    JsonUtil.setObject(users[0], jsonData[0], false);
-                    if (users[0].user_type != WebUtil.USER_VOLUNTEER) {
-                        result = "Invalid user type : not VOLUNTEER";
-                    } else if (users[0].user_name.contains(" ")) {
+                for (int i = 0; i < jsonData.length; i++) {
+                    User u = new User();
+                    JsonUtil.setObject(u, jsonData[i], true);
+                    if (u.user_name.contains(" ")) {
                         result = "Invalid user name : contains space";
+                        break;
                     }
-                } else { // 2 or more rows : must be PARENTS and children
-                    for (int i = 0; i < jsonData.length; i++) {
-                        users[i] = new User();
-                        JsonUtil.setObject(users[i], jsonData[i], true);
-                        if (users[i].user_name.contains(" ")) {
-                            result = "Invalid user name : contains space";
+                    // Check the 1st row
+                    if (i == 0) {
+                        if (users.length == 1 && u.user_type != WebUtil.USER_VOLUNTEER) {
+                            result = "Invalid user type : not VOLUNTEER";
                             break;
-                        } else if (i == 0) { // The 1st row must be parents
-                            if (users[i].user_type != WebUtil.USER_PARENTS) {
-                                result = "Invalid user type : not PARENTS";
-                                break;
-                            }
-                        } else { // The 2nd and more rows must be children
-                            if (users[i].user_type != WebUtil.USER_PARTICIPANT) {
-                                result = "Invalid user type : not STUDENT";
-                                break;
-                            }
-                            users[i].parent_id = DataManager.PARENT_ID;
                         }
+                        if (users.length > 1 && u.user_type != WebUtil.USER_PARENTS) {
+                            result = "Invalid user type : not PARENTS";
+                            break;
+                        }
+                    } else { // Check the 2nd and more rows
+                        if (u.user_type != WebUtil.USER_PARTICIPANT) {
+                            result = "Invalid user type : not STUDENT";
+                            break;
+                        }
+                        u.parent_id = DataManager.PARENT_ID;
                     }
+                    setNewUserData(u);
+                    users[i] = u;
                 }
                 // Run SQL to add users
                 if (WebUtil.OK.equals(result)) {
-                    for (User u : users) {
-                        setNewUserData(u);
-                    }
                     result = DataManager.instance().runSql(users);
                 }
             } catch (Exception e) {
