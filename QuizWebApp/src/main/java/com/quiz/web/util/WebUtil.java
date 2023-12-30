@@ -3,6 +3,7 @@ package com.quiz.web.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -42,11 +43,11 @@ public class WebUtil {
     public static final String SECRET = "SECRET";
     public static final String OK = "OK";
     public static final int ROWS_LIMIT = 500;
+    public static final int SIZE = 8192;
     //The old driver is com.mysql.jdbc.Driver
     public static final String JDBC_MYSQL = "com.mysql.cj.jdbc.Driver";
 
     private static String[] sConfig = null;
-    private static StringBuilder sBuilder = new StringBuilder();
 
     // SYS_TIME for table time
     private static final Timestamp SYS_TIME = new Timestamp(System.currentTimeMillis());
@@ -67,8 +68,8 @@ public class WebUtil {
         return sThreadPool;
     }
 
-    // Must synchronized to avoid multiple threads
-    public static synchronized void startTimer() {
+    // Timer
+    public static void startTimer() {
         getThreadPool().scheduleWithFixedDelay(new Runnable() {
             public void run() {
                 SYS_TIME.setTime(System.currentTimeMillis());
@@ -235,7 +236,7 @@ public class WebUtil {
     public static String copyFile(File src, File dst) {
         String error = null;
         try {
-            byte[] buf = new byte[8192];
+            byte[] buf = new byte[SIZE];
             FileInputStream fis = new FileInputStream(src);
             FileOutputStream fos = new FileOutputStream(dst);
             int n = 0;
@@ -256,11 +257,11 @@ public class WebUtil {
     }
 
     // Read file
-    public synchronized static String readFile(String file) {
+    public static String readFile(String file) {
         String result = null;
         try {
-            sBuilder.setLength(0);
-            byte[] buf = new byte[8192];
+            StringBuilder sBuilder = new StringBuilder(SIZE);
+            byte[] buf = new byte[SIZE];
             FileInputStream fis = new FileInputStream(file);
             int n = 0;
             while (true) {
@@ -279,10 +280,10 @@ public class WebUtil {
     }
 
     // write file
-    public synchronized static void writeFile(String file, String txt) {
+    public static void writeFile(String file, String txt) {
         try {
-            FileOutputStream f = new FileOutputStream(file);
-            f.write(txt.getBytes());
+            FileWriter f = new FileWriter(file);
+            f.write(txt);
             f.close();
         } catch (IOException e) {
             LogUtil.log(TAG, "writeFile : " + e);
@@ -322,7 +323,7 @@ public class WebUtil {
             InputStream is = cn.getInputStream();
             file.createNewFile();
             FileOutputStream fos = new FileOutputStream(file);
-            byte[] buf = new byte[8192];
+            byte[] buf = new byte[SIZE];
             int n = 0;
             while (true) {
                 n = is.read(buf);

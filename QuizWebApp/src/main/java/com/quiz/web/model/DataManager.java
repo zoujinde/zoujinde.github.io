@@ -23,7 +23,7 @@ public class DataManager {
     private static final String TAG = DataManager.class.getSimpleName();
     private static final int STRING_LENGTH = 200;
 
-    // volatile ensures the memory synchronized safely
+    // volatile ensures the memory sync safely
     private static volatile DataManager sInstance = null;
     private DataSource mDataSource = null;
     private String mUrl = "";
@@ -31,9 +31,9 @@ public class DataManager {
 
     // Single instance
     public static DataManager instance() {
-        if (sInstance == null) { // Must double check before synchronized
+        if (sInstance == null) { // Must double check before sync
             synchronized(DataSource.class){
-                if (sInstance == null) { // Must double check after synchronized
+                if (sInstance == null) { // Must double check after sync
                     sInstance = new DataManager();
                 }
             }

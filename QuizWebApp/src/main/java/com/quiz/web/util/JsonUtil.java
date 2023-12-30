@@ -9,6 +9,7 @@ import java.util.List;
 public class JsonUtil {
 
     public static final String TAG = "JsonUtil";
+    public static final int SIZE = 512;
 
     // Private Constructor
     private JsonUtil() {
@@ -27,11 +28,10 @@ public class JsonUtil {
         "              ",
         "                ",
         "                  "};
-    private static StringBuilder sBuilder = new StringBuilder();
 
     // To JSON string from keys and values
-    public synchronized static String toJson(String[] keys, String[] values) {
-        sBuilder.setLength(0);
+    public static String toJson(String[] keys, String[] values) {
+        StringBuilder sBuilder = new StringBuilder(SIZE);
         sBuilder.append("{\n");
         if (keys.length == values.length) {
             for (int i = 0; i < keys.length; i++) {
@@ -53,11 +53,10 @@ public class JsonUtil {
     }
 
     // To JSON string from object
-    public synchronized static String toJson(Object object)
-            throws ReflectiveOperationException {
-        sBuilder.setLength(0);
+    public static String toJson(Object object) throws ReflectiveOperationException {
+        StringBuilder sBuilder = new StringBuilder(SIZE);
         sBuilder.append("{\n");
-        build(object, 0);
+        build(sBuilder, object, 0);
         sBuilder.append("\n}");
         return sBuilder.toString();
     }
@@ -105,7 +104,7 @@ public class JsonUtil {
     }
 
     // Build JSON string from object
-    private synchronized static void build(Object object, int level)
+    private static void build(StringBuilder sBuilder, Object object, int level)
             throws ReflectiveOperationException {
         Field[] fields = object.getClass().getFields();
         for (Field f : fields) {
@@ -128,7 +127,7 @@ public class JsonUtil {
                             sBuilder.append(SPACE[level + 1]).append(item).append(",\n");
                         } else {
                             sBuilder.append(SPACE[level + 1]).append("{\n");
-                            build(item, level + 2);
+                            build(sBuilder, item, level + 2);
                             sBuilder.append("\n");
                             sBuilder.append(SPACE[level + 1]).append("},\n");
                         }
@@ -156,7 +155,7 @@ public class JsonUtil {
             } else { // Other object
                 if (value != null) {
                     sBuilder.append("{\n");
-                    build(value, level + 1);
+                    build(sBuilder, value, level + 1);
                     sBuilder.append("},\n");
                 } else {
                     sBuilder.append("{},\n");
@@ -285,10 +284,9 @@ public class JsonUtil {
 
     // c1 : the start char : { or [
     // c2 : the ended char : } or ]
-    // Synchronized for the static builder
-    private synchronized static String[] getArray(String str, char c1, char c2) {
+    private static String[] getArray(String str, char c1, char c2) {
         String[] array = null;
-        sBuilder.setLength(0);
+        StringBuilder sBuilder = new StringBuilder(SIZE);
         int len = str.length();
         int p1 = 0;
         int p2 = 0;

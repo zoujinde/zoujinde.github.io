@@ -13,7 +13,6 @@ import com.quiz.web.util.WebUtil;
 public class UserController {
 
     private static final String TAG = UserController.class.getSimpleName();
-    private static final int SIZE = 200;
 
     // Single instance
     private static final UserController INSTANCE = new UserController();
@@ -121,7 +120,7 @@ public class UserController {
                     }
                 }
                 // Return the users with children JSON
-                StringBuilder s = new StringBuilder(SIZE);
+                StringBuilder s = new StringBuilder(JsonUtil.SIZE);
                 s.append("{\"users\":[\n");
                 s.append(JsonUtil.toJson(u));
                 if (children != null && children.length > 0) {
@@ -257,7 +256,7 @@ public class UserController {
 
     // Get request info
     private String getReqId(HttpServletRequest req, User u) {
-        StringBuilder s = new StringBuilder(SIZE);
+        StringBuilder s = new StringBuilder(JsonUtil.SIZE);
         s.append(u.user_id).append("#").append(u.user_type).append("#");
         if (u.user_type == WebUtil.USER_ADMIN) {
             s.append("Admin : ");
