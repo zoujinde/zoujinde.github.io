@@ -241,6 +241,7 @@ public class UserController {
         User user = tmp[0];
         if (JsonUtil.setObject(user, json, items)) { // changed
             user.setAction(WebUtil.ACT_UPDATE);
+            user.user_name = user.user_name.toLowerCase();
         }
         // Check password
         String pass = JsonUtil.getString(json, "password");
