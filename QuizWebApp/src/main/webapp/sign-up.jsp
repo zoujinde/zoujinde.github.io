@@ -163,6 +163,7 @@
     // Set the request data
     var request = {"act":"addUser", "users":[json]};
     if (m_action == "modify") {
+        json['user_name'] = m_user_name.value.trim();
         request = {"act":"setUser", "users":[json]};
     }
 
@@ -190,11 +191,8 @@
 
     request = JSON.stringify(request);
     // alert(request);
-    // Post URL is Servlet, the sync is true
     m_http.open("POST", "user", true);
-    // Only post method needs to set header
     m_http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    // Set callback
     m_http.onreadystatechange = saveResult;
     m_http.send(request);
   }
