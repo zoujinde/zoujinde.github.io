@@ -192,7 +192,7 @@ public class DataManager {
         if (changed) {
             result = this.runSqlActions(actions);
         } else { // Avoid getConnection
-            result = "No Data Changed";
+            result = "Data Not Changed";
         }
         return result;
     }
@@ -414,7 +414,7 @@ public class DataManager {
         String name = null;
         for (Field f : array) {
             name = f.getName();
-            if (!contains(pks, name) && T.isUpdate(name)) {
+            if (!contains(pks, name)) {
                 builder.append(name).append("=?,");
             }
         }
@@ -434,7 +434,7 @@ public class DataManager {
         int i = 1;
         for (Field f : array) {
             name = f.getName();
-            if (!contains(pks, name) && T.isUpdate(name)) {
+            if (!contains(pks, name)) {
                 //LogUtil.log(TAG, name + "=" + f.get(T));
                 ps.setObject(i, f.get(T));
                 i++;

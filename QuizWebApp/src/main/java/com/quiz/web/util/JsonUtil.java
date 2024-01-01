@@ -9,7 +9,7 @@ import java.util.List;
 public class JsonUtil {
 
     public static final String TAG = "JsonUtil";
-    public static final int SIZE = 200;
+    public static final int SIZE = 512;
 
     // Private Constructor
     private JsonUtil() {
@@ -65,6 +65,42 @@ public class JsonUtil {
     public static void setObject(Object object, String jsonStr, boolean setEmptyValue)
             throws ReflectiveOperationException {
         build(object, jsonStr, 0, setEmptyValue);
+    }
+
+    // Set Object by JSON string
+    public static boolean setObject(Object obj, String jsonStr, String[] items)
+            throws ReflectiveOperationException {
+        boolean changed = false;
+        Class<?> objClass = obj.getClass();
+        for (String name : items) {
+            Object value = null;
+            Field f = objClass.getField(name);
+            Class<?> type = f.getType();
+            // Check long to avoid integer exception
+            if (type == Long.class || type == long.class) {
+                value = getLong(jsonStr, name);
+            } else if (type == Integer.class || type == int.class) {
+                value = getInt(jsonStr, name);
+            } else if (type == Float.class || type == float.class) {
+                value = getFloat(jsonStr, name);
+            } else if (type == Double.class || type == double.class) {
+                value = getDouble(jsonStr, name);
+            } else if (type == Boolean.class || type == boolean.class) {
+                value = getBoolean(jsonStr, name);
+            } else if (type == String.class) {
+                value = getString(jsonStr, name);
+            } else if (type == java.sql.Timestamp.class) {
+                value = getTimestamp(jsonStr, name);
+            } else {
+                throw new RuntimeException("setObject : " + name + " : unknown type : " + type);
+            }
+            // Check value
+            if (value != null && !value.equals(f.get(obj))) {
+                f.set(obj, value);
+                changed = true;
+            }
+        }
+        return changed;
     }
 
     // Build JSON string from object
@@ -286,30 +322,6 @@ public class JsonUtil {
             types = pType.getActualTypeArguments();
         }
         return types;
-    }
-
-    // Set StringBuilder JSON value
-    public static void setString(StringBuilder json, String key, String value) {
-        boolean changed = false;
-        // Find the position of key and value
-        // For example : {"user_name" : "test"}
-        int k1 = json.indexOf(key); // key begin
-        int k2 = k1 + key.length(); // key end
-        if (k1 > 0 && json.charAt(k1 - 1) == '"' && json.charAt(k2) == '"') {
-            int v1 = json.indexOf("\"", k2 + 1); // value begin
-            int v2 = json.indexOf("\"", v1 + 1); // value end
-            if (v1 > 0 && v2 > 0) {
-                // We must ensure the trim string is ":" between k2 and v1
-                String trim = json.substring(k2 + 1, v1).trim();
-                if (trim.equals(":")) {
-                    json.replace(v1 + 1, v2, value);
-                    changed = true;
-                }
-            }
-        }
-        if (!changed) {
-            throw new RuntimeException("Can't setString : " + key + " : " + value);
-        }
     }
 
     // Get String

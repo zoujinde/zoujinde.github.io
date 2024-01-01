@@ -8,23 +8,19 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.DirResourceSet;
 import org.apache.catalina.webresources.StandardRoot;
 
-import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
 
 public class Main {
-    private static final boolean TEST = false;
+
     /**
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        if (TEST) {
-            String encrypt = LogUtil.encrypt("pass");
-            String decrypt = LogUtil.decrypt(encrypt);
-            System.out.println("encrpt=" + encrypt + " decrypt=" +decrypt);
-            // Test JSON string
-            StringBuilder json = new StringBuilder("{  \"user_name\" : \"test1\" }");
-            JsonUtil.setString(json, "user_name", "test user 2");
-            System.out.println(json);
+        if (args.length == 1) {
+            String msg = LogUtil.encrypt("abc");
+            System.out.println("msg=" + msg);
+            msg = LogUtil.decrypt(msg);
+            System.out.println("msg=" + msg);
             return;
         }
         // Start Tomcat:

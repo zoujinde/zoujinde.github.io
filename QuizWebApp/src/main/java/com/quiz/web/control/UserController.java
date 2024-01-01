@@ -40,7 +40,8 @@ public class UserController {
             if (users != null && users.length == 1) {
                 // Update the sign in time and token
                 User u = users[0];
-                u.update("signin_time", WebUtil.getTime());
+                u.setAction(WebUtil.ACT_UPDATE);
+                u.signin_time = WebUtil.getTime();
                 //u.token = getToken(req);
                 result = DataManager.instance().runSql(users);
                 if (WebUtil.OK.equals(result)) {
@@ -185,7 +186,14 @@ public class UserController {
                 users[0] = this.updateUserData(userId, json[0], items);
 
                 // Handle children data
+                items = new String[] {"user_name"};
                 for (int i = 1; i < json.length; i++) {
+                    String name = JsonUtil.getString(json[i], "user_name");
+                    String pass = JsonUtil.getString(json[i], "password");
+                    if (name == null || name.contains(" ") || pass == null) {
+                        result = "Invalid user name or pass : " + name + " , " + pass;
+                        break;
+                    }
                     Integer user_type = JsonUtil.getInt(json[i], "user_type");
                     if (user_type == null || user_type != WebUtil.USER_PARTICIPANT) {
                         result = "Invalid user type : not PARTICIPANT";
@@ -198,7 +206,7 @@ public class UserController {
                     } else if (child_id == 0) {
                         users[i] = this.insertChildData(json[i], userId);
                     } else {
-                        users[i] = this.updateUserData(child_id, json[i], null);
+                        users[i] = this.updateUserData(child_id, json[i], items);
                     }
                 }
 
@@ -207,7 +215,7 @@ public class UserController {
                     result = DataManager.instance().runSql(users);
                 }
             } catch (Exception e) {
-                result = "setUser : " + e;
+                result = "getUser : " + e;
             }
         }
         return result;
@@ -224,33 +232,25 @@ public class UserController {
 
     // Update user data
     private User updateUserData(int userId, String json, String[] items) throws Exception {
-        String name = JsonUtil.getString(json, "user_name");
-        String pass = JsonUtil.getString(json, "password");
-        if (name == null || name.contains(" ") || pass == null) {
-            throw new RuntimeException("Invalid name or pass : " + name + " : " + pass);
-        }
         String sql = "select * from user where user_id = ?";
         Object[] args = new Object[]{userId};
         User[] tmp = DataManager.instance().select(sql, args, User.class);
         if (tmp == null || tmp.length != 1) {
-            throw new RuntimeException("No user data : " + userId);
+            throw new RuntimeException("Can't updateUserData : " + userId);
         }
         User user = tmp[0];
-        // Update user_name
-        String lower = name.toLowerCase();
-        if (!user.user_name.equals(lower)) {
-            user.update("user_name", lower);
+        if (JsonUtil.setObject(user, json, items)) { // changed
+            user.setAction(WebUtil.ACT_UPDATE);
+            user.user_name = user.user_name.toLowerCase();
         }
-        // Update password
+        // Check password
+        String pass = JsonUtil.getString(json, "password");
         if (!WebUtil.SECRET.equals(pass)) {
             pass = LogUtil.encrypt(pass);
             if (!user.password.equals(pass)) {
-                user.update("password", pass);
+                user.password = pass;
+                user.setAction(WebUtil.ACT_UPDATE);
             }
-        }
-        // Update other items
-        if (items != null) {
-            user.updateItems(items, json);
         }
         return user;
     }
@@ -317,6 +317,10 @@ public class UserController {
                 for (int i = 0; i < jsonData.length; i++) {
                     User u = new User();
                     JsonUtil.setObject(u, jsonData[i], true);
+                    if (u.user_name.contains(" ")) {
+                        result = "Invalid user name : contains space";
+                        break;
+                    }
                     // Check the 1st row
                     if (i == 0) {
                         if (users.length == 1 && u.user_type != WebUtil.USER_VOLUNTEER) {
@@ -350,9 +354,6 @@ public class UserController {
 
     // Set new user data
     private void setNewUserData(User u) {
-        if (u.user_name.contains(" ")) {
-            throw new RuntimeException("Invalid user name with space : " + u.user_name);
-        }
         u.setAction(WebUtil.ACT_INSERT);
         u.user_name = u.user_name.toLowerCase();
         u.create_time = WebUtil.getTime();
