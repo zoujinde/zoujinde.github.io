@@ -203,7 +203,7 @@ public class UserController {
                         result = "Invalid child id : " + child_id;
                         break;
                     } else if (child_id == 0) {
-                        users[i] = this.insertChildData(json[i], userId);
+                        users[i] = this.insertUserData(json[i], userId);
                     } else {
                         users[i] = this.updateUserData(child_id, json[i], items);
                     }
@@ -220,12 +220,20 @@ public class UserController {
         return result;
     }
 
-    // Insert child data
-    private User insertChildData(String json, int parentId) throws Exception {
+    // Insert user data
+    private User insertUserData(String json, int parentId) throws Exception {
         User user = new User();
         JsonUtil.setObject(user, json, true);
+        if (user.user_name.contains(" ")) {
+            throw new RuntimeException("Invalid user name : " + user.user_name);
+        }
+        user.setAction(WebUtil.ACT_INSERT);
         user.parent_id = parentId;
-        setNewUserData(user);
+        user.user_name = user.user_name.toLowerCase();
+        user.create_time = WebUtil.getTime();
+        user.signin_time = WebUtil.getTime();
+        user.token = "";
+        user.password = LogUtil.encrypt(user.password);
         return user;
     }
 
@@ -314,8 +322,7 @@ public class UserController {
             try {
                 User[] users = new User[jsonData.length];
                 for (int i = 0; i < jsonData.length; i++) {
-                    User u = new User();
-                    JsonUtil.setObject(u, jsonData[i], true);
+                    User u = this.insertUserData(jsonData[i], 0);
                     // Check the 1st row
                     if (i == 0) {
                         if (users.length == 1 && u.user_type != WebUtil.USER_VOLUNTEER) {
@@ -333,7 +340,6 @@ public class UserController {
                         }
                         u.parent_id = DataManager.PARENT_ID;
                     }
-                    setNewUserData(u);
                     users[i] = u;
                 }
                 // Run SQL to add users
@@ -345,19 +351,6 @@ public class UserController {
             }
         }
         return result;
-    }
-
-    // Set new user data
-    private void setNewUserData(User u) {
-        if (u.user_name.contains(" ")) {
-            throw new RuntimeException("Invalid user name : " + u.user_name);
-        }
-        u.setAction(WebUtil.ACT_INSERT);
-        u.user_name = u.user_name.toLowerCase();
-        u.create_time = WebUtil.getTime();
-        u.signin_time = WebUtil.getTime();
-        u.token = "";
-        u.password = LogUtil.encrypt(u.password);
     }
 
     // Delete user data
