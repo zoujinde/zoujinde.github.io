@@ -189,9 +189,8 @@ public class UserController {
                 items = new String[] {"user_name"};
                 for (int i = 1; i < json.length; i++) {
                     String name = JsonUtil.getString(json[i], "user_name");
-                    String pass = JsonUtil.getString(json[i], "password");
-                    if (name == null || name.contains(" ") || pass == null) {
-                        result = "Invalid user name or pass : " + name + " , " + pass;
+                    if (name == null || name.contains(" ")) {
+                        result = "Invalid user name : " + name;
                         break;
                     }
                     Integer user_type = JsonUtil.getInt(json[i], "user_type");
@@ -215,7 +214,7 @@ public class UserController {
                     result = DataManager.instance().runSql(users);
                 }
             } catch (Exception e) {
-                result = "getUser : " + e;
+                result = "setUser : " + e;
             }
         }
         return result;
@@ -248,8 +247,8 @@ public class UserController {
         if (!WebUtil.SECRET.equals(pass)) {
             pass = LogUtil.encrypt(pass);
             if (!user.password.equals(pass)) {
-                user.password = pass;
                 user.setAction(WebUtil.ACT_UPDATE);
+                user.password = pass;
             }
         }
         return user;
@@ -317,10 +316,6 @@ public class UserController {
                 for (int i = 0; i < jsonData.length; i++) {
                     User u = new User();
                     JsonUtil.setObject(u, jsonData[i], true);
-                    if (u.user_name.contains(" ")) {
-                        result = "Invalid user name : contains space";
-                        break;
-                    }
                     // Check the 1st row
                     if (i == 0) {
                         if (users.length == 1 && u.user_type != WebUtil.USER_VOLUNTEER) {
@@ -354,6 +349,9 @@ public class UserController {
 
     // Set new user data
     private void setNewUserData(User u) {
+        if (u.user_name.contains(" ")) {
+            throw new RuntimeException("Invalid user name : " + u.user_name);
+        }
         u.setAction(WebUtil.ACT_INSERT);
         u.user_name = u.user_name.toLowerCase();
         u.create_time = WebUtil.getTime();
