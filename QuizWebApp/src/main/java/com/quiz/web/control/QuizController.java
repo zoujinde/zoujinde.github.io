@@ -1,7 +1,8 @@
 package com.quiz.web.control;
 
+import java.sql.Timestamp;
+
 import com.quiz.web.model.DataManager;
-import com.quiz.web.model.DataObject;
 import com.quiz.web.model.Quiz_result;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
@@ -66,27 +67,66 @@ public class QuizController {
         String result = null;
         try {
             int quizId = JsonUtil.getInt(body, "quiz_id");
-            String[] data = JsonUtil.getArray(body, "data");
-            Quiz_result[] newData = new Quiz_result[data.length];
-            for (int i = 0; i < data.length; i++) {
-                Quiz_result r = new Quiz_result();
-                r.quiz_id = quizId;
-                r.user_id = userId;
-                r.item_row = 0;
-                r.answer_time = WebUtil.getTime();
-                JsonUtil.setObject(r, data[i], false);
-                newData[i] = r;
-            }
+            String[] json = JsonUtil.getArray(body, "data");
             String sql = "select * from quiz_result where quiz_id = ? and user_id = ?";
-            Quiz_result[] oldData = DataManager.instance().select(sql, new Object[]{quizId, userId}, Quiz_result.class);
-            DataObject[] actions = DataManager.instance().getActions(oldData, newData);
-            result = DataManager.instance().runSql(actions);
+            Object[] arg = new Object[]{quizId, userId};
+            Quiz_result[] data = DataManager.instance().select(sql, arg, Quiz_result.class, WebUtil.SELECT_FOR_UPDATE);
+            // DataObject[] actions = DataManager.instance().getActions(oldData, newData);
+            if (data == null) {
+                data = new Quiz_result[json.length];
+                insertData(data, json, quizId, userId);
+            } else {
+                updateData(data, json);
+            }
+            result = DataManager.instance().runSql(data);
         } catch (Exception e) {
-            e.printStackTrace();
-            result = "setQuizData : " + e;
+            // e.printStackTrace();
+            result = "setQuizData : " + e.getMessage();
             LogUtil.log(TAG, result);
         }
         return result;
+    }
+
+    // Insert data
+    private void insertData(Quiz_result[] data, String[] json, int quizId, int userId) throws ReflectiveOperationException {
+        String[] items = new String[]{"item_id", "answer"};
+        for (int i = 0; i < json.length; i++) {
+            Quiz_result r = new Quiz_result();
+            r.quiz_id = quizId;
+            r.user_id = userId;
+            r.item_row = 0;
+            r.answer_time = WebUtil.getTime();
+            r.setAction(WebUtil.ACT_INSERT);
+            JsonUtil.setObject(r, json[i], items);
+            data[i] = r;
+        }
+    }
+
+    // Update data
+    private void updateData(Quiz_result[] data, String[] json) {
+        /* Each JSON row only has 2 items : item_id and answer. For example:
+         [
+           {"item_id":1, "answer":"Yes"},
+           {"item_id":2, "answer":"1,3,5"},
+         ]
+         */
+        Timestamp time = WebUtil.getTime();
+        for (String s : json) {
+            Integer item_id = JsonUtil.getInt(s, "item_id");
+            String  answer  = JsonUtil.getString(s, "answer");
+            if (item_id != null && answer != null) {
+                for (Quiz_result r : data) {
+                    if (r.item_id == item_id) {
+                        if (!answer.equals(r.answer)) {
+                            r.answer = answer;
+                            r.answer_time = time;
+                            r.setAction(WebUtil.ACT_UPDATE);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 
 }

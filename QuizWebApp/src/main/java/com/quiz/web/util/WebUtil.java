@@ -39,6 +39,8 @@ public class WebUtil {
     public static final String ACT_DELETE = "delete";
     public static final String ACT_UPDATE = "update";
 
+    public static final String SELECT_FOR_UPDATE = "SELECT_FOR_UPDATE";
+
     public static final String DATA = "data";
     public static final String SECRET = "SECRET";
     public static final String OK = "OK";

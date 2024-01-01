@@ -103,9 +103,14 @@ public class DataManager {
         return list;
     } 
 
-    // Run SQL select -> Return JSON string
-    @SuppressWarnings("unchecked")
+    // Run SQL select
     public <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type) throws Exception {
+        return select(sql, values, type, null);
+    }
+
+    // Run SQL select
+    @SuppressWarnings("unchecked")
+    public <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type, String option) throws Exception {
         T[] result = null;
         Connection cn = null;
         PreparedStatement ps = null;
@@ -123,7 +128,7 @@ public class DataManager {
             ArrayList<Object> list = this.getThreadLocalList();
             list.clear();
             while (rs.next()) {
-                list.add(buildObject(rs, type));
+                list.add(buildObject(rs, type, option));
             }
             int count = list.size();
             if (count > 0) {
@@ -291,18 +296,26 @@ public class DataManager {
     }
 
     // Build the object
-    private <T extends DataObject> T buildObject(ResultSet rs, Class<T> type) throws Exception {
+    private <T extends DataObject> T buildObject(ResultSet rs, Class<T> type, String option) throws Exception {
         T result = type.newInstance();
+        if (WebUtil.SELECT_FOR_UPDATE.equals(option)) {
+            result.mSelectForUpdate = type.newInstance();
+        }
         Field[] fields = type.getFields();
         String name = null;
         Class<?> t = null;
+        Object value = null;
         for (Field f : fields) {
             name = f.getName();
             t = f.getType();
             if (t == java.sql.Timestamp.class) {
-                f.set(result, rs.getTimestamp(name));
+                value = rs.getTimestamp(name);
             } else {
-                f.set(result, rs.getObject(name));
+                value = rs.getObject(name);
+            }
+            f.set(result, value);
+            if (result.mSelectForUpdate != null) {
+                f.set(result.mSelectForUpdate, value);
             }
         }
         return result;
@@ -373,7 +386,7 @@ public class DataManager {
         builder.append(")");
         // Build statement
         String sql = builder.toString();
-        //LogUtil.println(TAG, "build : " + sql);
+        debugSQL(sql);
         PreparedStatement ps = null;
         if (autoIdName != null) {
             ps = cn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
@@ -414,7 +427,7 @@ public class DataManager {
         String name = null;
         for (Field f : array) {
             name = f.getName();
-            if (!contains(pks, name)) {
+            if (!contains(pks, name) && T.isChanged(f)) {
                 builder.append(name).append("=?,");
             }
         }
@@ -427,14 +440,14 @@ public class DataManager {
         }
         builder.setLength(builder.length() - 5);//Remove and
         String sql = builder.toString();
-        //LogUtil.log(TAG, "build : " + sql);
+        debugSQL(sql);
         PreparedStatement ps = cn.prepareStatement(sql);
 
         // Set values
         int i = 1;
         for (Field f : array) {
             name = f.getName();
-            if (!contains(pks, name)) {
+            if (!contains(pks, name) && T.isChanged(f)) {
                 //LogUtil.log(TAG, name + "=" + f.get(T));
                 ps.setObject(i, f.get(T));
                 i++;
@@ -469,7 +482,7 @@ public class DataManager {
         }
         builder.setLength(builder.length() - 5);//Remove and
         String sql = builder.toString();
-        //LogUtil.println(TAG, "build : " + sql);
+        debugSQL(sql);
         PreparedStatement ps = cn.prepareStatement(sql);
 
         // Set conditions
@@ -482,6 +495,13 @@ public class DataManager {
             }
         }
         return ps;
+    }
+
+    // Debug SQL
+    private void debugSQL(String sql) {
+        if ("Y".equals(WebUtil.getValue("debug_sql"))) {
+            LogUtil.log("SQL", sql);
+        }
     }
 
     // Check if the array contains the object
@@ -569,6 +589,7 @@ public class DataManager {
         return result;
     }
 
+    // TODO : Remove the unused method in future
     // Get data actions according to the old and new data
     public DataObject[] getActions(DataObject[] oldData, DataObject[] newData) throws ReflectiveOperationException {
         int length = newData.length;

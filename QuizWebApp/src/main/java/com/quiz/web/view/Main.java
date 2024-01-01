@@ -11,16 +11,20 @@ import org.apache.catalina.webresources.StandardRoot;
 import com.quiz.web.util.LogUtil;
 
 public class Main {
-
+    private static final boolean TEST = false;
     /**
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        if (args.length == 1) {
-            String msg = LogUtil.encrypt("abc");
-            System.out.println("msg=" + msg);
-            msg = LogUtil.decrypt(msg);
-            System.out.println("msg=" + msg);
+        if (TEST) {
+            String msg1 = LogUtil.encrypt("pass");
+            String msg2 = LogUtil.decrypt(msg1);
+            System.out.println(msg1 + " : " + msg2);
+            // Test fields
+            java.lang.reflect.Field[] array = com.quiz.web.model.DataObject.class.getDeclaredFields();
+            for (java.lang.reflect.Field f : array) {
+                System.out.println(f.getName());
+            }
             return;
         }
         // Start Tomcat:
