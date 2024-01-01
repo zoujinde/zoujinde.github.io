@@ -188,11 +188,6 @@ public class UserController {
                 // Handle children data
                 items = new String[] {"user_name"};
                 for (int i = 1; i < json.length; i++) {
-                    String name = JsonUtil.getString(json[i], "user_name");
-                    if (name == null || name.contains(" ")) {
-                        result = "Invalid user name : " + name;
-                        break;
-                    }
                     Integer user_type = JsonUtil.getInt(json[i], "user_type");
                     if (user_type == null || user_type != WebUtil.USER_PARTICIPANT) {
                         result = "Invalid user type : not PARTICIPANT";
@@ -214,7 +209,7 @@ public class UserController {
                     result = DataManager.instance().runSql(users);
                 }
             } catch (Exception e) {
-                result = "setUser : " + e;
+                result = "setUser : " + e.getMessage();
             }
         }
         return result;
@@ -224,7 +219,7 @@ public class UserController {
     private User insertUserData(String json, int parentId) throws Exception {
         User user = new User();
         JsonUtil.setObject(user, json, true);
-        if (user.user_name.contains(" ")) {
+        if (user.user_name == null || user.user_name.contains(" ")) {
             throw new RuntimeException("Invalid user name : " + user.user_name);
         }
         user.setAction(WebUtil.ACT_INSERT);
@@ -239,6 +234,10 @@ public class UserController {
 
     // Update user data
     private User updateUserData(int userId, String json, String[] items) throws Exception {
+        String name = JsonUtil.getString(json, "user_name");
+        if (name != null && name.contains(" ")) {
+            throw new RuntimeException("Invalid user name : " + name);
+        }
         String sql = "select * from user where user_id = ?";
         Object[] args = new Object[]{userId};
         User[] tmp = DataManager.instance().select(sql, args, User.class);
