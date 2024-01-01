@@ -190,11 +190,8 @@
 
     request = JSON.stringify(request);
     // alert(request);
-    // Post URL is Servlet, the sync is true
     m_http.open("POST", "user", true);
-    // Only post method needs to set header
     m_http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    // Set callback
     m_http.onreadystatechange = saveResult;
     m_http.send(request);
   }
@@ -256,7 +253,7 @@
   // Delete child row
   function deleteChild(button) {
     if (m_table.rows.length <= 2) {
-      alert("Can't delete the only 1 child.");
+      alert("Can't delete the only 1 student data.");
     } else if (button.value == "delete") {
       var row = button.parentNode.parentNode;
       var index = row.rowIndex;
@@ -279,11 +276,8 @@
   function deleteUser(user_id) {
     var json = {"act":"deleteUser", "user_id":user_id};
     json = JSON.stringify(json);
-    // Post URL is Servlet, the sync is true
     m_http.open("POST", "user", true);
-    // Only post method needs to set header
     m_http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    // Set callback
     m_http.onreadystatechange = deleteResult;
     m_http.send(json);
   }

@@ -136,7 +136,7 @@ public class UserController {
                 result = "Invalid users data";
             }
         } catch (Exception e) {
-            result = "getUser : " + e;
+            result = "getUser : " + e.getMessage();
         }
         return result;
     }
@@ -190,24 +190,18 @@ public class UserController {
                 for (int i = 1; i < json.length; i++) {
                     Integer user_type = JsonUtil.getInt(json[i], "user_type");
                     if (user_type == null || user_type != WebUtil.USER_PARTICIPANT) {
-                        result = "Invalid user type : not PARTICIPANT";
-                        break;
+                        throw new RuntimeException("Invalid user type : not STUDENT");
                     }
                     Integer child_id = JsonUtil.getInt(json[i], "user_id");
                     if (child_id == null || child_id < 0) {
-                        result = "Invalid child id : " + child_id;
-                        break;
+                        throw new RuntimeException("Invalid child id : " + child_id);
                     } else if (child_id == 0) {
                         users[i] = this.insertUserData(json[i], userId);
                     } else {
                         users[i] = this.updateUserData(child_id, json[i], items);
                     }
                 }
-
-                // Check the result
-                if (WebUtil.OK.equals(result)) {
-                    result = DataManager.instance().runSql(users);
-                }
+                result = DataManager.instance().runSql(users);
             } catch (Exception e) {
                 result = "setUser : " + e.getMessage();
             }
@@ -325,28 +319,22 @@ public class UserController {
                     // Check the 1st row
                     if (i == 0) {
                         if (users.length == 1 && u.user_type != WebUtil.USER_VOLUNTEER) {
-                            result = "Invalid user type : not VOLUNTEER";
-                            break;
+                            throw new RuntimeException("Invalid user type : not VOLUNTEER");
                         }
                         if (users.length > 1 && u.user_type != WebUtil.USER_PARENTS) {
-                            result = "Invalid user type : not PARENTS";
-                            break;
+                            throw new RuntimeException("Invalid user type : not PARENTS");
                         }
                     } else { // Check the 2nd and more rows
                         if (u.user_type != WebUtil.USER_PARTICIPANT) {
-                            result = "Invalid user type : not STUDENT";
-                            break;
+                            throw new RuntimeException("Invalid user type : not STUDENT");
                         }
                         u.parent_id = DataManager.PARENT_ID;
                     }
                     users[i] = u;
                 }
-                // Run SQL to add users
-                if (WebUtil.OK.equals(result)) {
-                    result = DataManager.instance().runSql(users);
-                }
+                result = DataManager.instance().runSql(users);
             } catch (Exception e) {
-                result = "addNewUsers : " + e;
+                result = "addNewUsers : " + e.getMessage();
             }
         }
         return result;
