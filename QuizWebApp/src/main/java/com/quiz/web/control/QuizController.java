@@ -90,12 +90,13 @@ public class QuizController {
     // Insert data
     private void insertData(Quiz_result[] data, String[] json, int quizId, int userId) throws ReflectiveOperationException {
         String[] items = new String[]{"item_id", "answer"};
+        Timestamp time = WebUtil.getTime();
         for (int i = 0; i < json.length; i++) {
             Quiz_result r = new Quiz_result();
             r.quiz_id = quizId;
             r.user_id = userId;
             r.item_row = 0;
-            r.answer_time = WebUtil.getTime();
+            r.answer_time = time;
             r.setAction(WebUtil.ACT_INSERT);
             JsonUtil.setObject(r, json[i], items);
             data[i] = r;
