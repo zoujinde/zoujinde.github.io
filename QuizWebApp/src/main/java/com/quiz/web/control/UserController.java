@@ -36,7 +36,7 @@ public class UserController {
             //LogUtil.log(TAG, "signIn : " + pass);
             String[] args = new String[]{user, pass};
             String sql = "select * from user where user_name=? and password=?";
-            User[] users = DataManager.instance().select(sql, args, User.class, WebUtil.SELECT_FOR_UPDATE);
+            User[] users = DataManager.instance().selectForUpdate(sql, args, User.class);
             if (users != null && users.length == 1) {
                 // Update the sign in time and token
                 User u = users[0];
@@ -234,7 +234,7 @@ public class UserController {
         }
         String sql = "select * from user where user_id = ?";
         Object[] args = new Object[]{userId};
-        User[] tmp = DataManager.instance().select(sql, args, User.class, WebUtil.SELECT_FOR_UPDATE);
+        User[] tmp = DataManager.instance().selectForUpdate(sql, args, User.class);
         if (tmp == null || tmp.length != 1) {
             throw new RuntimeException("Can't updateUserData : " + userId);
         }

@@ -70,7 +70,7 @@ public class QuizController {
             String[] json = JsonUtil.getArray(body, "data");
             String sql = "select * from quiz_result where quiz_id = ? and user_id = ?";
             Object[] arg = new Object[]{quizId, userId};
-            Quiz_result[] data = DataManager.instance().select(sql, arg, Quiz_result.class, WebUtil.SELECT_FOR_UPDATE);
+            Quiz_result[] data = DataManager.instance().selectForUpdate(sql, arg, Quiz_result.class);
             // DataObject[] actions = DataManager.instance().getActions(oldData, newData);
             if (data == null) {
                 data = new Quiz_result[json.length];

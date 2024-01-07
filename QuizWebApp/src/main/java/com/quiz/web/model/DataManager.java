@@ -109,8 +109,13 @@ public class DataManager {
     }
 
     // Run SQL select
+    public <T extends DataObject> T[] selectForUpdate(String sql, Object[] values, Class<T> type) throws Exception {
+        return select(sql, values, type, WebUtil.SELECT_FOR_UPDATE);
+    }
+
+    // Run SQL select
     @SuppressWarnings("unchecked")
-    public <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type, String option) throws Exception {
+    private <T extends DataObject> T[] select(String sql, Object[] values, Class<T> type, String option) throws Exception {
         T[] result = null;
         Connection cn = null;
         PreparedStatement ps = null;
