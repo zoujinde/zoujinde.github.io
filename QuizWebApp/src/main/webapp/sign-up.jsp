@@ -203,7 +203,9 @@
       if(m_http.status==200) { // 200 OK
         if (text == 'OK') {
             text = "Save user data OK.";
-            window.location.href = "sign-in.jsp?act=input";
+            if (m_action == "create") { // create a new user
+              window.location.href = "sign-in.jsp?act=input&user=" + m_user_name.value.trim();
+            }
         }
         m_result.innerText = text;
         alert(text);

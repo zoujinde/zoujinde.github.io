@@ -42,6 +42,10 @@ Our group understand that there are laws in the United States and other countrie
     if (action == "input") { // hide div_home
       var div_home = document.getElementById("div_home");
       div_home.style.display = "none";
+      var user = getUrlValue("user");
+      if (user.length >= 6) {
+          document.getElementById("text_user").value = user;
+      }
     } else { // show div_home
       var div_home = document.getElementById("div_home");
       var div_head = document.getElementById("div_head");
