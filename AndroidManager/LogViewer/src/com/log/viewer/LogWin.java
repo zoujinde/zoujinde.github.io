@@ -1060,7 +1060,7 @@ public class LogWin extends JInternalFrame {
                 if (File.separator.equals("/")) {
                     mRowH = 15;
                 } else { // Windows
-                    mRowH = 18;
+                    mRowH = 19;
                 }
             }
             height = line * mRowH + 10;
