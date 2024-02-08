@@ -72,9 +72,9 @@ public class TextWin extends JInternalFrame {
     	}
         saveFile(mFile,mDevFile);
 
-    	MyTool.printMemory("TextWin dispose : ");
-    	System.gc();
-    	MyTool.printMemory("TextWin GC : ");
+        MyTool.printMemory("TextWin dispose : ");
+        // System.gc();
+        // MyTool.printMemory("TextWin GC : ");
     }
 
     //Read file

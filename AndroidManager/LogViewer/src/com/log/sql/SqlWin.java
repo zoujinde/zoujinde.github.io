@@ -123,8 +123,8 @@ public class SqlWin extends JInternalFrame {
 		if(mSqlTab.mData!=null){
 			mSqlTab.mData.removeAllElements();
 		}
-    	System.gc();
-    	MyTool.printMemory("SqlWin GC : ");
+        // System.gc();
+        // MyTool.printMemory("SqlWin GC : ");
     }
 
 	//Mouse lsn

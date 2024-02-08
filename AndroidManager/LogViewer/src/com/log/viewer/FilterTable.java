@@ -242,6 +242,8 @@ public class FilterTable extends JTable {
 		    row = 0;
 		}
 		mod.insertRow(row, vec);
+		// 2024-2-6 Save file
+		this.saveFilter(mFileName);
 
 		//this.changeSelection(mod.getRowCount()-1, 0, false, false);
         this.changeSelection(row, 0, false, false);
@@ -264,6 +266,8 @@ public class FilterTable extends JTable {
 		for(int i = rows.length-1;i>=0;i--){
 		    mod.removeRow(rows[i]);
 		}
+        // 2024-2-6 Save file
+        this.saveFilter(mFileName);
 		return this.getActiveFilterList();
 	}
 	
@@ -299,7 +303,9 @@ public class FilterTable extends JTable {
 		}
 
 		//Update the filter table
-	    filter.setFilterStr(newFilterStr);
+        filter.setFilterStr(newFilterStr);
+        // 2024-2-6 Save file
+        this.saveFilter(mFileName);
 		return this.selectFilter();
 	}
 	

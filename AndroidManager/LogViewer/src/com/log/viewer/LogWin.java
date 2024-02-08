@@ -256,8 +256,6 @@ public class LogWin extends JInternalFrame {
         if(mFindDlg!=null){
             mFindDlg.dispose();
         }
-        //Save filter file
-        this.mFilterTable.saveFilter(mFilterFile);
         MyProp.setProp(MyProp.LOG_INI, mFilterFileKey, mFilterFile);
         LogWinCol.saveColWidth(MyProp.WIDTH_ALL, mTableAll.getColumnModel());
         LogWinCol.saveColWidth(MyProp.WIDTH_SUB, mTableSub.getColumnModel());
@@ -272,8 +270,9 @@ public class LogWin extends JInternalFrame {
                 MyTool.printMemory("LogWin close : ");
                 mModAll.dispose();
                 mModSub.dispose();
-                Runtime.getRuntime().gc();
-                MyTool.printMemory("LogWin GC : ");
+                // 2024-2-6 Don't run gc to improve JVM speed
+                // Runtime.getRuntime().gc();
+                // MyTool.printMemory("LogWin GC : ");
             }
         });
 	}
