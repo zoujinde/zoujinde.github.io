@@ -55,14 +55,6 @@ public class MainWin extends JFrame {
 
     public static void main(String arg[]) {
         try {
-            if (tryLock()) {
-                MyTool.log("tryLock OK : " + sLock);
-            } else {
-                ProgressDlg.showProgress("Android Manager is running.      Do not start it again.");
-                Thread.sleep(2000);
-                System.exit(0);// Avoid to open multiple APPs
-            }
-
             String path = MainWin.class.getProtectionDomain().getCodeSource().getLocation().getFile();
             if (arg.length == 0 && path.endsWith(".jar")) {
                 if (File.separator.equals("/")) {
@@ -73,8 +65,15 @@ public class MainWin extends JFrame {
                 MyTool.log(path);
                 Runtime.getRuntime().exec(path);
                 return;
+            }
+
+            if (tryLock()) {
+                MyTool.log("tryLock OK : " + sLock);
             } else {
-                MyTool.log("Start path = " + path);
+                MyTool.log("tryLock : EXIT \n");
+                ProgressDlg.showProgress("Android Manager is running.      Do not start it again.");
+                Thread.sleep(2000);
+                System.exit(0);// Avoid to open multiple APPs
             }
         } catch (Exception e) {
             MyTool.log("MianWin lock : " + e);

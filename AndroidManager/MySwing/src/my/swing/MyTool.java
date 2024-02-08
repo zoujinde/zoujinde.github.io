@@ -90,9 +90,9 @@ public class MyTool {
     public static void log(String log) {
         System.out.println(log);
         if (sFileWriter == null) {
-            try {
-                sFileWriter = new FileWriter(MyTool.getHome() + "lv.log");
-                sFileWriter.write(new java.util.Date() + " : INIT LOG FILE \n");
+            try { // new FileWriter : append is true
+                sFileWriter = new FileWriter(MyTool.getHome() + "lv.log", true);
+                sFileWriter.write("\nINIT LOG : " + new java.util.Date() + "\n");
                 sFileWriter.flush();
             } catch (IOException e) {
                 System.err.println("MyTool init sFileWriter : " + e);
