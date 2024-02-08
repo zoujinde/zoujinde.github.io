@@ -65,7 +65,11 @@ public class MainWin extends JFrame {
 
             String path = MainWin.class.getProtectionDomain().getCodeSource().getLocation().getFile();
             if (arg.length == 0 && path.endsWith(".jar")) {
-                path = "java -Xmx512m -Xms128m -jar " + path.substring(1) + " A B"; // argument
+                if (File.separator.equals("/")) {
+                    path = "java  -Xmx512m -Xms128m -jar " + path + " A &"; // argument background
+                } else { // Windows
+                    path = "javaw -Xmx512m -Xms128m -jar " + path.substring(1) + " A &"; // argument
+                }
                 MyTool.log(path);
                 Runtime.getRuntime().exec(path);
                 return;
