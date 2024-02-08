@@ -20,14 +20,14 @@ import javax.swing.JTabbedPane;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
-import com.log.sql.SqlWin;
-
 import my.swing.CMD;
 import my.swing.MsgDlg;
 import my.swing.MyProp;
 import my.swing.MyTool;
 import my.swing.ProgressDlg;
 import my.swing.SqlDB;
+
+import com.log.sql.SqlWin;
 
 @SuppressWarnings("serial")
 public class MainWin extends JFrame {
@@ -56,14 +56,25 @@ public class MainWin extends JFrame {
     public static void main(String arg[]) {
         try {
             if (tryLock()) {
-                System.out.println("tryLock OK : " + sLock);
+                MyTool.log("tryLock OK : " + sLock);
             } else {
                 ProgressDlg.showProgress("Android Manager is running.      Do not start it again.");
                 Thread.sleep(2000);
                 System.exit(0);// Avoid to open multiple APPs
             }
+
+            String path = MainWin.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+            if (arg.length == 0 && path.endsWith(".jar")) {
+                path = "java -Xmx512m -Xms128m -jar " + path.substring(1) + " A B"; // argument
+                MyTool.log(path);
+                Runtime.getRuntime().exec(path);
+                return;
+            } else {
+                MyTool.log("Start path = " + path);
+            }
         } catch (Exception e) {
-            System.out.println("MianWin lock : " + e);
+            MyTool.log("MianWin lock : " + e);
+            return;
         }
 
         // Clear index files

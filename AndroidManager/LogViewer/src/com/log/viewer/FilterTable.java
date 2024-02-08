@@ -148,7 +148,7 @@ public class FilterTable extends JTable {
 			if(column==0){//Filter
                 text = Filter.removeColor(filter.getFilterStr()).trim();
 				int wrapLen = 25;
-				if(text.length()>wrapLen){
+				if (text.length() > wrapLen && !text.contains("\n")) {
 					text = MyTool.wrapString(text, wrapLen);
 				}
 				int line=1;

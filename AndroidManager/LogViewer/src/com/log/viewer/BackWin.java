@@ -170,7 +170,8 @@ public class BackWin extends JInternalFrame {
             +"\n  // Zou Jinde (mz6h9z)      2023-10-15  Add line length and color data in IndexFile"
             +"\n  // Zou Jinde (mz6h9z)      2023-10-18  Remove length/color index and reuse filter matcher"
             +"\n  // Zou Jinde (mz6h9z)      2023-10-28  Modify menuSaveLog and writeIndexFile"
-            +"\n  // Zou Jinde (mz6h9z)      2024-02-06  Save filter and remove the runtime gc()"
+            +"\n  // Zou Jinde (mz6h9z)      2024-02-06  Save filter file / Remove the runtime gc()"
+            +"\n  // Zou Jinde (mz6h9z)      2024-02-08  Set java memory command / Add log method in MyTool"
 			+"\n  //";
 
 	public BackWin(String title){

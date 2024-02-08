@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -77,11 +78,36 @@ public class MyTool {
 	//static final String bugBegin = "------ MEMORY INFO ------";
     //static final String bugEnd   = "------ NETWORK STATE ------";
 	private static final String PID_END = "): ";
-
-	public static StringBuilder TIME_DOWN = new StringBuilder();
-    private static StringBuilder mBuilder = new StringBuilder();
-
+	public static final StringBuilder TIME_DOWN = new StringBuilder();
+    private static StringBuilder sBuilder = new StringBuilder();
     private static ScheduledExecutorService sPool = Executors.newScheduledThreadPool(1);
+    private static FileWriter sFileWriter = null;
+
+    // Private constructor
+    private MyTool() {}
+
+    // Print log method
+    public static void log(String log) {
+        System.out.println(log);
+        if (sFileWriter == null) {
+            try {
+                sFileWriter = new FileWriter(MyTool.getHome() + "lv.log");
+                sFileWriter.write(new java.util.Date() + " : INIT LOG FILE \n");
+                sFileWriter.flush();
+            } catch (IOException e) {
+                System.err.println("MyTool init sFileWriter : " + e);
+            }
+        }
+        if (sFileWriter != null) {
+            try {
+                sFileWriter.write(log);
+                sFileWriter.write("\n");
+                sFileWriter.flush();
+            } catch (IOException e) {
+                System.err.println("MyTool log : " + e);
+            }
+        }
+    }
 
     // Post method
     public static void execute(Runnable runnable) {
@@ -89,25 +115,25 @@ public class MyTool {
     }
 
     //Wrap method
-    public static String wrapString(String msg, int wrapLen){
+    public synchronized static String wrapString(String msg, int wrapLen){
         int len = msg.length();
         if (len <= wrapLen || msg.contains("\n")) {
             throw new RuntimeException("The msg lenghth<"+wrapLen + ", Or already contains new line.");
         }
         int p1 = 0;
         int p2 = 0;
-        mBuilder.delete(0, mBuilder.length());
+        sBuilder.delete(0, sBuilder.length());
         while(true){
             p2 = p1 + wrapLen;
             if (p2 >= len){
-                mBuilder.append(msg.substring(p1, len));
+                sBuilder.append(msg.substring(p1, len));
                 break;
             }else{
-                mBuilder.append(msg.substring(p1, p2)).append("\n");
+                sBuilder.append(msg.substring(p1, p2)).append("\n");
                 p1 = p2;
             }
         }
-        return mBuilder.toString();
+        return sBuilder.toString();
     }
 
 	//Old method
@@ -229,10 +255,11 @@ public class MyTool {
 	//Print memory
 	public static void printMemory(String info){
 		double tmp = 1024*1024;
+		double max = Runtime.getRuntime().maxMemory();
 		double total = Runtime.getRuntime().totalMemory();
 		double free = Runtime.getRuntime().freeMemory();
-		double used = total-free;
-		System.out.println(info + " Total memory: " + total/tmp + "  Used Memory: "+used/tmp);
+		double used = total - free;
+		MyTool.log(info + " Memory max=" + max/tmp + " total=" + total/tmp + " used="+used/tmp);
 	}
 
 	//2010-3-26 Zou Jinde add
