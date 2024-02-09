@@ -240,10 +240,10 @@ public class LogWin extends JInternalFrame {
 				//mFilterDlg.setVisible(false);
 			}*/
 			public void internalFrameClosing(InternalFrameEvent e) {
-		        System.out.println("LogWin.internalFrameClosing");
+                // System.out.println("LogWin.internalFrameClosing");
 			}
             public void internalFrameClosed(InternalFrameEvent e) {
-                System.out.println("LogWin.internalFrameClosed");
+                // System.out.println("LogWin.internalFrameClosed");
                 onClose();
             }
 		});
@@ -326,7 +326,7 @@ public class LogWin extends JInternalFrame {
 	@Override
     public void dispose() {
 	    super.dispose();
-        System.out.println("LogWin.dispose");
+        // System.out.println("LogWin.dispose");
     }
 
     //Button listener

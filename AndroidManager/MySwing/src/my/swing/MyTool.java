@@ -118,7 +118,8 @@ public class MyTool {
     public synchronized static String wrapString(String msg, int wrapLen){
         int len = msg.length();
         if (len <= wrapLen || msg.contains("\n")) {
-            throw new RuntimeException("The msg lenghth<"+wrapLen + ", Or already contains new line.");
+            MsgDlg.showOk("Msg lenghth < " + wrapLen + " or has new line.");
+            System.exit(0);
         }
         int p1 = 0;
         int p2 = 0;
@@ -253,7 +254,11 @@ public class MyTool {
 	}
 
 	//Print memory
-	public static void printMemory(String info){
+    public static void printMemory(String info){
+        if (info.length() != 15) {
+            MsgDlg.showOk("Invalid memory info : length != 15");
+            System.exit(0);
+        }
 		double tmp = 1024*1024;
 		double max = Runtime.getRuntime().maxMemory();
 		double total = Runtime.getRuntime().totalMemory();

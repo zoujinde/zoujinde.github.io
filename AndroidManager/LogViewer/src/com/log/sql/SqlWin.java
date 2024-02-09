@@ -117,7 +117,7 @@ public class SqlWin extends JInternalFrame {
 	@Override
     public void dispose() {
     	super.dispose();
-    	MyTool.printMemory("SqlWin dispose : ");
+    	MyTool.printMemory("SqlWin close : ");
 		DefaultTableModel mod = (DefaultTableModel)mSqlTab.getModel();
 		mod.setRowCount(0);//Clear all rows
 		if(mSqlTab.mData!=null){

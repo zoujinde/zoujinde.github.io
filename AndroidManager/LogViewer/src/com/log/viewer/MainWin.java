@@ -24,7 +24,6 @@ import my.swing.CMD;
 import my.swing.MsgDlg;
 import my.swing.MyProp;
 import my.swing.MyTool;
-import my.swing.ProgressDlg;
 import my.swing.SqlDB;
 
 import com.log.sql.SqlWin;
@@ -56,30 +55,28 @@ public class MainWin extends JFrame {
     public static void main(String arg[]) {
         try {
             String path = MainWin.class.getProtectionDomain().getCodeSource().getLocation().getFile();
-            if (arg.length == 0 && path.endsWith(".jar")) {
+            if (path.contains(" ")) {
+                MsgDlg.showOk("Invalid path with space : " + path);
+            } else if (arg.length == 0 && path.endsWith(".jar")) {
                 if (File.separator.equals("/")) {
                     path = "java  -Xmx512m -Xms128m -jar " + path + " A &"; // argument background
                 } else { // Windows
-                    path = "javaw -Xmx512m -Xms128m -jar " + path.substring(1) + " A &"; // argument
+                    path = "javaw -Xmx512m -Xms128m -jar " + path.substring(1) + " A &";
                 }
-                MyTool.log(path);
                 Runtime.getRuntime().exec(path);
-                return;
-            }
-
-            if (tryLock()) {
-                MyTool.log("tryLock OK : " + sLock);
+            } else if (tryLock()) {
+                MyTool.log("Try Lock : OK ");
+                showMainWin(arg);
             } else {
-                MyTool.log("tryLock : EXIT \n");
-                ProgressDlg.showProgress("Android Manager is running.      Do not start it again.");
-                Thread.sleep(2000);
-                System.exit(0);// Avoid to open multiple APPs
+                MyTool.log("Try Lock : EXIT \n");
+                MsgDlg.showOk("The tool is running. Do not start again.");
             }
         } catch (Exception e) {
-            MyTool.log("MianWin lock : " + e);
-            return;
+            MsgDlg.showOk("MainWin : " + e);
         }
+    }
 
+    private static void showMainWin(String[] arg) {
         // Clear index files
         File[] files = new File(MyTool.getHome()).listFiles();
         for (File f : files) {
@@ -122,7 +119,6 @@ public class MainWin extends JFrame {
         this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
         this.setExtendedState(MAXIMIZED_BOTH);
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-
 
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -183,8 +179,8 @@ public class MainWin extends JFrame {
     // Get the window by the title
     private JInternalFrame getTab(String title) throws TabCountException {
         int count = mTabs.getTabCount();
-        if (count >= 5) {
-            MsgDlg.showOk("At most open 5 tabs. You can close some unused tabs, then open a new tab.");
+        if (count >= 6) {
+            MsgDlg.showOk("At most open 6 tabs. You can close some unused tabs, then open a new tab.");
             throw new TabCountException();
         }
         for (int i = 0; i < count; i++) {
@@ -201,7 +197,7 @@ public class MainWin extends JFrame {
         int index = mTabs.indexOfComponent(win);
         mTabs.setTabComponentAt(index, new TabComponent(mTabs, title));
         mTabs.setSelectedIndex(index);
-        MyTool.printMemory("showWindow : " + win.getClass().getName());
+        MyTool.printMemory("ShowTabFrame : ");
     }
 
     public static void openAbout() {
