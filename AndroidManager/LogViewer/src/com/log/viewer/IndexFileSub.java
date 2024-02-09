@@ -11,10 +11,10 @@ public class IndexFileSub {
     private FileWriter mWriter = null;
     private BufferedRandomFile mReader = null;
 
-    // Each line length is 5 = 4 + 1
-    // Original Row (0 - 999999) 32bit : 4
+    // Each line length 6 = 5 + 1
+    // Original Row 32bit : 5
     // New Line String \n : 1
-    private static final int LINE_LENGTH = 5;
+    private static final int LINE_LENGTH = 6;
 
     // Constructor
     public IndexFileSub(String file) {
@@ -29,7 +29,7 @@ public class IndexFileSub {
     // Add the original rowIndex
     public void add(int rowIndex) throws IOException {
         mSize++;
-        String line = String.format("%4s\n", Integer.toString(rowIndex, 32));
+        String line = String.format("%5s\n", Integer.toString(rowIndex, 32));
         mWriter.write(line);
     }
 
