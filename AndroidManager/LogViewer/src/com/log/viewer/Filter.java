@@ -77,25 +77,16 @@ public class Filter {
 
         //Init colors map
         if(COLOR_LIST==null){
-            //COLOR_MAP = new TreeMap<String,Color>();
-            int c = 200;
-            //COLOR_MAP.put("red",    Color.red);
-            //COLOR_MAP.put("orange", new Color(c+50,c-50,0));//Color.orange);
-            //COLOR_MAP.put("yellow", new Color(c-50,c-50,0));//Color.yellow;
-            //COLOR_MAP.put("green",  new Color(0,c,0));//Color.green);
-            //COLOR_MAP.put("cyan",   new Color(0,c-50,c-50));//Color.cyan);
-            //COLOR_MAP.put("blue",   Color.blue);
-            //COLOR_MAP.put("magenta",new Color(c,0,c));//Color.magenta);
-            //COLOR_MAP.put("gray",   Color.gray);
-            COLOR_LIST = new ColorItem[8];
+            COLOR_LIST = new ColorItem[9];
             COLOR_LIST[0]=new ColorItem("red", Color.red);
-            COLOR_LIST[1]=new ColorItem("orange", new Color(c+50,c-50,0));//Color.orange);
-            COLOR_LIST[2]=new ColorItem("yellow", new Color(c-50,c-50,0));//Color.yellow;
-            COLOR_LIST[3]=new ColorItem("green",  new Color(0,c-50,0));//Color.green);
-            COLOR_LIST[4]=new ColorItem("cyan",   new Color(0,c-50,c-50));//Color.cyan);
+            COLOR_LIST[1]=new ColorItem("orange", new Color(200,100,0));
+            COLOR_LIST[2]=new ColorItem("yellow", new Color(150,150,0));
+            COLOR_LIST[3]=new ColorItem("green",  new Color(0,150,0));
+            COLOR_LIST[4]=new ColorItem("cyan",   new Color(0,150,150));
             COLOR_LIST[5]=new ColorItem("blue",   Color.blue);
-            COLOR_LIST[6]=new ColorItem("magenta",new Color(c,0,c));//Color.magenta);
-            COLOR_LIST[7]=new ColorItem("gray",   Color.gray);
+            COLOR_LIST[6]=new ColorItem("purple", new Color(150,0,150));
+            COLOR_LIST[7]=new ColorItem("magenta",Color.magenta);
+            COLOR_LIST[8]=new ColorItem("gray",   Color.gray);
         }
 
 		//Set color

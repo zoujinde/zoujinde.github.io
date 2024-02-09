@@ -149,8 +149,9 @@ public class LogWin extends JInternalFrame {
 		this.mFilterTable = new FilterTable();
 		try {
             this.mFilterTable.loadFilter(mFilterFile);
-        } catch (Exception e1) {
-            MsgDlg.showOk(e1.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+            MsgDlg.showOk("LogWin Load Filter : " + e);
         }
 		this.mFilterTable.addMouseListener(this.mFilterMouse);
 		JScrollPane p21 = new JScrollPane(this.mFilterTable);
@@ -563,8 +564,8 @@ public class LogWin extends JInternalFrame {
 	private MouseListener mFilterMouse =new MouseAdapter(){
 		private long mTime = 0;
 		private int mRow = 0;
-		public void mouseClicked(MouseEvent e) {
-			if (e.getButton() != MouseEvent.BUTTON1) {
+		public void mouseClicked(MouseEvent event) {
+			if (event.getButton() != MouseEvent.BUTTON1) {
 				return;
 			}
 			long lastTime = this.mTime;
@@ -587,8 +588,9 @@ public class LogWin extends JInternalFrame {
                     } else { // 2023-3-31 Add rows navigation
                         toLogRow(filter, FilterTable.COL_TOP);
                     }
-                } catch (Exception e1) {
-                    MsgDlg.showOk(e1.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    MsgDlg.showOk("LogWin click filter : " + e);
                 }
 			}
 		}
