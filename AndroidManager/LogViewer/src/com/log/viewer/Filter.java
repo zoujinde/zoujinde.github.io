@@ -14,7 +14,7 @@ public class Filter {
 	protected static final String COLOR = "Color=";
     //public static HashMap<String,Color> COLOR_MAP = null;//HashMap is not sorted
 	//public static TreeMap<String,Color> COLOR_MAP = null;  //TreeMap is sorted by KEY
-    public static ColorItem[] COLOR_LIST = null;
+    public static final ColorItem[] COLOR_LIST = new ColorItem[9];
     
     //Inner class
     class ColorItem{
@@ -76,15 +76,15 @@ public class Filter {
 		this.mFilterStr = newStr;
 
         //Init colors map
-        if(COLOR_LIST==null){
-            COLOR_LIST = new ColorItem[9];
+        if (COLOR_LIST[0] == null) {
+            // System.out.println(Color.magenta.toString());
             COLOR_LIST[0]=new ColorItem("red", Color.red);
-            COLOR_LIST[1]=new ColorItem("orange", new Color(200,100,0));
-            COLOR_LIST[2]=new ColorItem("yellow", new Color(150,150,0));
-            COLOR_LIST[3]=new ColorItem("green",  new Color(0,150,0));
-            COLOR_LIST[4]=new ColorItem("cyan",   new Color(0,150,150));
+            COLOR_LIST[1]=new ColorItem("orange", new Color(255,160,0));
+            COLOR_LIST[2]=new ColorItem("yellow", new Color(200,160,0));
+            COLOR_LIST[3]=new ColorItem("green",  new Color(0,160,0));
+            COLOR_LIST[4]=new ColorItem("cyan",   new Color(0,160,200));
             COLOR_LIST[5]=new ColorItem("blue",   Color.blue);
-            COLOR_LIST[6]=new ColorItem("purple", new Color(150,0,150));
+            COLOR_LIST[6]=new ColorItem("purple", new Color(160,0,200));
             COLOR_LIST[7]=new ColorItem("magenta",Color.magenta);
             COLOR_LIST[8]=new ColorItem("gray",   Color.gray);
         }
