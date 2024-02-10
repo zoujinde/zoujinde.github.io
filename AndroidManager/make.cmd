@@ -1,3 +1,6 @@
+set Path=C:\Program Files (x86)\Java\jdk1.8.0_301\bin
+set Path
+
 rd /s /q bin
 
 md bin

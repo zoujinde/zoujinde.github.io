@@ -161,7 +161,7 @@ public class DataAllModel extends AbstractTableModel {
                 int levelEnd = getLevelEnd(line);
                 if (levelEnd > TIME_LEN) {
                     //Android log : 01-30 15:09:57.477  8438  8587 D MediaSessionAAImpl: getAbc
-                    int tagEnd = line.indexOf(":", levelEnd);
+                    int tagEnd = line.indexOf(": ", levelEnd);
                     if (tagEnd > levelEnd) {
                         mValue[COL_TIME] = line.substring(0, TIME_LEN);
                         mValue[COL_PID] = line.substring(TIME_LEN , levelEnd - 2);

@@ -121,17 +121,13 @@ public class MyTool {
             MsgDlg.showOk("Msg lenghth < " + wrapLen + " or has new line.");
             System.exit(0);
         }
-        int p1 = 0;
-        int p2 = 0;
         sBuilder.delete(0, sBuilder.length());
-        while(true){
-            p2 = p1 + wrapLen;
-            if (p2 >= len){
-                sBuilder.append(msg.substring(p1, len));
-                break;
-            }else{
-                sBuilder.append(msg.substring(p1, p2)).append("\n");
-                p1 = p2;
+        int i = 0;
+        while (i < len) {
+            sBuilder.append(msg.charAt(i));
+            i++; // Must ++
+            if (i < len && i%wrapLen == 0) {
+                sBuilder.append('\n');
             }
         }
         return sBuilder.toString();
