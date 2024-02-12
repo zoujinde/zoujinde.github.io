@@ -1,5 +1,5 @@
 call mvn clean package
-rmdir /S /Q D:\data\web\apache-tomcat-9.0.56\webapps\hello
-del D:\data\web\apache-tomcat-9.0.56\webapps\hello.war
-copy target\hello.war D:\data\web\apache-tomcat-9.0.56\webapps\hello.war
+rmdir /S /Q c:\Apps\tomcat-9.0.85\webapps\hello
+del c:\Apps\tomcat-9.0.85\webapps\hello.war
+copy target\hello.war c:\Apps\tomcat-9.0.85\webapps\hello.war
 pause
