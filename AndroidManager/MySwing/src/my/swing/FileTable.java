@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.HeadlessException;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -29,8 +28,8 @@ public class FileTable extends JTable {
     public static int HASHCODE = 0;
     public static final String INVALID_FILE = "Invalid file or path";
     
-    protected CMD mAdb = null;
-    protected CMD mCmd = null;
+    boolean mLocalMode = true;
+    private CMD mCmd = CMD.instance();
 
     private String[] mColName = new String[] { "Name", "Size", "Date" };
     private ActionListener mDoubleClickFile = null;
@@ -40,8 +39,8 @@ public class FileTable extends JTable {
     private MyMenu mFileMenu = null;
     private Vector<String> mResult = new Vector<String>();
 
-    public FileTable(Window win, CMD adb){//Init table Constructor
-		this.mAdb=adb;
+    public FileTable(boolean localMode) {
+        this.mLocalMode = localMode;
 		this.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		this.setRowHeight(MyTool.ROW_HEIGHT);
 		DefaultTableModel mod = (DefaultTableModel)this.getModel();
@@ -56,30 +55,13 @@ public class FileTable extends JTable {
 		this.setShowGrid(true);
 		this.setGridColor(Color.black);
 
-		if(mAdb==null){
+		if (mLocalMode) {
 			mPath = MyProp.getProp(MyProp.LOG_INI, MyProp.LOCAL_PATH, "");
 		}
 		this.mFilePanel = new FilePanel(this);
 		this.addMouseListener(mMouse);
-
-		//Add listener to save the local path
-		if(win!=null && mAdb==null){
-			//2016-10-17 On Ubuntu addWindowListener can't work
-//			win.addWindowListener(new WindowAdapter(){
-//				public void windowClosing(WindowEvent e) {
-//					System.out.println("FileTable : windowClosing");
-//					MyProp.setProp(MyProp.LOG_INI, MyProp.LOCAL_PATH, mPath);
-//				}
-//			});
-			Runtime.getRuntime().addShutdownHook(new Thread(){
-				public void run(){
-					System.out.println("addShutdownHook : save local path");
-					MyProp.setProp(MyProp.LOG_INI, MyProp.LOCAL_PATH, mPath);
-				}
-			});
-		}
         this.mFileMenu = new MyMenu(mMenuAct, "New Folder", "New File",
-                "Delete", "Rename", "Change Mode");
+                "Delete", "Rename", "Change Mode", "Unzip");
         this.mFileMenu.addComponent(this);
 	}
 
@@ -96,6 +78,8 @@ public class FileTable extends JTable {
                 rename();
             }else if(act.equals("Change Mode")){
                 chmod();
+            } else if (act.equals("Unzip")) {
+                unzip();
             }
         }
     };
@@ -114,7 +98,7 @@ public class FileTable extends JTable {
         }
         newName = path+newName;
         String err = "Cannot make new folder : "  + newName +"\n\n";
-        if(mAdb==null){
+        if (mLocalMode) {
             File newF = new File(newName);
             if(!newF.mkdir()){
                 MsgDlg.showOk(err);
@@ -122,7 +106,7 @@ public class FileTable extends JTable {
             }
             this.showFiles(path, false, null);
         }else{//Device tab
-            mAdb.adbCmd("shell mkdir " + newName, mResult);
+            mCmd.adbCmd("shell mkdir " + newName, mResult);
             String s = mResult.toString();
             if(s.length()>2){
                 MsgDlg.showOk(err + s);
@@ -147,7 +131,7 @@ public class FileTable extends JTable {
         
         newName = path+newName;
         String err = "Cannot make new file : "  + newName +"\n\n";
-        if(mAdb==null){
+        if (mLocalMode) {
             File newF = new File(newName);
             boolean ok = false;
             try {
@@ -161,7 +145,7 @@ public class FileTable extends JTable {
             }           
             this.showFiles(path, false, null);
         }else{//Device tab : Must check name to void overwriting the existing file
-            mAdb.adbCmd("shell ls " + newName, mResult);
+            mCmd.adbCmd("shell ls " + newName, mResult);
             String s = mResult.toString();
             if(!s.contains("No such file")){
                 MsgDlg.showOk("File exists : " + newName);
@@ -175,7 +159,7 @@ public class FileTable extends JTable {
             } catch (HeadlessException e) {
             } catch (IOException e) {
             }
-            mAdb.adbCmd("push newFile " + newName, mResult);
+            mCmd.adbCmd("push newFile " + newName, mResult);
             s = mResult.toString();
             if(s.contains("failed")){
                 MsgDlg.showOk(s);
@@ -209,9 +193,19 @@ public class FileTable extends JTable {
             return;
         }
         //Delete the local files
-        if(mAdb==null){
+        if (mLocalMode) {
             for(int i=0;i<size;i++){
-                String err=this.deleteFile(path+list.get(i)[0],true);
+                File file = new File(path + list.get(i)[0]);
+                if (file.isDirectory()) {
+                    sb.setLength(0);
+                    sb.append("Do you want to delete the folder : \n\n");
+                    sb.append(file.getAbsolutePath());
+                    sb.append("\n\n###### Warning : The deleted folder cannot be restored!");
+                    if (!MsgDlg.showYesNo(sb.toString())) {
+                        break;
+                    }
+                }
+                String err = MyUtil.deleteFile(file, true);
                 if(err!=null){
                     MsgDlg.showOk(err);
                     break;
@@ -221,7 +215,7 @@ public class FileTable extends JTable {
         }else{//Delete device files
             for(int i=0;i<size;i++){
                 String cmd = "shell rm -r " + path + list.get(i)[0];
-                mAdb.adbCmd(cmd, mResult);
+                mCmd.adbCmd(cmd, mResult);
                 String result = mResult.toString();
                 //System.out.println(result);
                 if(result.length()>2){
@@ -231,37 +225,6 @@ public class FileTable extends JTable {
             }
             this.showFiles(path, false);
         }
-    }
-    
-    //Delete folder or file
-    private String deleteFile(String file,boolean delTree){
-        String err = null;
-        file = file.replace('\\', '/');
-        File f = new File(file);
-        String s = f.getAbsolutePath().replace('\\', '/');
-        if(s.equals(file)==false){
-            err = "The file path is not same as the absolute path : " + s;
-            return err;
-        }
-        if(delTree && f.isDirectory()){//Delete the dirTree
-            s = "Do you want to delete the folder : " + file 
-              + "\n\n###### Warning : The deleted folder cannot be restored!";
-            if(!MsgDlg.showYesNo(s)){
-                return err;
-            }
-            //The delete method is danger, check root path
-            File[] list = f.listFiles();
-            for(File sub:list){
-                err = deleteFile(sub.getAbsolutePath(),delTree);//Call method self ......
-                if(err!=null){
-                    return err;
-                }
-            }
-        }
-        if(!f.delete()){
-            err = "Cannot delete : " + file;
-        }
-        return err;
     }
 
     //Rename file
@@ -284,7 +247,7 @@ public class FileTable extends JTable {
         oldName = path+oldName;
         newName = path+newName;
         String err = "Cannot rename : " + oldName + "\n\nTo new name : " + newName +"\n\n";
-        if(mAdb==null){
+        if (mLocalMode) {
             File newF = new File(newName);
             if(newF.exists()){
                 MsgDlg.showOk(err);
@@ -297,13 +260,13 @@ public class FileTable extends JTable {
             }
             this.showFiles(path, false);
         }else{//Device tab : Must check name, since the mv will overwrite the existing file
-            mAdb.adbCmd("shell ls " + newName, mResult);
+            mCmd.adbCmd("shell ls " + newName, mResult);
             String s = mResult.toString();
             if(!s.contains("No such file")){
                 MsgDlg.showOk(err);
                 return;
             }
-            mAdb.adbCmd("shell mv " + oldName + " " + newName, mResult);
+            mCmd.adbCmd("shell mv " + oldName + " " + newName, mResult);
             s = mResult.toString();
             if(s.length()>2){
                 MsgDlg.showOk(err + s);
@@ -326,16 +289,7 @@ public class FileTable extends JTable {
             return;
         }
         String fileName = list.get(0)[0];//The 1st selected file
-        boolean adbMode = false;
-        if(mAdb==null){//Local mode
-            if(mCmd==null){
-                mCmd = new CMD();
-            }
-        }else{//ADB mode
-            adbMode = true;
-            mCmd = mAdb;
-        }
-        FileModeDlg dlg = new FileModeDlg(path, fileName, mCmd, adbMode);
+        FileModeDlg dlg = new FileModeDlg(path, fileName, mLocalMode);
         dlg.setVisible(true);
     }
 
@@ -503,12 +457,12 @@ public class FileTable extends JTable {
 
         DefaultTableModel mod = (DefaultTableModel) getModel();
         mod.setRowCount(0);// Discard all rows
-        if (mAdb == null) {
+        if (mLocalMode) {
             this.getLocalFiles(path, showHidden, filter, mResult);
         } else {
             this.getDeviceFiles(path, showHidden, filter, mResult);
             // Show device ID on header
-            this.getColumnModel().getColumn(0).setHeaderValue(mAdb.getDeviceID());
+            this.getColumnModel().getColumn(0).setHeaderValue(mCmd.getDeviceID());
             this.getParent().getParent().doLayout();
         }
 
@@ -607,7 +561,7 @@ public class FileTable extends JTable {
         if (showHidden) {
             cmd += " -a ";
         }
-        mAdb.adbCmd(cmd + dir, list);
+        mCmd.adbCmd(cmd + dir, list);
         // Output like below:
         // -rwxr-x--- root root 453 1970-01-01 08:00 init_prep_keypad.sh
         // lrwxrwxrwx root system 2011-06-08 16:37 etc -> /system/etc
@@ -787,4 +741,25 @@ public class FileTable extends JTable {
         }
         return false;
     }
+
+    public void unzip() {
+        Vector<String[]> files = this.getSelectedFiles(true, "zip , gz");
+        if (files != null) {
+            String path = this.getPath();
+            StringBuilder sb  = new StringBuilder(files.size() * 200);
+            sb.append("Do you want to unzip the selected files : \n\n");
+            for (String[] s : files){
+                sb.append(path + s[0]).append('\n');
+            }
+            if (MsgDlg.showYesNo(sb.toString())) {
+                for (String[] s : files) {
+                    if (!MyUtil.unzip(path + s[0], mResult)) {
+                        break;
+                    }
+                }
+                this.showFiles(path, false);
+            }
+        }
+    }
+
 }

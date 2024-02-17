@@ -61,7 +61,7 @@ public class MyMenu implements MouseListener,ActionListener{
 	//Add menu
 	public void addMenu(String text){
 		JMenuItem item = mMenu.add(text);
-		item.setFont(MyTool.FONT_MONO);
+		item.setFont(MyTool.FONT_MONO_20);
 		item.addActionListener(this);
 	}
 	

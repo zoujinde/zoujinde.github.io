@@ -89,7 +89,7 @@ public class FileDlg extends JDialog {
         smart.setRowHeight(1, 80);
         this.setLayout(smart);
 
-        mTab = new FileTable(null, null);
+        mTab = new FileTable(true);
         mTab.setColWidth(0, 380);
         String name = "File Name:";
         String type = "File Type:";

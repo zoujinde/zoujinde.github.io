@@ -27,6 +27,7 @@ public class MyTool {
 
 	public static final Font FONT_MONO = new Font("Monospaced",Font.PLAIN,12);
 	public static final Font FONT_MONO_13 = new Font("Monospaced",Font.PLAIN,13);
+    public static final Font FONT_MONO_20 = new Font("Monospaced",Font.PLAIN,20);
 	public static final Color GRAY_BACK  = new Color(200,200,200);
 	public static final Color GRAY_FOCUS = new Color(230,230,230);
 	public static final Color GRAY_RESIZE= new Color(100,100,200);

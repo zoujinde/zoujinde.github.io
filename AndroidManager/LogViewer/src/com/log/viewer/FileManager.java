@@ -27,6 +27,7 @@ import my.swing.FilePanel;
 import my.swing.FileTable;
 import my.swing.MsgDlg;
 import my.swing.MyPanel;
+import my.swing.MyProp;
 import my.swing.MyTool;
 import my.swing.SmartLayout;
 
@@ -61,12 +62,13 @@ public class FileManager extends JInternalFrame {
 
 	private JButton btnLogcat=new JButton(ADB_START);
     private JButton btnLang = new JButton("Set Languages");
+    private JButton btnUnzip = new JButton("Unzip");
     private JButton btnAbout = new JButton("About");
 
 	private LogcatDlg mLogcatDlg = null;
 	
 	private static FileManager instance = new FileManager(MainWin.AM + BackWin.getRevisionDate());
-	protected CMD mCmd = new CMD();
+	protected CMD mCmd = CMD.instance();
 	private Vector<String> mResult = new Vector<String>();
 
 	public static FileManager getInstance() {
@@ -86,13 +88,21 @@ public class FileManager extends JInternalFrame {
 		Border border = BorderFactory.createLoweredBevelBorder();
 
 		this.initTree();
-		mLocalTab  = new FileTable(MainWin.mWin, null);
-		mDeviceTab = new FileTable(MainWin.mWin, mCmd);
-		
+		mLocalTab  = new FileTable(true);
+		mDeviceTab = new FileTable(false);
 		//Set double click listener
 		mLocalTab.setDoubleClickFile(mBtnLsn);
 		mDeviceTab.setDoubleClickFile(mBtnLsn);
-		
+
+         //Add listener to save the local path
+         Runtime.getRuntime().addShutdownHook(new Thread(){
+             public void run() {
+                 System.out.println("addShutdownHook : save local path");
+                 String localPath = mLocalTab.getPath();
+                 MyProp.setProp(MyProp.LOG_INI, MyProp.LOCAL_PATH, localPath);
+             }
+         });
+
 		//Set the left panel
 		mPane1 = mLocalTab.getFilePanel();
 		mPane1.setBorder(BorderFactory.createCompoundBorder(mBorder1, border));
@@ -108,8 +118,7 @@ public class FileManager extends JInternalFrame {
 		p2.setRowBottom(0, 20);
 		p2.setRowBottom(3, 20);
 		p2.setRowBottom(5, 20);
-		p2.setRowBottom(11, 30);
-        p2.setRowBottom(12, 30);
+		p2.setRowBottom(12, 20);
 		p2.add(new JScrollPane(mTree));
 		p2.add(setButton(btnOpenLog,true));
 		p2.add(setButton(btnOpenText,true));
@@ -123,6 +132,7 @@ public class FileManager extends JInternalFrame {
 		p2.add(setButton(btnChmod,true));
         p2.add(setButton(btnLang,true));
 		p2.add(setButton(btnLogcat,true));
+        p2.add(setButton(btnUnzip,true));
         p2.add(setButton(btnAbout,true));
 		//btnLogcat.setIcon(MyTool.newIcon("icon_next.png"));
 
@@ -256,9 +266,11 @@ public class FileManager extends JInternalFrame {
                 clickLogcat();
             }else if(src==btnLang){
                 setLanguages();
+            } else if (src==btnUnzip){
+                mLocalTab.unzip();
             } else if (src==btnAbout){
                 MainWin.openAbout();
-			}else if(src==mLocalTab || src==mDeviceTab){//Double click file
+            }else if(src==mLocalTab || src==mDeviceTab){//Double click file
 				String file = e.getActionCommand();
                 String[] ext = {".py",".xml",".prop",".ini", ".cfg",".html",".sh",".bat",".filter", ".csv"};
                 for(String s : ext){

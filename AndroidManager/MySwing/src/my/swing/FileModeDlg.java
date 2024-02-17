@@ -30,17 +30,17 @@ public class FileModeDlg extends JDialog {
 
     private CMD mCmd = null;
     private Vector<String> mResult = new Vector<String>();
-    private boolean mAdbMode = true;
+    private boolean mLocalMode = true;
 
     // Private constructor
-    public FileModeDlg(String path, String fileName, CMD cmd, boolean adbMode) {
+    public FileModeDlg(String path, String fileName, boolean localMode) {
         // super(MainLogWin.mWin, "?", true);
         this.setModal(true);
         this.setAlwaysOnTop(true);
         this.setBounds(300, 200, 700, 230);
         this.setTitle("Change file mode");
-        this.mCmd = cmd;
-        this.mAdbMode = adbMode;
+        this.mCmd = CMD.instance();
+        this.mLocalMode = localMode;
 
         // Top layout
         SmartLayout smart = new SmartLayout(2, 1);
@@ -144,7 +144,7 @@ public class FileModeDlg extends JDialog {
                         .showOk("Please input the file mode number such as 655 or 6777");
                 return;
             }
-            if (this.mAdbMode) {
+            if (!mLocalMode) {
                 cmd = String.format("shell chmod %s %s%s", cmd, path, file);
                 mCmd.adbCmd(cmd, mResult);
             } else {// Local posix
@@ -166,7 +166,7 @@ public class FileModeDlg extends JDialog {
     private String getFileMode(String path, String fileName) {
         String mode = null;
         mResult.clear();
-        if (this.mAdbMode) {
+        if (!mLocalMode) {
             mCmd.adbCmd("shell ls -l " + path, mResult);
         } else if (path.startsWith("/")) {// Local X PC
             mCmd.runCmd("ls -l " + path, mResult);

@@ -10,14 +10,19 @@ import java.util.Vector;
 
 public class CMD {
 
+    private static final CMD instance = new CMD();
 	public static final String UTF_8 = "UTF-8";
 	//private static final String START="starting it now";
 	private int mNoOutput = 0; 
     private String mDeviceID=null;
 
-    public CMD(){
+    private CMD(){
     }
-    
+
+    public static CMD instance() {
+        return instance;
+    }
+
     //Get the device id
     public String getDeviceID(){
         return this.mDeviceID;

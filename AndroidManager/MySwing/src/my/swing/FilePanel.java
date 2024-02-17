@@ -62,7 +62,7 @@ public class FilePanel extends MyPanel implements ActionListener, KeyListener {
         mPathText.addKeyListener(this);
 
         //Add menu
-    	this.mFavor = new FileFavor(mTable.mAdb==null);
+        this.mFavor = new FileFavor(mTable.mLocalMode);
         MyMenu menu = new MyMenu();
         menu.addComponent(mPathText);
         menu.addComponent(mFilterBox);
