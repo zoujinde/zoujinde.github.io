@@ -131,6 +131,11 @@ public class CMD {
 		}
 	}
 
+    //Run standard command
+    public void runCmd(String cmd, Vector<String> result){
+        runCmd(null, cmd, result);
+    }
+
     // 2019-08-15 new method
     public void runCmd(String[] array, String info, Vector<String> result) {
         result.clear();
@@ -168,11 +173,6 @@ public class CMD {
             MsgDlg.showOk(e.toString());
         }
 	    ProgressDlg.hideProgress();
-	}
-
-    //Run standard command
-	public void runCmd(String cmd, Vector<String> result){
-	    runCmd(null, cmd, result);
 	}
 
 	//Run adb logcat

@@ -460,7 +460,12 @@ public class FileTable extends JTable {
         if (mLocalMode) {
             this.getLocalFiles(path, showHidden, filter, mResult);
         } else {
-            this.getDeviceFiles(path, showHidden, filter, mResult);
+            String cmd = "shell ls -l ";
+            if (showHidden) {
+                cmd += " -a ";
+            }
+            mCmd.adbCmd(cmd + path, mResult);
+            this.filterDeviceFiles(filter, mResult);
             // Show device ID on header
             this.getColumnModel().getColumn(0).setHeaderValue(mCmd.getDeviceID());
             this.getParent().getParent().doLayout();
@@ -549,19 +554,8 @@ public class FileTable extends JTable {
         }
     }
 
-    // Get file list using adb shell ls -l
-    private void getDeviceFiles(String dir, boolean showHidden, String filterStr, Vector<String> list) {
-        list.clear();
-        if (dir == null || filterStr == null) {
-            MsgDlg.showOk("Path or filter is null.");
-            return;
-        }
-
-        String cmd = "shell ls -l ";
-        if (showHidden) {
-            cmd += " -a ";
-        }
-        mCmd.adbCmd(cmd + dir, list);
+    // Filter device files
+    private void filterDeviceFiles(String filterStr, Vector<String> list) {
         // Output like below:
         // -rwxr-x--- root root 453 1970-01-01 08:00 init_prep_keypad.sh
         // lrwxrwxrwx root system 2011-06-08 16:37 etc -> /system/etc

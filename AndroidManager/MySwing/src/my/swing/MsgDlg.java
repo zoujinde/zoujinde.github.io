@@ -114,7 +114,7 @@ public class MsgDlg extends JDialog implements ActionListener, KeyListener{
 		int width = 320;
 		int ww = 0;
 		for (String s : tmp){
-			ww = s.length()*9;
+			ww = s.length()*8;
 			if(ww>width){
 				width = ww;
 			}

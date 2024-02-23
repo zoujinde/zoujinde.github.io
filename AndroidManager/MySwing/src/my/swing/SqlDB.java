@@ -53,6 +53,33 @@ public class SqlDB{
     private String[] mAdbSql = new String[]{"adb", "-s", "dev", "shell", "sqlite3", "db", "sql"};
     private int mSqlType = -1;
 
+    //Run sql using adb
+    public void runSql(String sql, Vector<String> result){
+        result.clear();
+        sql = sql.trim();//Must trim
+        for(char ch : sql.toCharArray()){
+            if(ch>127){//If sql includes Chinese, the value will be error
+                result.add(SqlDB.ERROR + "Only accept ASCII sql for now.");
+                return;
+            }
+        }
+        String header = null;
+        String prefix = sql.substring(0,7).toLowerCase();
+        if(prefix.equals("select ")){
+            // Get the column name as header
+            header = this.getColName(sql, result);
+            if (header == null){
+                header = ERROR + "Invalid SQL";
+            }
+        }else{ // insert,delete,update,create,drop
+            header = sql; // SQL as table header
+        }
+        this.runSql(mDbName, sql, result);
+        if (SqlDB.getError(result) == null){
+            result.add(0, header);
+        }
+    }
+
 	//2019-08-14 runSql
     private void runSql(final String dbname, final String sql, Vector<String> result){
         result.clear();
@@ -115,33 +142,6 @@ public class SqlDB{
 		return sb.toString();
 	}
 
-	//Run sql using adb
-	public void runSql(String sql, Vector<String> result){
-	    result.clear();
-	    sql = sql.trim();//Must trim
-        for(char ch : sql.toCharArray()){
-            if(ch>127){//If sql includes Chinese, the value will be error
-                result.add(SqlDB.ERROR + "Only accept ASCII sql for now.");
-                return;
-        	}
-        }
-        String header = null;
-        String prefix = sql.substring(0,7).toLowerCase();
-        if(prefix.equals("select ")){
-            // Get the column name as header
-            header = this.getColName(sql, result);
-            if (header == null){
-                header = ERROR + "Invalid SQL";
-            }
-        }else{ // insert,delete,update,create,drop
-            header = sql; // SQL as table header
-        }
-		this.runSql(mDbName, sql, result);
-		if (SqlDB.getError(result) == null){
-		    result.add(0, header);
-		}
-	}
-
 	//Get the table name
 	public static String getTabName(String sql){
 		int from = sql.toLowerCase().indexOf(" from ");
@@ -164,36 +164,27 @@ public class SqlDB{
 		}
 		String col = sql.substring(6,from).trim();
 		if (col.equals("*")) {
-	        //If select * from, then check DBStruc
-	        String table = sql.substring(from+6).trim();
-	        int end = table.indexOf(' ');
-	        if(end>0){
-	            table = table.substring(0,end);
-	        }
-	        col = this.getTabCol(table, result);
+	        //If select * from, then getTabCol
+	        String table = getTabName(sql);
+	        sql = this.getSql(table, result);
+	        col = this.getTabCol(sql, result);
 		}
         return col;
 	}
 
 	//Get colName according to the table name
-	private String getTabCol(String table, Vector<String> result){
-		String sql = this.getSql(table, result);
-		//System.out.println("getTabCol : sql=" + sql);
-		//Get the colNames
+	private String getTabCol(String sql, Vector<String> result){
 		int pos1 = sql.indexOf("(");
 		if(pos1<10){
 			return null;
 		}
-		
 		//2017-6-2 GM table columns have check(...) or default(...), so use the lastIndexOf
-		//int pos2 = sql.indexOf(")");
 		int pos2 = sql.lastIndexOf(")");
 		if(pos2<pos1){
 			return null;
 		}
-		
+
 		sql=sql.substring(pos1+1,pos2);
-		
 		String[] cols=sql.split(",");
 		result.clear();
 		int pk_start = 1000;
