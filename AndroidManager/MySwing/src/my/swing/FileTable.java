@@ -55,13 +55,13 @@ public class FileTable extends JTable {
 		this.setShowGrid(true);
 		this.setGridColor(Color.black);
 
-		if (mLocalMode) {
-			mPath = MyProp.getProp(MyProp.LOG_INI, MyProp.LOCAL_PATH, "");
-		}
 		this.mFilePanel = new FilePanel(this);
 		this.addMouseListener(mMouse);
-        this.mFileMenu = new MyMenu(mMenuAct, "New Folder", "New File",
-                "Delete", "Rename", "Change Mode", "Unzip");
+        this.mFileMenu = new MyMenu(mMenuAct, "New Folder", "New File", "Delete", "Rename", "Change Mode");
+        if (mLocalMode) {
+            mPath = MyProp.getProp(MyProp.LOG_INI, MyProp.LOCAL_PATH, "");
+            this.mFileMenu.addMenu("Unzip");
+        }
         this.mFileMenu.addComponent(this);
 	}
 
