@@ -297,6 +297,254 @@ insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
 insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
     values(4, 3, 6, 'Others', 1);
 
+-- Insert quiz 5 : user_type = 2 for Parent
+insert into quiz(quiz_id, quiz_name, user_type, create_time)
+    values(5, 'Autism Spectrum Screening Questionnaire (ASSQ)', 2, '2024-05-15');
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 1, 0, 'is old-fashioned or precocious', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 1, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 1, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 1, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 2, 0, 'is regarded as an eccentric-professor by the other children', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 2, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 2, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 2, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 3, 0, 'lives somewhat in a world of his/her own with restricted idiosyncratic intellectual interests', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 3, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 3, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 3, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 4, 0, 'accumulates facts on certain subjects (good rote memory) but does not really understand the meaning', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 4, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 4, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 4, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 5, 0, 'has a literal understanding of ambiguous and metaphorical language', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 5, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 5, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 5, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 6, 0, 'has a deviant style of communication with a formal, fussy, old-fashioned or robot-like language', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 6, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 6, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 6, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 7, 0, 'invents idiosyncratic words and expressions', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 7, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 7, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 7, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 8, 0, 'has a different voice or speech', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 8, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 8, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 8, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 9, 0, 'expresses sounds involuntarily; clears throat, grunts, smacks, cries or screams', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 9, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 9, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 9, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 10, 0, 'is surprisingly good at some things and surprisingly poor at others', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 10, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 10, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 10, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 11, 0, 'uses language freely but fails to make adjustment to fit social contexts or the needs of different listeners', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 11, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 11, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 11, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 12, 0, 'lacks empathy', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 12, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 12, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 12, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 13, 0, 'makes naive and embarrassing remarks', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 13, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 13, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 13, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 14, 0, 'has a deviant style of gaze', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 14, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 14, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 14, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 15, 0, 'wishes to be sociable but fails to make relationships with peers', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 15, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 15, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 15, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 16, 0, 'can be with other children but only on his/her terms', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 16, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 16, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 16, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 17, 0, 'lacks best friend', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 17, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 17, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 17, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 18, 0, 'lacks common sense', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 18, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 18, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 18, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 19, 0, 'is poor at games: no idea of cooperating in a team, scores own-goals', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 19, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 19, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 19, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 20, 0, 'has clumsy, ill coordinated, ungainly, awkward movements or gestures', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 20, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 20, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 20, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 21, 0, 'has involuntary face or body movements', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 21, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 21, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 21, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 22, 0, 'has difficulties in completing simple daily activities because of compulsory repetition of certain actions or thoughts', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 22, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 22, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 22, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 23, 0, 'has special routines: insists on no change', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 23, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 23, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 23, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 24, 0, 'shows idiosyncratic attachment to objects', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 24, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 24, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 24, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 25, 0, 'is bullied by other children', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 25, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 25, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 25, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 26, 0, 'has markedly unusual facial expression', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 26, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 26, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 26, 3, 'Yes', 0);
+
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 27, 0, 'has markedly unusual posture', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 27, 1, 'No', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 27, 2, 'Somewhat', 0);
+insert into quiz_item(quiz_id, item_id, item_row, item_content, item_type)
+    values(5, 27, 3, 'Yes', 0);
+
+
 -- Insert event
 -- event_type : 0 default, 1 music, 2 art class, 3 game
 insert into event(event_id, event_type, title, content, create_time)
