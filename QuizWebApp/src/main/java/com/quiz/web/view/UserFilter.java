@@ -51,6 +51,7 @@ public class UserFilter implements Filter {
             uri.endsWith("/sign_form.jsp") ||
             uri.endsWith("/favicon.ico") ||
             uri.endsWith(".png") ||
+            uri.endsWith(".jpg") ||
             uri.endsWith("/user")) {
             chain.doFilter(r1, r2);
         } else if (req.getAttribute(WebUtil.REQ_USER) != null){

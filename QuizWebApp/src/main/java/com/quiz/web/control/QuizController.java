@@ -130,4 +130,149 @@ public class QuizController {
         }
     }
 
+    // Insert quiz by quiz CSV file
+    public String insertQuizByCSV(String fileName) {
+        String result = WebUtil.OK;
+        try {
+            // The file name like : quiz_101.csv
+            if (fileName.startsWith("quiz_") && fileName.endsWith(".csv") && fileName.length() == 12) {
+                int quiz_id = Integer.parseInt(fileName.substring(5, 8));
+                // Check quiz result in DB
+                String sql = "select * from quiz_result where quiz_id = ? limit 1";
+                Object[] values = new Object[]{quiz_id};
+                String data = DataManager.instance().select(sql, values);
+                if (data.contains("answer")) {
+                    result = "Quiz data exist, cannot update quiz_id : " + quiz_id;
+                } else { // Read the file content in WEB-INF
+                    String content = WebUtil.readFile(WebUtil.getWebInfPath() + fileName);
+                    if (content != null) {
+                        String[] lines = content.split("\n");
+                        result = this.insertByLines(lines, quiz_id);
+                    } else {
+                        result = "Invalid quiz file content : " + fileName;
+                    }
+                }
+            } else {
+                result = "Invalid quiz file name : " + fileName;
+            }
+        } catch (Exception e) {
+            result = "insertQuizByCSV : " + e.getMessage();
+        }
+        return result;
+    }
+
+    // Create SQL scripts according to CSV file lines
+    private String insertByLines(String[] lines, int quiz_id) {
+        if (lines.length < 6) {
+            return "Invalid lines.length : " + lines.length;
+        }
+        /* The lines like below:
+quiz_id,101
+quiz_name,Autism Spectrum Screening Questionnaire (ASSQ)
+"user_type (1 Volunteer, 2 Parent, 3 Student)",2
+,
+item_id,1
+"item_type (0 single, 1 multiple, 2 text)",0
+item_question,is old-fashioned or precocious
+option 1,No
+option 2,Somewhat
+option 3,Yes
+,
+item_id,2
+"item_type (0 single, 1 multiple, 2 text)",0
+item_question,is regarded as an eccentric-professor by the other children
+option 1,No
+option 2,Somewhat
+option 3,Yes
+,
+item_id,3
+"item_type (0 single, 1 multiple, 2 text)",0
+item_question,lives somewhat in a world of his/her own with restricted idiosyncratic intellectual interests
+option 1,No
+option 2,Somewhat
+option 3,Yes
+        */
+
+        // Check quiz_id
+        if (lines[0].startsWith("quiz_id")) {
+            String quiz_str = getValueInLine(lines[1]);
+            if (!quiz_str.equals(quiz_id)) {
+                return "Invalid quiz_id value in line : " + lines[0];
+            }
+        } else {
+            return "Invalid quiz_id line : " + lines[0];
+        }
+
+        // Check quiz_name
+        String quiz_name = null;
+        if (lines[1].startsWith("quiz_name")) {
+            quiz_name = getValueInLine(lines[1]);
+            if (quiz_name.length() > 100) {
+                return "Invalid quiz_name length : " + lines[1];
+            }
+        } else {
+            return "Invalid quiz_name line : " + lines[1];
+        }
+
+        // Check user_type
+        String user_type = null;
+        if (lines[2].startsWith("\"user_type")) {
+            user_type = getValueInLine(lines[2]);
+            if (!user_type.equals("1") && !user_type.equals("2") && !user_type.equals("3")) {
+                return "Invalid user_type value in line : " + lines[2];
+            }
+        } else {
+            return "Invalid user_type line : " + lines[2];
+        }
+
+        // Create SQL
+        String time = "";
+        StringBuilder sql = new StringBuilder(lines.length * 20);
+        sql.append("delete from quiz_item where quiz_id = ").append(quiz_id).append(";\n");
+        sql.append("delete from quiz where quiz_id = ").append(quiz_id).append(";\n");
+        sql.append("insert into quiz(quiz_id, quiz_name, user_type, create_time) ");
+        sql.append("values(").append(quiz_id).append(",\"").append(quiz_name).append("\",");
+        sql.append(user_type).append(",\"").append(time).append("\");\n");
+
+        // Create items SQL
+        int item_id = 1;
+        String value = null;
+        for (String line : lines) {
+            if (line.startsWith("item_id")) {
+                value = getValueInLine("item_id");
+                if (value.equals(item_id)) {
+                }
+            }
+        }
+        return WebUtil.OK;
+    }
+
+    // Get the 2nd value in CSV line
+    private String getValueInLine(String line) {
+        String value = null;
+        if (line.startsWith("\"")) {
+            // For example : "user_type (1 Volunteer, 2 Parent, 3 Student)",2
+            int p = line.indexOf("\",");
+            if (p > 0) {
+                value = line.substring(p + 2).trim();
+            }
+        } else {
+            // For example : quiz_id,101
+            int p = line.indexOf(",");
+            if (p > 0) {
+                value = line.substring(p + 1);
+                if (value.startsWith("\"") && value.endsWith("\"")) {
+                    value = value.substring(1, value.length() - 1).trim();
+                }
+            }
+        }
+        if (value == null) {
+            throw new RuntimeException("Can't get value  in line : " + line);
+        }
+        if (value.contains("\"")) {
+            throw new RuntimeException("Can't contain \" in line : " + line);
+        }
+        return value;
+    }
+
 }

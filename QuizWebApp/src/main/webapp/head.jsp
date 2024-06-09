@@ -23,7 +23,7 @@
 
 <style>
   body {
-    background-image: url("https://raw.githubusercontent.com/zoujinde/zoujinde.github.io/main/home.png");
+    background-image: url("purple.jpg");
     background-size: cover;
   }
 
