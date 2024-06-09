@@ -288,16 +288,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"QuizApp/Preview Content\"";
-				DEVELOPMENT_TEAM = 577M9ZJHCL;
+				DEVELOPMENT_TEAM = 8P4A2R2VD6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = QuizApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Purple Sense";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.quiz.QuizApp;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.purple-sense.QuizApp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -308,16 +310,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"QuizApp/Preview Content\"";
-				DEVELOPMENT_TEAM = 577M9ZJHCL;
+				DEVELOPMENT_TEAM = 8P4A2R2VD6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = QuizApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Purple Sense";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.quiz.QuizApp;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.purple-sense.QuizApp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
