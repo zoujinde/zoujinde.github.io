@@ -2,6 +2,8 @@
 CREATE DATABASE quiz;
 USE quiz;
 
+SET SQL_MODE='ALLOW_INVALID_DATES';
+
 -- User table
 -- user_type  : 0 Admin,  1 Volunteer, 2 Parents, 3 Participant
 -- birth_year : Only for participant
