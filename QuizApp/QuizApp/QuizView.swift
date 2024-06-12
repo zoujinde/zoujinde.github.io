@@ -59,20 +59,43 @@ class Delegate : NSObject, WKUIDelegate{
     // show js alert
     func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage msg: String,
                  initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
-        showDialog(msg: msg, handler: completionHandler)
+        showDialog(msg: msg, msgHandler: completionHandler)
     }
 
-    // show dialog
-    func showDialog(msg: String, handler: @escaping () -> Void) {
+    // show dialog : only has the close button
+    func showDialog(msg: String, msgHandler: @escaping () -> Void) {
         if let rootVC = UIApplication.shared.keyWindow?.rootViewController {
             let alert = UIAlertController.init(title: "", message: msg, preferredStyle: .alert)
             let action = UIAlertAction.init(title: "close", style: .default) { (action) in
-                handler()
+                msgHandler()
             }
             alert.addAction(action)
             //self.present(alert, animated: true, completion: nil)
             rootVC.present(alert, animated: true)
         }
+    }
+
+    // show Yes or No dialog
+    func showYesOrNo(msg: String, msgHandler: @escaping (Bool) -> Void) {
+        if let rootVC = UIApplication.shared.keyWindow?.rootViewController {
+            let dialog = UIAlertController(title: "", message: msg, preferredStyle: .alert)
+            let noAction = UIAlertAction(title: "No", style: .cancel) { _ in
+                msgHandler(false)
+            }
+            let okAction = UIAlertAction(title: "Yes", style: .default) { _ in
+                msgHandler(true)
+            }
+            dialog.addAction(noAction)
+            dialog.addAction(okAction)
+            //self.present(dialog, animated: true, completion: nil)
+            rootVC.present(dialog, animated: true)
+        }
+    }
+
+    // show JS confirm dialog
+    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String,
+                 initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        showYesOrNo(msg: message, msgHandler: completionHandler)
     }
 
 }
