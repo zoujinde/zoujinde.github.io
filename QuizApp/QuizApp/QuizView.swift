@@ -46,7 +46,9 @@ struct QuizView: UIViewRepresentable {
                     // USE `weakSelf?` INSTEAD OF `self` to avoid build error
                     let request = URLRequest(url:url)
                     //UIApplication.shared.open(url, options:[:], completionHandler:(nil))
-                    self.mWKWebView.load(request)
+                    DispatchQueue.main.async {
+                        mWKWebView.load(request)
+                    }
                 }
             }
         }
