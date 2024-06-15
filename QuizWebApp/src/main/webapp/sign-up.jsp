@@ -39,7 +39,8 @@
   <input name="phone2" maxlength="3" style="width:100px;"/><label style="width:1px;">-</label>
   <input name="phone3" maxlength="5" style="width:150px;"/><br>
   <br>
-  <input type="button" onclick="save()" value="Save" style="width:910px;"/>
+  <input type="button" onclick="save()" value="Save" style="width:600px;"/>
+  <input type="button" onclick="deleteCurrentUser()" value="Delete" style="width:280px;"/>
   <hr style="font-size:1px;">
   <label id="result" style="width:910px;"/>
 </form>
@@ -260,7 +261,7 @@
       var row = button.parentNode.parentNode;
       var index = row.rowIndex;
       var user_id = row.alt;
-      if (confirm("Would you delete the student data?")) {
+      if (confirm("Would you like to delete the student data?")) {
         // If it is a new child data, delete it directly.
         if (user_id == "0") {
           m_table.deleteRow(index);
@@ -291,6 +292,41 @@
       if (m_http.status==200) { // 200 OK
         if (text == 'OK') {
           m_table.deleteRow(m_child_index);
+        }
+        m_result.innerText = text;
+        alert(text);
+      } else {
+        text = m_http.status + text;
+        m_result.innerText = text;
+        alert(text);
+      }
+    }
+  }
+
+  // Delete current user
+  function deleteCurrentUser() {
+    if (m_action == "modify") {
+      if (confirm("Would you like to delete the current user : " + m_user_name.value)) {
+        var json = {"act":"deleteUser", "user_id":0}; // 0 means to delete current user
+        json = JSON.stringify(json);
+        m_http.open("POST", "user", true);
+        m_http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        m_http.onreadystatechange = deleteCurrentUserResult;
+        m_http.send(json);
+      }
+    } else {
+      alert("No need to delete the unsaved user.");
+    }
+  }
+
+  // Delete current user result
+  function deleteCurrentUserResult() {
+    if (m_http.readyState==4) {
+      var text = m_http.responseText;
+      if (m_http.status==200) { // 200 OK
+        if (text == 'OK') {
+            text = "User is deleted";
+            window.location.href = "sign-up.jsp?act=create";
         }
         m_result.innerText = text;
         alert(text);

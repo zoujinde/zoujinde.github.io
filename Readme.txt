@@ -104,7 +104,7 @@ mysqld --defaults-file=..\my.ini --initialize --console
 这里就是数据库的初始密码。稍后需要更改。
 A temporary password is generated for root@localhost: -:a=ovY>!11B
 
-启动MySQL server，只需要执行mysqld即可，mysqld --console可以在控制台输出日志。
+启动MySQL server，只需要 mysqld --console可以在控制台输出日志。
 
 F:\mysql-8.0.16-winx64\bin>mysqld --console
 

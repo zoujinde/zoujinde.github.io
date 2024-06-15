@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quiz.web.model.DataManager;
+import com.quiz.web.model.DataObject;
 import com.quiz.web.model.User;
 import com.quiz.web.util.JsonUtil;
 import com.quiz.web.util.LogUtil;
@@ -341,15 +342,26 @@ public class UserController {
     }
 
     // Delete user data
-    public String deleteUser(String body, HttpServletRequest req) {
+    public String deleteUser(String body, HttpServletRequest req, HttpServletResponse resp) {
         String result = WebUtil.OK;
         /* The request body format as below: 
         {"act":"deleteUser", "user_id":123}
         */
         Integer user_id = JsonUtil.getInt(body, "user_id");
-        if (user_id == null || user_id <= 0) {
+        if (user_id == null || user_id < 0) {
             result = "Can't delete user id : " + user_id;
-        } else {
+        } else if (user_id == 0) { // Delete current user and its children
+            user_id = WebUtil.getUserId(req);
+            Object[] args = new Object[]{user_id};
+            DataObject sql1 = new DataObject("delete from user where user_id = ?", args);
+            DataObject sql2 = new DataObject("delete from user where parent_id = ?", args);
+            result = DataManager.instance().runSql(new DataObject[]{sql1, sql2});
+            if (WebUtil.OK.equals(result)) {
+                Cookie c = new Cookie(WebUtil.REQ_ID, "");
+                c.setMaxAge(0); // Clear the cookie
+                resp.addCookie(c);
+            }
+        } else { // Delete the student user
             User u = new User();
             u.user_id = user_id;
             u.setAction(WebUtil.ACT_DELETE);

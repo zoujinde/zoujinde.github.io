@@ -35,7 +35,7 @@ public class UserServlet extends HttpServlet {
         } else if (act.equals("setUser")) {
             result = UserController.instance().setUser(body, req);
         } else if (act.equals("deleteUser")) {
-            result = UserController.instance().deleteUser(body, req);
+            result = UserController.instance().deleteUser(body, req, resp);
         }
 
         // Write response
