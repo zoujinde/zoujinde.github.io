@@ -27,7 +27,7 @@ import javax.swing.table.TableColumnModel;
 public class FileTable extends JTable {
     public static int HASHCODE = 0;
     public static final String INVALID_FILE = "Invalid file or path";
-    
+
     boolean mLocalMode = true;
     private CMD mCmd = CMD.instance();
 
@@ -672,8 +672,10 @@ public class FileTable extends JTable {
         }
 
         int[] row = this.getSelectedRows();
-        if (row.length < 1 || row.length > 50) {
-            MsgDlg.showOk("The selected files count must >= 1 and <= 50");
+        if (row.length < 1 || row.length > MyTool.FILE_COUNT) {
+            String msg = "\n The selected files count = " + row.length
+                   + "\n\n The count should between 1 and " + MyTool.FILE_COUNT;
+            MsgDlg.showOk(msg);
             return null;
         }
         Vector<String[]> tmp = new Vector<String[]>();

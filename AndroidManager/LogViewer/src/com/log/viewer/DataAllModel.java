@@ -243,8 +243,8 @@ public class DataAllModel extends AbstractTableModel {
     // Read log files
     public String readLogFiles() {
         int fileCount = this.mFiles.length;
-        if (fileCount > 10) {
-            return "Only select 1 - 10 log files.";
+        if (fileCount > MyTool.FILE_COUNT) {
+            return "Read too many files : count > " + MyTool.FILE_COUNT;
         }
         String line = null;
         // 2014-1-29 Remember the list init rows
@@ -277,20 +277,21 @@ public class DataAllModel extends AbstractTableModel {
     }
 
     // Write
-    private void writeIndexFile(FileWriter writer, int file, final int offset) throws IOException {
+    private void writeIndexFile(FileWriter writer, int fileId, final int offset) throws IOException {
         int size = 0;
         int lines = 0;
         int lineStart = 0;
         String line = null;
+        char fileChar = (char)(fileId + MyTool.ASCII_A);
         // If offset = 0, read new file, should add the 1st line.
         if (offset == 0) {
             lines++;
-            line = String.format("%d%6s\n", file, Integer.toString(0, 32));
+            line = String.format("%c%6s\n", fileChar, Integer.toString(0, 32));
             writer.write(line);
         }
         // If offset > 0, refresh file, we need to update
         // the mFileLength, though this.length() is slow.
-        BufferedRandomFile reader = mFiles[file];
+        BufferedRandomFile reader = mFiles[fileId];
         long fileLength = reader.updateFileLength();
         byte[] buffer = reader.getBuffer();
         int bufferStart = offset;
@@ -305,7 +306,7 @@ public class DataAllModel extends AbstractTableModel {
                     lineStart = bufferStart + i + 1;// Set the lineStart
                     if (lineStart < fileLength) {
                         lines++;
-                        line = String.format("%d%6s\n", file, Integer.toString(lineStart, 32));
+                        line = String.format("%c%6s\n", fileChar, Integer.toString(lineStart, 32));
                         writer.write(line);
                     }
                 }

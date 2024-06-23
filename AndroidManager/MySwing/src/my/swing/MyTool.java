@@ -32,6 +32,8 @@ public class MyTool {
 	public static final Color GRAY_FOCUS = new Color(230,230,230);
 	public static final Color GRAY_RESIZE= new Color(100,100,200);
 	public static final String CASE_SENSITIVE = "Case-Sensitive";
+    public static int FILE_COUNT = 60;
+    public static char ASCII_A = 'A';
 
 	public static final int DOUBLE_CLICK = 360;
 	public static final int ROW_HEIGHT = 25;

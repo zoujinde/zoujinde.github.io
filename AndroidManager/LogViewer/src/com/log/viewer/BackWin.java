@@ -175,6 +175,7 @@ public class BackWin extends JInternalFrame {
             +"\n  // Zou Jinde (mz6h9z)      2024-02-09  Change LINE_LENGTH from 5 to 6 in IndexFileSub"
             +"\n  // Zou Jinde (mz6h9z)      2024-02-15  Add unzip function / Modify delete method"
             +"\n  // Zou Jinde (mz6h9z)      2024-03-06  Only show the unzip menu for local file table"
+            +"\n  // Zou Jinde (mz6h9z)      2024-06-22  Set the selected files count between 1 and 60"
             +"\n  //";
 
 	public BackWin(String title){

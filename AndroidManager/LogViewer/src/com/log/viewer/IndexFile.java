@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import my.swing.CMD;
+import my.swing.MyTool;
 
 public class IndexFile {
 
@@ -22,7 +23,7 @@ public class IndexFile {
     // end \n : 1
 	private static final int LINE_LENGTH = 8;
 	private static final int TIME_LENGTH = 18;
-    public static final int TRIM_LENGTH = LINE_LENGTH - 1;
+	private static final int TRIM_LENGTH = LINE_LENGTH - 1;
 
 	// Constructor
 	public IndexFile(String file) {
@@ -119,7 +120,7 @@ public class IndexFile {
     public int getFileId(String line) {
         int id = -1;
         if (line != null && line.length() == TRIM_LENGTH) {
-            id =  IndexFile.parseInt32(line.substring(0, 1));
+            id =  line.charAt(0) - MyTool.ASCII_A;
         }
         return id;
     }

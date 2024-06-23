@@ -216,8 +216,8 @@ public class MainWin extends JFrame {
 
     // AWT FileDialog
     public static void openLogFile(File[] files, LogcatDlg logcatDlg) {
-        if (files.length > 10) {
-            MsgDlg.showOk("Only select 1 - 10 log files.");
+        if (files.length > MyTool.FILE_COUNT) {
+            MsgDlg.showOk("Open too many files : count > " + MyTool.FILE_COUNT);
             return;
         }
         String title = MyTool.getUpDir(files[0].getAbsolutePath());
