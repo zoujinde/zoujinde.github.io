@@ -255,9 +255,8 @@
     if(httpRequest.readyState==4) {
       var text = httpRequest.responseText.trim();
       if(httpRequest.status==200) { // 200 OK
-        result.innerText = text;
-        alert(text);
-        submit.style.visibility = "hidden";
+        alert("Save result : " + text);
+        window.location.href = "quiz_main.jsp";
       } else {
         text = httpRequest.status + text;
         result.innerText = text;

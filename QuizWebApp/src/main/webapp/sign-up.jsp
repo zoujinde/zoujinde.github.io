@@ -144,16 +144,16 @@
   // Save data
   function save() {
     // Check the data
+    if (m_user_name.value.includes(" ")) {
+      alert("User name can't include space");
+      return;
+    }
     if (m_user_name.value.trim().length < 6) {
-      var text = "Please input the user name. (length>=6)";
-      m_result.innerText = text;
-      alert(text);
+      alert("User name length should >= 6");
       return;
     }
     if (m_password.value.trim().length < 6) {
-      var text = "Please input the password. (length>=6)";
-      m_result.innerText = text;
-      alert(text);
+      alert("Password length should >= 6");
       return;
     }
     var data = new FormData(document.getElementById("form"));
@@ -180,8 +180,12 @@
           var name = child_name[i].value.trim();
           var pass = child_pass[i].value.trim();
           var user_id = child_name[i].parentNode.parentNode.alt;
+          if (name.includes(" ")) {
+            alert("Student name can't include space");
+            return;
+          }
           if (name.length < 6 || pass.length < 6) {
-            alert("Please input child name and password : length >= 6");
+            alert("Student name and password length should >= 6");
             return;
           }
           request["users"][i + 1] = {"user_id":user_id, "user_type":3, "user_name":name, "password":pass};
