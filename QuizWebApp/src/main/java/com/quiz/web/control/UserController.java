@@ -99,10 +99,8 @@ public class UserController {
 
         String result = WebUtil.OK;
         try {
-            int userId = JsonUtil.getInt(body, "user_id");
-            if (userId == 0) { // Get current user data
-                userId = WebUtil.getUserId(req);
-            }
+            // Get current user data
+            int userId = WebUtil.getUserId(req);
             DataManager dm = DataManager.instance();
             String sql = "select * from user where user_id = ?";
             Object[] values = new Object[]{userId};
